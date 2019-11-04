@@ -333,7 +333,7 @@ class StoreProductionController extends Controller
     $batch_no_string .='</select>';
     $searchHTML['batch_no'] = $batch_no_string;
 
-    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
+    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
         foreach ($materialIds as $mval) {
         $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
         }
