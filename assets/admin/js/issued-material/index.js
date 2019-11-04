@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    var action = ADMINURL+'/materials/getRecords'; 
+    var action = ADMINURL+'/rms-store/getRecords'; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -16,22 +16,21 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "name" :  $('#name').val(),
-                    "total_qty" : $('#total-qty').val(),
+                    "product_code" :  $('#product-code').val(),
+                    "batch_card_no" : $('#batch-card-no').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "name"},
-            { "data": "total_qty"},
-            { "data": "price_per_unit"},
-            { "data": "trigger_qty"},
+            { "data": "product_code"},
+            { "data": "batch_card_no"},
+            { "data": "batch_qty"},            
             { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,7] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -112,8 +111,8 @@ function doSearch(element)
 function removeSearch(element)
 { 
 
-  $('#name').val(''),
-  $('#total-qty').val(''),
+  $('#product-code').val(''),
+  $('#batch-card-no').val(''),
   $('#listingTable').DataTable().draw();
 }
 
@@ -124,7 +123,7 @@ function deleteCollections(element)
 
    if ($members.length == 0) 
    {
-      swal("Error",'Please select atleast one material.','error');
+      swal("Error",'Please select atleast one record.','error');
       return false; 
    }
    else
@@ -136,7 +135,7 @@ function deleteCollections(element)
             arrEncId.push($(this).val());            
       })
 		console.log(arrEncId);
-      action = ADMINURL+'/materials/bulkDelete';
+      action = ADMINURL+'/rms-store/bulkDelete';
 
       swal({
           title: "Are you sure !!",
@@ -173,4 +172,3 @@ function deleteCollections(element)
         });
    } 
 }
-

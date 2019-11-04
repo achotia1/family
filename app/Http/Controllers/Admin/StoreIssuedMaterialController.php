@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 // models
+use App\Models\StoreIssuedMaterialModel;
 use App\Models\StoreRawMaterialModel;
 
 use App\Http\Requests\Admin\StoreRawMaterialRequest;
 use App\Traits\GeneralTrait;
 
-class StoreRawMaterialController extends Controller
+class StoreIssuedMaterialController extends Controller
 {
 
     private $BaseModel;
@@ -19,17 +20,17 @@ class StoreRawMaterialController extends Controller
 
     public function __construct(
 
-        StoreRawMaterialModel $StoreRawMaterialModel
+        StoreIssuedMaterialModel $StoreIssuedMaterialModel
     )
     {
-        $this->BaseModel  = $StoreRawMaterialModel;
+        $this->BaseModel  = $StoreIssuedMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
 
-        $this->ModuleTitle = 'Raw Material';
-        $this->ModuleView  = 'admin.materials.';
-        $this->ModulePath = 'admin.materials.';
+        $this->ModuleTitle = 'Issued Material';
+        $this->ModuleView  = 'admin.store-issued-material.';
+        $this->ModulePath = 'admin.sales.';
 
         /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
     }
@@ -53,6 +54,10 @@ class StoreRawMaterialController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
+        
+        $objMaterial = new StoreRawMaterialModel();
+        $materialIds = $objMaterial->getMaterialNumbers();
+        $this->ViewData['materialIds']   = $materialIds;
         // dd('test',$this->ModulePath);
         // view file with data
         return view($this->ModuleView.'create', $this->ViewData);
@@ -300,11 +305,11 @@ class StoreRawMaterialController extends Controller
                 $data[$key]['price_per_unit']  =  $row->price_per_unit;
                 $data[$key]['trigger_qty']  =  $row->trigger_qty;
 
-               /* $data[$key]['opening_stock']  =  $row->opening_stock;
+                $data[$key]['opening_stock']  =  $row->opening_stock;
                 $data[$key]['received_qty']  =  0;
                 $data[$key]['issued_qty']  =  0;
                 $data[$key]['return_qty']  =  0;
-                $data[$key]['balance_stock']  =  0;*/
+                $data[$key]['balance_stock']  =  0;
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';

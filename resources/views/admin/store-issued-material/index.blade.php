@@ -13,7 +13,7 @@
     <div class="box">
         
         <div class="box-header align-right">           
-            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Raw Material</a>            
+            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Batch</a>            
             <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
         </div>
         
@@ -23,19 +23,11 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th>Material</th>
-                        <th class="w-100-px">Total Quantity</th>
-                        <th class="w-100-px">Price Per Unit</th>
-                        <th class="w-100-px">Trigger Quantity</th>
+                        <th>Product Code</th>
+                        <th class="w-100-px">Batch Card Number</th>
+                        <th class="w-100-px">Batch Quantity</th>
                         <th class="w-100-px">Status</th>                        
-                        <th class="w-180-px">Actions</th>
-                        
-                        <!--<th class="w-100-px">Opening Stock</th>
-                        <th class="w-100-px">Received Quantity</th>
-                        <th class="w-100-px">Issued Quantity</th>
-                        <th class="w-100-px">Return Quantity</th>
-                        <th class="w-100-px">Balance Quantity</th>
-                        <th class="w-100-px">MOQ</th>-->                        
+                        <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>
                 <tbody>
@@ -47,6 +39,6 @@
 @endsection
 @section('scripts')
 
-<script type="text/javascript" src="{{ url('assets/admin/js/materials/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('assets/admin/js/rms-store/index.js') }}"></script>
 
 @endsection

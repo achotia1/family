@@ -119,6 +119,14 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);
 				/*});*/
 
+				// Sales
+				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
+				{*/
+					//Route::get('/sales/getRecords',  'StoreProductionController@getRecords');
+					//Route::post('/sales/bulkDelete',  'StoreProductionController@bulkDelete');
+					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);
+				/*});*/
+
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');
 				Route::post('/customers/update/{encodedCustomerId}',  'CustomersController@updateCustomerProfile')->name('admin.customers.updateCustomerProfile');
 

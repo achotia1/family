@@ -96,6 +96,7 @@ class AuthController extends Controller
 
         public function checkLogin(LoginRequest $request,$enCompanyId=false)
         {
+             //dd($request);
              // dump(app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions());
             // dd('p',$enCompanyId);
             $this->JsonData['status'] = 'error';
