@@ -13,7 +13,7 @@ class StoreRawMaterialModel extends Model
 
     protected $fillable = [
 		'name',
-        'total_qty',
+        'moq',
         'unit',
         'price_per_unit',
         'total_price',

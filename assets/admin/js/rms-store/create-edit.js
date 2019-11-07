@@ -1,12 +1,7 @@
 $(document).ready(function () 
 {
     // adding focus event to first field    
-     $('#product_code').focus();
-    /*$('.datepicker').datepicker({
-      autoclose: true,
-      format: 'dd-mm-yyyy',
-      // startDate: new Date()
-    })*/
+    //$('#product_code').focus();  
     
 })
 

@@ -1,13 +1,15 @@
 $(document).ready(function () 
 {
-    // adding focus event to first field    
-    //$('#product_code').focus();
-    
+    $('.datepicker').datepicker({
+      autoclose: true,
+      format: 'dd-mm-yyyy',
+      // startDate: new Date()
+    })
     
 })
 
 // submitting form after validation
-$('#productionForm').validator().on('submit', function (e) 
+$('#returnForm').validator().on('submit', function (e) 
 {
     if (!e.isDefaultPrevented()) {
 

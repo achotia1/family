@@ -73,7 +73,7 @@
         
         <li class="treeview {{ active(['admin/materials', 'admin/materials/*']) }}">
           <a href="#">
-            <i class="fa fa-user-secret"></i>
+            <i class="fa fa-list-alt"></i>
             <span>Manage Raw Material</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -97,7 +97,7 @@
         
         <li class="treeview {{ active(['admin/rms-store', 'admin/rms-store/*']) }}">
           <a href="#">
-            <i class="fa fa-user-secret"></i>
+            <i class="fa fa-user-plus"></i>
             <span>Manage Batches</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -140,6 +140,54 @@
         </li>
         <!-- end production -->
 
+        <!-- sales -->
+        <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
+          <a href="#">
+            <i class="fa fa-user-secret"></i>
+            <span>Manage Issued Material</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+           
+            <li class="{{ active('admin/sales') }}">
+              <a href="{{ route('admin.sales.index') }}"><i class="fa fa-hand-o-right"></i> View Issued Material</a>
+            </li>
+           
+           
+            <li class="{{ active('admin/sales/create') }}">
+              <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add Issued Material</a>
+            </li>
+           
+          </ul>
+        </li>
+        <!-- end sales -->
+		
+		<!-- return material -->
+        <li class="treeview {{ active(['admin/return', 'admin/return/*']) }}">
+          <a href="#">
+            <i class="fa fa-user-secret"></i>
+            <span>Manage Returned Material</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+           
+            <li class="{{ active('admin/return') }}">
+              <a href="{{ route('admin.return.index') }}"><i class="fa fa-hand-o-right"></i> View Returned Material</a>
+            </li>
+           
+           
+            <li class="{{ active('admin/return/create') }}">
+              <a href="{{ route('admin.return.create') }}"><i class="fa fa-hand-o-right"></i> Add Returned Material</a>
+            </li>
+           
+          </ul>
+        </li>
+        <!-- end sales -->
+        
         <!-- Manage Reports -->
         @can('manage-reports')
         <li class="treeview {{ active(['admin/report', 'admin/report/*']) }}">

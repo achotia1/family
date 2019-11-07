@@ -21,13 +21,13 @@ class StoreBatchCardRequest extends FormRequest
            return [                
                 'product_code'     => 'required',
                 'batch_card_no'     => 'required|unique:store_batch_cards,batch_card_no',
-                'batch_qty'     => 'required',                
+                'batch_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];
         }else{
              return [                
                 'product_code'     => 'required',
                 'batch_card_no'     => 'required|unique:store_batch_cards,batch_card_no,'.$id,
-                'batch_qty'     => 'required',                
+                'batch_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',     
             ];
         }            
      
@@ -35,13 +35,11 @@ class StoreBatchCardRequest extends FormRequest
 
     public function messages()
     {
-        return [
-
-            // 'name.required'    => 'Name field is required.',            
-            // 'name.regex'       => 'Name field should be in latter\'s and number\'s only.',            
+        return [           
             'product_code.required'    => 'Product Code field is required.',
             'batch_card_no.required'    => 'Batch Card Number field is required.', 
             'batch_qty.required'    => 'Batch Quantity field is required.',
+            'batch_qty.regex'    => 'Batch Quantity should be correct.',
         ];
     }
 }

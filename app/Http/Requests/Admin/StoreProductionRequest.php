@@ -21,15 +21,13 @@ class StoreProductionRequest extends FormRequest
            return [                
                 'batch_no'     => 'required',
                 'material_id'     => 'required',
-                'quantity'     => 'required',
-                'unit'     => 'required',               
+                'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',                         
             ];
         }else{
              return [                
                 'batch_no'     => 'required',
                 'material_id'     => 'required',
-                'quantity'     => 'required',
-                'unit'     => 'required',                
+                'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',                      
             ];
         }            
      
@@ -39,10 +37,10 @@ class StoreProductionRequest extends FormRequest
     {
         return [
 
-            'batch_no.required'    => 'Product Code field is required.',
-            'material_id.required'    => 'Batch Card Number field is required.', 
+            'batch_no.required'    => 'Batch Card Number field is required.',
+            'material_id.required'    => 'Material field is required.', 
             'quantity.required'    => 'Batch Quantity field is required.',
-            'quantity.required'    => 'Batch Quantity field is required.',
+            'quantity.regex'    => 'Quantity should be correct.',        
         ];
     }
 }

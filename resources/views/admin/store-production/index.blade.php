@@ -25,8 +25,7 @@
                         <th class="w-90-px">Select</th>
                         <th>Batch Number</th>
                         <th class="w-100-px">Material</th>
-                        <th class="w-100-px">Quantity</th>
-                        <th class="w-100-px">Unit</th>
+                        <th class="w-100-px">Quantity</th>                        
                         <th class="w-100-px">Status</th>                       
                         <th class="w-180-px">Actions</th>                        
                     </tr>

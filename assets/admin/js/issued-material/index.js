@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    var action = ADMINURL+'/rms-store/getRecords'; 
+    var action = ADMINURL+'/sales/getRecords'; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -16,21 +16,27 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "product_code" :  $('#product-code').val(),
-                    "batch_card_no" : $('#batch-card-no').val(),
+                    "item_code" : $('#item-code').val(),
+                    "material_id" : $('#material-id').val(),
+                    "product_name" : $('#product-name').val(),
+                    "quantity" :  $('#quantity').val(),
+                    "bill_number" :  $('#bill-number').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "product_code"},
-            { "data": "batch_card_no"},
-            { "data": "batch_qty"},            
+            { "data": "issue_date"},
+            { "data": "item_code"},
+            { "data": "name"},
+            { "data": "product_name"},
+            { "data": "quantity"},
+            { "data": "bill_number"},            
             { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,9] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -111,8 +117,11 @@ function doSearch(element)
 function removeSearch(element)
 { 
 
-  $('#product-code').val(''),
-  $('#batch-card-no').val(''),
+  $('#material-id').val(''),
+  $('#item-code').val(''),  
+  $('#product-name').val(''),
+  $('#quantity').val(''),
+  $('#bill-number').val(''),
   $('#listingTable').DataTable().draw();
 }
 
@@ -135,7 +144,7 @@ function deleteCollections(element)
             arrEncId.push($(this).val());            
       })
 		console.log(arrEncId);
-      action = ADMINURL+'/rms-store/bulkDelete';
+      action = ADMINURL+'/sales/bulkDelete';
 
       swal({
           title: "Are you sure !!",

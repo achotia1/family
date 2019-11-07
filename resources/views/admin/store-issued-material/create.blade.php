@@ -11,23 +11,37 @@
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
             </div>
-            
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue"> 
-                Raw Material <span class="required">*</span></label>
-                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Material Number field is required.">                    
-					<option value="">Select Material</option>
-					@foreach($materialIds as $val){
-					<option value="{{$val['id']}}">{{$val['name']}}</option>
-					@endforeach
-				</select>               
+                Batch Code <span class="required">*</span></label>
+                <select class="form-control my-select" id="batch_no" name="batch_no" required="" data-error="Batch Code field is required.">                    
+                    <option value="">Select Batch</option>
+                    @foreach($batchNos as $val){
+                    <option value="{{$val['id']}}">{{$val['batch_card_no']}}</option>
+                    @endforeach
+                </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_product_code"></li>
+                        <li class="err_batch_no"></li>
                     </ul>
                 </span>
             </div>
-            <div class="form-group">
+            <div class="form-group col-md-6">
+                <label class="theme-blue"> 
+                Raw Material <span class="required">*</span></label>
+                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Material Number field is required.">                    
+                    <option value="">Select Material</option>
+                    @foreach($materialIds as $val){
+                    <option value="{{$val['id']}}">{{$val['name']}}</option>
+                    @endforeach
+                </select>               
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_material_id"></li>
+                    </ul>
+                </span>
+            </div>
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Quantity
                     <span class="required">*</span></label>
                 <input 
@@ -45,9 +59,9 @@
                     </ul>
                 </span>
             </div>
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Bill Number
-                	<span class="required">*</span></label>
+                    <span class="required">*</span></label>
                 <input 
                     type="text" 
                     name="bill_number"                    
@@ -62,16 +76,17 @@
                 </span>
             </div>
             
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Date
-                	<span class="required">*</span></label>
+                    <span class="required">*</span></label>
                 <div class="input-group date datepicker" data-date-format="yyyy-mm-dd">
                 <input 
                     type="text" 
-                    name="issue_date"                    
+                    name="issue_date"
+                    id="issue_date"                   
                     class="form-control acc_depreciation" 
                     required
-                    readonly                                    
+                                                        
                     data-error="Date field is required." 
                 >
                 <span class="input-group-addon">
@@ -85,7 +100,7 @@
                 </span>
             </div>         
                                             
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -95,8 +110,10 @@
                 </div>  
             </div>
             <div class="box-footer">
+                <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>
                 <button type="submit" class="btn btn-success pull-right">Save</button>
+                </div>
             </div>
         </form>
         </div>
@@ -105,6 +122,6 @@
 
 @endsection
 @section('scripts')
-	<script type="text/javascript" src="{{ url('assets/admin/js/issued-material/create-edit.js') }}"></script>
-	    
+    <script type="text/javascript" src="{{ url('assets/admin/js/issued-material/create-edit.js') }}"></script>
+        
 @endsection

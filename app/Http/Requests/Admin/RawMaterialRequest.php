@@ -4,7 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRawMaterialRequest extends FormRequest
+class RawMaterialRequest extends FormRequest
 {
 
     public function authorize()
@@ -19,12 +19,12 @@ class StoreRawMaterialRequest extends FormRequest
         $id = base64_decode(base64_decode($this->route('material'))) ?? null;   
         if ($id == null) 
         {
-           return [                 
+           return [           		
                 'name'     => 'required|unique:store_raw_materials,name',       
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,2})?$/u',
                 'opening_stock'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'balance_stock'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'moq'     => 'nullable|regex:/^\d+(\.\d{0,4})?$/u',
+                'moq'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'trigger_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',                
             ];
         }else{
@@ -33,7 +33,7 @@ class StoreRawMaterialRequest extends FormRequest
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,2})?$/u',
                 'opening_stock'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'balance_stock'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'moq'     => 'nullable|regex:/^\d+(\.\d{0,4})?$/u',
+                'moq'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'trigger_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',              
             ];
         }     
@@ -49,7 +49,7 @@ class StoreRawMaterialRequest extends FormRequest
             'opening_stock.regex'    => 'Opening Stock should be correct.',
             'balance_stock.required'    => 'Balance Stock field is required.',
             'balance_stock.regex'    => 'Balance Stock should be correct.',
-            //'moq.required'    => 'Material Order Quantity field is required.',
+            'moq.required'    => 'Material Order Quantity field is required.',
             'moq.regex'    => 'Material Order Quantity should be correct.',   
             'trigger_qty.required'    => 'Trigger Quantity field is required.',
             'trigger_qty.regex'    => 'Trigger Quantity should be correct.',

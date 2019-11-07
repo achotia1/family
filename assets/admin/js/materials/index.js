@@ -17,7 +17,7 @@ $(document).ready(function()
             {
                 object.custom = {
                     "name" :  $('#name').val(),
-                    "total_qty" : $('#total-qty').val(),
+                    "balance_stock" : $('#balance-stock').val(),
                 }
             }
         },
@@ -25,8 +25,8 @@ $(document).ready(function()
             { "data": "id",  "visible": false, },
             { "data": "select"},
             { "data": "name"},
-            { "data": "total_qty"},
-            { "data": "price_per_unit"},
+            { "data": "balance_stock"},
+            { "data": "moq"},
             { "data": "trigger_qty"},
             { "data": "status"},
             { "data": "actions"}
@@ -113,7 +113,7 @@ function removeSearch(element)
 { 
 
   $('#name').val(''),
-  $('#total-qty').val(''),
+  $('#balance-stock').val(''),
   $('#listingTable').DataTable().draw();
 }
 

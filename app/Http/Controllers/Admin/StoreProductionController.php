@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 
-// models
+## MODELS
 use App\Models\StoreProductionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreRawMaterialModel;
@@ -34,6 +34,7 @@ class StoreProductionController extends Controller
         $this->ModuleView  = 'admin.store-production.';
         $this->ModulePath = 'admin.production.';
 
+        ## PERMISSION MIDDELWARE
        /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
         $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
     }
@@ -41,18 +42,18 @@ class StoreProductionController extends Controller
 
     public function index()
     {
-         // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;        
 
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
     }
 
     public function create()
     {
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
@@ -70,7 +71,7 @@ class StoreProductionController extends Controller
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
         //dd($arrBatchNos);
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
 
@@ -100,7 +101,7 @@ class StoreProductionController extends Controller
 
     public function edit($encID)
     {
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
@@ -115,10 +116,10 @@ class StoreProductionController extends Controller
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
 
-        // All data
+        ## ALL DATA
         $this->ViewData['production'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
 
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
@@ -160,9 +161,9 @@ class StoreProductionController extends Controller
         $collection->batch_no        = $request->batch_no;
         $collection->material_id   = $request->material_id;
         $collection->quantity             = $request->quantity;
-        $collection->unit             = $request->unit;        
+        $collection->unit             = '';        
         $collection->status             = !empty($request->status) ? 1 : 0;
-        //Save data
+        ## SAVE DATA
         $collection->save();
         
         return $collection;
@@ -172,46 +173,45 @@ class StoreProductionController extends Controller
     {
 		//dd($request->all());
         /*--------------------------------------
-        |  Variables
+        |  VARIABLES
         ------------------------------*/
 
-        // skip and limit
+        ## SKIP AND LIMIT
         $start = $request->start;
         $length = $request->length;
 
-            // serach value
+        ## SEARCH VALUE
         $search = $request->search['value']; 
 
-            // order
+        ## ORDER
         $column = $request->order[0]['column'];
         $dir = $request->order[0]['dir'];
 
-            // filter columns
+        ## FILTER COLUMNS
         $filter = array(
             0 => 'store_productions.id',
             1 => 'store_productions.id',
             2 => 'store_productions.batch_no',
             3 => 'store_productions.material_id',
-            4 => 'store_productions.quantity',
-            5 => 'store_productions.unit',
-            6 => 'store_productions.status    ',           
+            4 => 'store_productions.quantity',            
+            5 => 'store_productions.status    ',           
         );
 
         /*--------------------------------------
-        |  Model query and filter
+        |  MODEL QUERY AND FILTER
         ------------------------------*/
 
-        // start model query        
+        ## START MODEL QUERY 
         $modelQuery =  $this->BaseModel        
         ->selectRaw('store_productions.id, store_productions.batch_no, store_productions.material_id, store_productions.quantity,store_productions.unit, store_productions.status, store_batch_cards.batch_card_no, store_raw_materials.name')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_no')
         ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_productions.material_id');
-        // get total count 
+        ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
 
         //dd($request->custom);
-        // filter options
+        ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
         {
@@ -252,11 +252,11 @@ class StoreProductionController extends Controller
             }
         }
 
-            // get total filtered
+        ## GET TOTAL FILTER
         $filteredQuery = clone($modelQuery);            
         $totalFiltered  = $filteredQuery->count();
 
-            // offset and limit
+        ## OFFSET AND LIMIT
         if(empty($column))
         {   
             $modelQuery = $modelQuery->orderBy('store_productions.status', 'ASC'); 
@@ -271,8 +271,7 @@ class StoreProductionController extends Controller
         ->get(['store_productions.id', 
             'store_productions.batch_no', 
             'store_productions.material_id', 
-            'store_productions.quantity',
-            'store_productions.unit',
+            'store_productions.quantity',            
             'store_productions.status',
             'store_batch_cards.batch_card_no',
             'store_raw_materials.name',         
@@ -280,7 +279,7 @@ class StoreProductionController extends Controller
 
         //dd($object);
         /*--------------------------------------
-        |  data binding
+        |  DATA BINDING
         ------------------------------*/
 
         $data = [];
@@ -296,10 +295,9 @@ class StoreProductionController extends Controller
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_productions[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
                 $data[$key]['batch_no']  = $row->batch_card_no;
-
                 $data[$key]['material_id']  =  $row->name;
                 $data[$key]['quantity']  =  $row->quantity;
-                $data[$key]['unit']  =  $row->unit;
+                
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
                 }elseif($row->status==0) {
@@ -316,13 +314,13 @@ class StoreProductionController extends Controller
 
          }
      }
-    $objStore = new StoreBatchCardModel();
+    $objStore = new StoreBatchCardModel;
     $batchNos = $objStore->getBatchNumbers();
 
-    $objMaterial = new StoreRawMaterialModel();
+    $objMaterial = new StoreRawMaterialModel;
     $materialIds = $objMaterial->getMaterialNumbers();
 
-    // search html
+    ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
      
@@ -340,8 +338,7 @@ class StoreProductionController extends Controller
     $material_id_string .='</select>';
     $searchHTML['batch_no'] = $batch_no_string;
     $searchHTML['material_id'] = $material_id_string;
-    $searchHTML['quantity']     =  '';
-    $searchHTML['unit']   =  '';     
+    $searchHTML['quantity']     =  '';    
     $searchHTML['status']   =  '';
 
     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';    
@@ -349,7 +346,7 @@ class StoreProductionController extends Controller
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
 
-        // wrapping up
+    ## WRAPPING UP
     $this->JsonData['draw']             = intval($request->draw);
     $this->JsonData['recordsTotal']     = intval($totalData);
     $this->JsonData['recordsFiltered']  = intval($totalFiltered);

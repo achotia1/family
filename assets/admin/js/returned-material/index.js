@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    var action = ADMINURL+'/production/getRecords'; 
+    var action = ADMINURL+'/return/getRecords'; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -16,21 +16,27 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "batch_no" :  $('#batch-no').val(),
+                    "item_code" : $('#item-code').val(),
                     "material_id" : $('#material-id').val(),
+                    "product_name" : $('#product-name').val(),
+                    "quantity" :  $('#quantity').val(),
+                    "bill_number" :  $('#bill-number').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "batch_no"},
-            { "data": "material_id"},
-            { "data": "quantity"},                                   
+            { "data": "return_date"},
+            { "data": "item_code"},
+            { "data": "name"},
+            { "data": "product_name"},
+            { "data": "quantity"},
+            { "data": "bill_number"},            
             { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,9] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -111,8 +117,11 @@ function doSearch(element)
 function removeSearch(element)
 { 
 
-  $('#batch-no').val(''),
   $('#material-id').val(''),
+  $('#item-code').val(''),
+  $('#product-name').val(''),
+  $('#quantity').val(''),
+  $('#bill-number').val(''),
   $('#listingTable').DataTable().draw();
 }
 
@@ -135,7 +144,7 @@ function deleteCollections(element)
             arrEncId.push($(this).val());            
       })
 		console.log(arrEncId);
-      action = ADMINURL+'/production/bulkDelete';
+      action = ADMINURL+'/return/bulkDelete';
 
       swal({
           title: "Are you sure !!",

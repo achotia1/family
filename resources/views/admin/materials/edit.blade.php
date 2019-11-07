@@ -13,13 +13,13 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
             </div>
             
-            <div class="form-group">
+            <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Material Name <span class="required">*</span></label>
                 <input 
                     type="text" 
                     name="name"
-                    value="{{ $material->name }}"
+                    value="{{ $material->name }}" 
                     class="form-control" 
                     required
                     maxlength="12" 
@@ -32,32 +32,14 @@
                 </span>
             </div>
 
-            <div class="form-group">
-                <label class="theme-blue">Total Qauntity 
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="total_qty"
-                    value="{{ $material->total_qty }}"
-                    class="form-control cls-total-qty" 
-                    required
-                    step="any"
-                    maxlength="12" 
-                    data-error="Total Qauntity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_total_qty"></li>
-                    </ul>
-                </span>
-            </div>
-
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Unit 
                     <span class="required">*</span></label>
-                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">                    
+                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">
+                    <!-- <option value="">Select Unit</option>    -->                
                     <option value="kg" @if($material->unit=="kg") selected @endif>Kg</option>
-                    <option value="gm" @if($material->unit=="gm") selected @endif>Gm</option>
+                    <option value="rolls" @if($material->unit=="rolls") selected @endif>Rolls</option>
+                    <option value="nos" @if($material->unit=="nos") selected @endif>Nos</option>
                  </select>
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -66,7 +48,7 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Price Per <span id="price_unit">Unit</span>
                     <span class="required">*</span></label>
                 <input 
@@ -86,15 +68,14 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label class="theme-blue">Total Price</label>
                 <input 
                     type="text" 
-                    name="total_price"
-                    value="{{ $material->total_price }}"
+                    name="total_price" 
                     class="form-control cls-total-price"
-                    readonly                    
-                    maxlength="12"                     
+                    readonly                 
+                    maxlength="12"                                     
                     data-error="Total Price field is required" 
                 >
                 <span class="help-block with-errors">
@@ -102,20 +83,20 @@
                         <li class="err_total_price"></li>
                     </ul>
                 </span>
-            </div>
+            </div> -->
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Opening Stock
                     <span class="required">*</span></label>
                 <input 
                     type="number" 
                     name="opening_stock"
-                    value="{{ $material->opening_stock }}"
+                    value="{{ $material->opening_stock }}" 
                     class="form-control" 
                     required
+                    maxlength="12"
                     step="any"
-                    maxlength="12"                     
-                    data-error="Opening Stock should be number." 
+                    data-error="Opening Stock should be number."                
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -124,7 +105,7 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Balance Stock
                     <span class="required">*</span></label>
                 <input 
@@ -133,8 +114,8 @@
                     value="{{ $material->balance_stock }}"
                     class="form-control" 
                     required
-                    step="any"
-                    maxlength="12"                     
+                    maxlength="12"
+                    step="any"                  
                     data-error="Balance Stock should be number." 
                 >
                 <span class="help-block with-errors">
@@ -142,19 +123,37 @@
                         <li class="err_balance_stock"></li>
                     </ul>
                 </span>
-            </div>           
+            </div>
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Material Order Quantity</label>
+                <input 
+                    type="number" 
+                    name="moq"
+                    value="{{ $material->moq }}"
+                    class="form-control cls-total-qty"                     
+                    step="any"
+                    maxlength="12" 
+                    data-error="Material Order Quantity should be number." 
+                >
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_moq"></li>
+                    </ul>
+                </span>
+            </div>                  
+
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Trigger Quanity<span class="required">*</span></label>
                 <input 
                     type="number" 
-                    name="trigger_qty"                    
+                    name="trigger_qty"
                     value="{{ $material->trigger_qty }}"
                     class="form-control" 
                     required
+                    maxlength="12"
                     step="any"
-                    maxlength="12" 
-                    data-error="Trigger Quanity should be number."                    
+                    data-error="Trigger Quanity should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -162,18 +161,20 @@
                     </ul>
                 </span>
             </div>            
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="status" value="1" @if($material->status==1) checked @endif>
+                      <input type="checkbox" name="status" checked value="1" @if($material->status==1) checked @endif>
                       Active
                     </label>
                 </div>  
             </div>
             <div class="box-footer">
-                <button type="reset" class="btn btn-danger">Reset</button>
-                <button type="submit" class="btn btn-success pull-right">Save</button>
+                <div class="col-md-12 align-right">
+                    <button type="reset" class="btn btn-danger">Reset</button>
+                    <button type="submit" class="btn btn-success pull-right">Save</button>
+                </div>
             </div>
         </form>
         </div>

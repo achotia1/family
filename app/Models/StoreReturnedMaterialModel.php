@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StoreIssuedMaterialModel extends Model
+class StoreReturnedMaterialModel extends Model
 {
     use SoftDeletes;
     
-    protected $table = 'store_issued_materials';
+    protected $table = 'store_returned_materials';
 
     protected $fillable = [
 		'batch_no',
         'material_id',
-        'issue_date',
+        'return_date',
         'quantity',
         'bill_number',
         'status'        

@@ -1,20 +1,15 @@
 $(document).ready(function () 
 {
     // adding focus event to first field    
-    $('input[name="name"]').focus();
-    /*$('.datepicker').datepicker({
-      autoclose: true,
-      format: 'dd-mm-yyyy',
-      // startDate: new Date()
-    })*/
-    $(".cls-unit-price, .cls-total-qty").blur(function(){    	
-    	var total_qty = parseFloat($('.cls-total-qty').val());
-    	var unit_price = parseFloat($('.cls-unit-price').val());
-    	var total_price = unit_price * total_qty;
-    	total_price = total_price.toFixed(2);
-    	if(!isNaN(total_price))			
-			$('.cls-total-price').val(total_price);    		
-	});
+   // $('input[name="name"]').focus();    
+ //    $(".cls-unit-price, .cls-total-qty").blur(function(){    	
+ //    	var total_qty = parseFloat($('.cls-total-qty').val());
+ //    	var unit_price = parseFloat($('.cls-unit-price').val());
+ //    	var total_price = unit_price * total_qty;
+ //    	total_price = total_price.toFixed(2);
+ //    	if(!isNaN(total_price))			
+	// 		$('.cls-total-price').val(total_price);    		
+	// });
 })
 
 // submitting form after validation

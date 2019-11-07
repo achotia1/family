@@ -21,6 +21,6 @@ class ProductsModel extends Model
     }
     
     public function getProducts() {
-        return ProductsModel::select('id','name')->where('status','1')->get();
+        return ProductsModel::select('id','name','code')->where('status','1')->get();
     }
 }

@@ -122,9 +122,17 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Sales
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
-					//Route::get('/sales/getRecords',  'StoreProductionController@getRecords');
-					//Route::post('/sales/bulkDelete',  'StoreProductionController@bulkDelete');
+					Route::get('/sales/getRecords',  'StoreIssuedMaterialController@getRecords');
+					Route::post('/sales/bulkDelete',  'StoreIssuedMaterialController@bulkDelete');
 					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);
+				/*});*/
+
+				// Return
+				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
+				{*/
+					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
+					Route::post('/return/StoreIssuedMaterialController',  'StoreIssuedMaterialController@bulkDelete');
+					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');

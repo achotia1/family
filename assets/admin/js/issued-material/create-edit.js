@@ -1,7 +1,7 @@
 $(document).ready(function () 
 {
     // adding focus event to first field    
-     $('#material_id').focus();
+    // $('#batch_no').focus();
     $('.datepicker').datepicker({
       autoclose: true,
       format: 'dd-mm-yyyy',

@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-// models
+## MODELS
 use App\Models\StoreIssuedMaterialModel;
 use App\Models\StoreRawMaterialModel;
+use App\Models\StoreBatchCardModel;
 
-use App\Http\Requests\Admin\StoreRawMaterialRequest;
+use App\Http\Requests\Admin\StoreIssuedMaterialRequest;
 use App\Traits\GeneralTrait;
 
 class StoreIssuedMaterialController extends Controller
@@ -32,38 +33,42 @@ class StoreIssuedMaterialController extends Controller
         $this->ModuleView  = 'admin.store-issued-material.';
         $this->ModulePath = 'admin.sales.';
 
+        ## PERMISSION MIDDELWARE
         /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
     }
     
 
     public function index()
     {
-         // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;        
 
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
     }
 
     public function create()
     {                
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
         
-        $objMaterial = new StoreRawMaterialModel();
+        $objStore = new StoreBatchCardModel;
+        $batchNos = $objStore->getBatchNumbers();
+
+        $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers();
         $this->ViewData['materialIds']   = $materialIds;
-        // dd('test',$this->ModulePath);
-        // view file with data
+        $this->ViewData['batchNos']   = $batchNos;
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
 
-    public function store(StoreRawMaterialRequest $request)
+    public function store(StoreIssuedMaterialRequest $request)
     {        
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create Material, Something went wrong on server.'; 
@@ -75,7 +80,7 @@ class StoreIssuedMaterialController extends Controller
 
             if($collection){
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.materials.index');
+                $this->JsonData['url'] = route('admin.sales.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' created successfully.'; 
             }
 
@@ -90,7 +95,7 @@ class StoreIssuedMaterialController extends Controller
 
    /* public function show($encID)
     {
-       // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'View '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'View '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
@@ -104,20 +109,29 @@ class StoreIssuedMaterialController extends Controller
 
     public function edit($encID)
     {
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
+		
+		$objStore = new StoreBatchCardModel;
+        $batchNos = $objStore->getBatchNumbers();
 
-        // All data
-        $this->ViewData['material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
-
-        // view file with data
+        $objMaterial = new StoreRawMaterialModel();
+        $materialIds = $objMaterial->getMaterialNumbers();       
+        
+        $this->ViewData['batchNos']   = $batchNos;
+        $this->ViewData['materialIds']   = $materialIds;
+        
+        ## ALL DATA
+        $this->ViewData['sales'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
+        $this->ViewData['fissue_date'] = date('d-m-Y',strtotime($this->ViewData['sales']->issue_date));
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
-    public function update(StoreRawMaterialRequest $request, $encID)
+    public function update(StoreIssuedMaterialRequest $request, $encID)
     {
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Raw Material, Something went wrong on server.';       
@@ -131,7 +145,7 @@ class StoreIssuedMaterialController extends Controller
 
             if($collection){
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.materials.index');
+                $this->JsonData['url'] = route('admin.sales.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
             }
         }
@@ -153,16 +167,13 @@ class StoreIssuedMaterialController extends Controller
     {
         
         $collection->company_id        = self::_getCompanyId();
-        $collection->name        = $request->name;
-        $collection->total_qty   = $request->total_qty;
-        $collection->unit             = $request->unit;
-        $collection->price_per_unit             = $request->price_per_unit;
-        $collection->total_price             = $request->total_price;
-        $collection->opening_stock             = $request->opening_stock;
-        $collection->balance_stock             = $request->balance_stock; 
-        $collection->trigger_qty              = $request->trigger_qty;       
+        $collection->batch_no        = $request->batch_no;
+        $collection->material_id        = $request->material_id;
+        $collection->issue_date   = date('Y-m-d',strtotime($request->issue_date));   
+        $collection->quantity             = $request->quantity;
+        $collection->bill_number             = $request->bill_number;       
         $collection->status             = !empty($request->status) ? 1 : 0;
-        //Save data
+        ## SAVE DATA
         $collection->save();
         
         return $collection;
@@ -172,71 +183,98 @@ class StoreIssuedMaterialController extends Controller
     {
 
         /*--------------------------------------
-        |  Variables
+        |  VARIABLES
         ------------------------------*/
 
-        // skip and limit
+        ## SKIP AND LIMIT
         $start = $request->start;
         $length = $request->length;
 
-            // serach value
+        ## SEARCH VALUE
         $search = $request->search['value']; 
 
-            // order
+        ## ORDER
         $column = $request->order[0]['column'];
         $dir = $request->order[0]['dir'];
 
-            // filter columns
+        ## FILTER COLUMNS
         $filter = array(
-            0 => 'store_raw_materials.id',
-            1 => 'store_raw_materials.id',
-            2 => 'store_raw_materials.name',
-            3 => 'store_raw_materials.total_qty',
-            4 => 'store_raw_materials.unit',
-            5 => 'store_raw_materials.price_per_unit',
-            6 => 'store_raw_materials.total_price',
-            7 => 'store_raw_materials.opening_stock',
-            8 => 'store_raw_materials.balance_stock',
-            9 => 'store_raw_materials.trigger_qty',
-            10 => 'store_raw_materials.status',
+            0 => 'store_issued_materials.id',
+            1 => 'store_issued_materials.id',
+            2 => 'store_issued_materials.issue_date',
+            3 => 'store_issued_materials.material_id',
+            4 => 'store_raw_materials.name',
+            5 => 'products.name',
+            6 => 'store_issued_materials.quantity',
+            7 => 'store_issued_materials.bill_number',
+            8 => 'store_issued_materials.status',            
         );
 
         /*--------------------------------------
-        |  Model query and filter
+        |  MODEL QUERY AND FILTER
         ------------------------------*/
 
-        // start model query        
-        $modelQuery =  $this->BaseModel;
-       
-        // get total count 
+        ## START MODEL QUERY 
+        //$modelQuery =  $this->BaseModel;
+        $modelQuery =  $this->BaseModel        
+        ->selectRaw('store_issued_materials.id, store_issued_materials.batch_no, store_issued_materials.material_id, store_issued_materials.issue_date, store_issued_materials.quantity,store_issued_materials.bill_number, store_issued_materials.status, store_raw_materials.id as material_code, store_raw_materials.name, store_batch_cards.product_code,products.name as prod_name, products.code as prod_code')        
+        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_issued_materials.material_id')
+        ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_issued_materials.batch_no')
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code');
+        ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
 
-        // filter options
+        ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
         {
-            if (!empty($request->custom['name'])) 
+           if (!empty($request->custom['item_code'])) 
+           {
+                $custom_search = true;
+                $key = $request->custom['item_code'];                
+                $modelQuery = $modelQuery
+                ->where('store_issued_materials.material_id', $key);
+
+           }
+           if (!empty($request->custom['material_id'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['material_id'];                
+                $modelQuery = $modelQuery
+                ->where('store_issued_materials.material_id', $key);
+
+            }
+            if (!empty($request->custom['quantity'])) 
             {
                 $custom_search = true;
 
-                $key = $request->custom['name'];
+                $key = $request->custom['quantity'];
                 //dd($key);
                 $modelQuery = $modelQuery
-                ->where('store_raw_materials.name', 'LIKE', '%'.$key.'%');
+                ->where('store_issued_materials.quantity',  'LIKE', '%'.$key.'%');
 
             }
-
-            if (!empty($request->custom['total_qty'])) 
+            if (!empty($request->custom['product_name'])) 
             {
                 $custom_search = true;
 
-                $key = $request->custom['total_qty'];
+                $key = $request->custom['product_name'];
                 //dd($key);
                 $modelQuery = $modelQuery
-                ->where('store_raw_materials.total_qty', 'LIKE', '%'.$key.'%');
+                ->where('products.name',  'LIKE', '%'.$key.'%');
 
             }
+            if (!empty($request->custom['bill_number'])) 
+            {
+                $custom_search = true;
+
+                $key = $request->custom['bill_number'];
+                //dd($key);
+                $modelQuery = $modelQuery
+                ->where('store_issued_materials.bill_number',  'LIKE', '%'.$key.'%');
+
+            }           
         }
 
         if (!empty($request->search))
@@ -248,22 +286,22 @@ class StoreIssuedMaterialController extends Controller
                  $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
                     $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_raw_materials.total_qty', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_raw_materials.unit', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('store_issued_materials.quantity', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('store_issued_materials.bill_number', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');  
                 });              
 
             }
         }
 
-            // get total filtered
+        ## GET TOTAL FILTER
         $filteredQuery = clone($modelQuery);            
         $totalFiltered  = $filteredQuery->count();
 
-            // offset and limit
+        ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_raw_materials.status', 'ASC');           
-                //$modelQuery = $modelQuery->orderBy('vehicles.chassis_number', 'ASC');           
+            $modelQuery = $modelQuery->orderBy('store_issued_materials.status', 'ASC');
         }
         else
         {
@@ -272,19 +310,20 @@ class StoreIssuedMaterialController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_raw_materials.id', 
-            'store_raw_materials.name', 
-            'store_raw_materials.total_qty', 
-            'store_raw_materials.price_per_unit',
-            'store_raw_materials.unit',
-            'store_raw_materials.trigger_qty',
-            'store_raw_materials.opening_stock', 
-            'store_raw_materials.status', 
+        ->get(['store_issued_materials.id', 
+            'store_issued_materials.issue_date',
+            'store_issued_materials.material_id',
+            'store_issued_materials.quantity',
+            'store_issued_materials.bill_number',            
+            'store_issued_materials.status',            
+            'store_raw_materials.name',
+            'prod_code',
+            'prod_name',            
         ]);  
 
 
         /*--------------------------------------
-        |  data binding
+        |  DATA BINDING
         ------------------------------*/
 
         $data = [];
@@ -297,52 +336,49 @@ class StoreIssuedMaterialController extends Controller
 
                 $data[$key]['id'] = $row->id;
 
-                $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
+                $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';
-
-                $data[$key]['total_qty']  =  $row->total_qty. ' '.$row->unit;
-                $data[$key]['price_per_unit']  =  $row->price_per_unit;
-                $data[$key]['trigger_qty']  =  $row->trigger_qty;
-
-                $data[$key]['opening_stock']  =  $row->opening_stock;
-                $data[$key]['received_qty']  =  0;
-                $data[$key]['issued_qty']  =  0;
-                $data[$key]['return_qty']  =  0;
-                $data[$key]['balance_stock']  =  0;
+                $data[$key]['issue_date'] = date('d M Y',strtotime($row->issue_date));
+				$data[$key]['item_code']  = $row->material_id;
+				$data[$key]['name']  = $row->name;
+                $data[$key]['product_name']  = $row->prod_name;
+                $data[$key]['quantity']  =  $row->quantity;
+                $data[$key]['bill_number']  =  $row->bill_number;                
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
                 }elseif($row->status==0) {
                  $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
-                }
-                //$view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
+                }                
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-
-                $data[$key]['actions'] = '';
-
-                /*if(auth()->user()->can('material-add'))
-                {*/
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
-                /*}*/
+                //$data[$key]['actions'] = '';               
+                $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+               
 
          }
      }
+	$objMaterial = new StoreRawMaterialModel;
+    $materialIds = $objMaterial->getMaterialNumbers();
+    
+    
+    ## SEARCH HTML
+    $searchHTML['id']       =  '';
+    $searchHTML['select']   =  '';
+    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
+    foreach ($materialIds as $mval) {
+    $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
+    }
+    $material_id_string .='</select>';
+    $searchHTML['issue_date']     =  '';    
+    $searchHTML['item_code']     =  '<input type="text" class="form-control" id="item-code" value="'.($request->custom['item_code']).'" placeholder="Search...">';
+    $searchHTML['name'] = $material_id_string;
+    $searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
+    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
+    $searchHTML['bill_number'] = '<input type="text" class="form-control" id="bill-number" value="'.($request->custom['bill_number']).'" placeholder="Search...">';
 
-            // search html
-     $searchHTML['id']       =  '';
-     $searchHTML['select']   =  '';
-     $searchHTML['name']     =  '<input type="text" class="form-control" id="name" value="'.($request->custom['name']).'" placeholder="Search...">';
-     $searchHTML['total_qty']     =  '<input type="text" class="form-control" id="total-qty" value="'.($request->custom['total_qty']).'" placeholder="Search...">';
-     $searchHTML['unit']   =  '';
-     $searchHTML['price_per_unit']   =  '';
-     $searchHTML['total_price']   =  '';
-     $searchHTML['opening_stock']   =  '';
-     $searchHTML['balance_stock']   =  '';
-     $searchHTML['trigger_qty']   =  '';
-     $searchHTML['status']   =  '';
+    $searchHTML['status']   =  '';
 
-     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
 
     /*if ($custom_search) 
     {
@@ -354,11 +390,9 @@ class StoreIssuedMaterialController extends Controller
     }*/
 
     $searchHTML['actions'] = $seachAction;
-
-
     array_unshift($data, $searchHTML);
-
-        // wrapping up
+    
+    ## WRAPPING UP
     $this->JsonData['draw']             = intval($request->draw);
     $this->JsonData['recordsTotal']     = intval($totalData);
     $this->JsonData['recordsFiltered']  = intval($totalFiltered);

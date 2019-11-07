@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 
-// models
+## MODELS
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 
@@ -33,6 +33,7 @@ class StoreBatchCardController extends Controller
         $this->ModuleView  = 'admin.store-batch-cards.';
         $this->ModulePath = 'admin.rms-store.';
 
+        ## PERMISSION MIDDELWARE
        /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
         $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
     }
@@ -40,34 +41,34 @@ class StoreBatchCardController extends Controller
 
     public function index()
     {
-         // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;        
 
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
     }
 
     public function create()
     {
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        /* $todaysRecords = RmsStoreModel::whereDate('created_at', Carbon::today())->get()->count();  */      
-        $objStore = new StoreBatchCardModel();
+       
+        $objStore = new StoreBatchCardModel;
         $batchNo = $objStore->getBatchCardNo();
 
-        $objProduct = new ProductsModel();
+        $objProduct = new ProductsModel;
         $products = $objProduct->getProducts();
         
         $this->ViewData['batchNo']   = $batchNo;
         $this->ViewData['products']   = $products;
-        //dd($this->ViewData['batchNo']);
-        // view file with data
+        
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
 
@@ -97,21 +98,21 @@ class StoreBatchCardController extends Controller
 
     public function edit($encID)
     {
-        // Default site settings
+        ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        $objProduct = new ProductsModel();
+        $objProduct = new ProductsModel;
         $products = $objProduct->getProducts();        
         
         $this->ViewData['products']   = $products;
 
-        // All data
+        ## ALL DATA
         $this->ViewData['branch'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
 
-        // view file with data
+        ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
@@ -154,7 +155,8 @@ class StoreBatchCardController extends Controller
         $collection->batch_card_no   = $request->batch_card_no;
         $collection->batch_qty             = $request->batch_qty;         
         $collection->status             = !empty($request->status) ? 1 : 0;
-        //Save data
+        
+        ## SAVE DATA
         $collection->save();
         
         return $collection;
@@ -164,21 +166,21 @@ class StoreBatchCardController extends Controller
     {
 		//dd($request->all());
         /*--------------------------------------
-        |  Variables
+        |  VARIABLES
         ------------------------------*/
 
-        // skip and limit
+        ## SKIP AND LIMIT
         $start = $request->start;
         $length = $request->length;
 
-            // serach value
+        ## SEARCH VALUE
         $search = $request->search['value']; 
 
-            // order
+        ## ORDER
         $column = $request->order[0]['column'];
         $dir = $request->order[0]['dir'];
 
-            // filter columns
+        ## FILTER COLUMNS
         $filter = array(
             0 => 'store_batch_cards.id',
             1 => 'store_batch_cards.id',
@@ -189,20 +191,19 @@ class StoreBatchCardController extends Controller
         );
 
         /*--------------------------------------
-        |  Model query and filter
+        |   MODEL QUERY AND FILTER
         ------------------------------*/
 
-        // start model query        
-        /*$modelQuery =  $this->BaseModel;*/
+        ## START MODEL QUERY       
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, products.name')
+        ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, products.name, products.code')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code');       
 
-        // get total count 
+        ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
 
-            // filter options
+        ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
         {
@@ -237,7 +238,8 @@ class StoreBatchCardController extends Controller
 
                  $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
-                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.code', 'LIKE', '%'.$search.'%');   
                     $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
                     $query->orwhere('store_batch_cards.batch_qty', 'LIKE', '%'.$search.'%');   
                 });              
@@ -245,11 +247,11 @@ class StoreBatchCardController extends Controller
             }
         }
 
-            // get total filtered
+        ## GET TOTAL FILTER
         $filteredQuery = clone($modelQuery);            
         $totalFiltered  = $filteredQuery->count();
 
-            // offset and limit
+        ## OFFSET AND LIMIT
         if(empty($column))
         {   
             $modelQuery = $modelQuery->orderBy('store_batch_cards.status', 'ASC'); 
@@ -266,12 +268,13 @@ class StoreBatchCardController extends Controller
             'store_batch_cards.batch_card_no', 
             'store_batch_cards.batch_qty',
             'store_batch_cards.status', 
-            'products.name',          
+            'products.name',
+            'products.code',          
         ]);  
 
 
         /*--------------------------------------
-        |  data binding
+        |  DATA BINDING
         ------------------------------*/
 
         $data = [];
@@ -286,7 +289,7 @@ class StoreBatchCardController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_batch_cards[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['product_code']  = $row->name;
+                $data[$key]['product_code']  = $row->code." ( ".$row->name." )";
 
                 $data[$key]['batch_card_no']  =  $row->batch_card_no;
                 $data[$key]['batch_qty']  =  $row->batch_qty;
@@ -307,19 +310,18 @@ class StoreBatchCardController extends Controller
 
          }
      }
-    $objProduct = new ProductsModel();
+    $objProduct = new ProductsModel;
     $products = $objProduct->getProducts();
     $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
-            $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['name'].'</option>';
+            $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';
         }
     $product_code_string .='</select>';
     $searchHTML['product_code'] = $product_code_string;
 
-    // search html
+    ## SEARCH HTML
     $searchHTML['id']       =  '';
-    $searchHTML['select']   =  '';
-    //$searchHTML['product_code']     =  '<input type="text" class="form-control" id="product-code" value="'.($request->custom['product_code']).'" placeholder="Search...">';
+    $searchHTML['select']   =  '';    
     $searchHTML['batch_card_no']     =  '<input type="text" class="form-control" id="batch-card-no" value="'.($request->custom['batch_card_no']).'" placeholder="Search...">';
     $searchHTML['batch_qty']   =  '';     
     $searchHTML['status']   =  '';
@@ -329,7 +331,7 @@ class StoreBatchCardController extends Controller
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
 
-        // wrapping up
+    ## WRAPPING UP
     $this->JsonData['draw']             = intval($request->draw);
     $this->JsonData['recordsTotal']     = intval($totalData);
     $this->JsonData['recordsFiltered']  = intval($totalFiltered);

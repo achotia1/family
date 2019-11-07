@@ -13,7 +13,7 @@
     <div class="box">
         
         <div class="box-header align-right">           
-            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Batch</a>            
+            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Issued Material</a>            
             <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
         </div>
         
@@ -23,9 +23,12 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th>Product Code</th>
-                        <th class="w-100-px">Batch Card Number</th>
-                        <th class="w-100-px">Batch Quantity</th>
+                        <th class="w-100-px">Date</th>
+                        <th class="w-100-px">Item Code</th>
+                        <th class="w-100-px">Raw Material</th>
+                        <th class="w-100-px">Unit</th>
+                        <th class="w-100-px">Quantity</th>
+                        <th class="w-100-px">Bill Number</th>
                         <th class="w-100-px">Status</th>                        
                         <th class="w-180-px">Actions</th>                        
                     </tr>
@@ -39,6 +42,6 @@
 @endsection
 @section('scripts')
 
-<script type="text/javascript" src="{{ url('assets/admin/js/rms-store/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('assets/admin/js/issued-material/index.js') }}"></script>
 
 @endsection

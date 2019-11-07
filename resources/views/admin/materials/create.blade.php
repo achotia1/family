@@ -12,7 +12,7 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
             </div>
             
-            <div class="form-group">
+            <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Material Name <span class="required">*</span></label>
                 <input 
@@ -30,31 +30,14 @@
                 </span>
             </div>
 
-            <div class="form-group">
-                <label class="theme-blue">Total Qauntity 
-                	<span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="total_qty" 
-                    class="form-control cls-total-qty" 
-                    required
-                    step="any"
-                    maxlength="12" 
-                    data-error="Total Qauntity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_total_qty"></li>
-                    </ul>
-                </span>
-            </div>
-
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Unit 
                     <span class="required">*</span></label>
-                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">                    
+                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">
+                    <!-- <option value="">Select Unit</option>    -->                
                     <option value="kg">Kg</option>
-                    <option value="gm">Gm</option>
+                    <option value="rolls">Rolls</option>
+                    <option value="nos">Nos</option>
                  </select>
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -63,7 +46,7 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Price Per <span id="price_unit">Unit</span>
                     <span class="required">*</span></label>
                 <input 
@@ -82,7 +65,7 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label class="theme-blue">Total Price</label>
                 <input 
                     type="text" 
@@ -97,9 +80,9 @@
                         <li class="err_total_price"></li>
                     </ul>
                 </span>
-            </div>
+            </div> -->
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Opening Stock
                     <span class="required">*</span></label>
                 <input 
@@ -118,7 +101,7 @@
                 </span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Balance Stock
                     <span class="required">*</span></label>
                 <input 
@@ -135,9 +118,27 @@
                         <li class="err_balance_stock"></li>
                     </ul>
                 </span>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Material Order Quantity</label>
+                <input 
+                    type="number" 
+                    name="moq"
+                    value="0" 
+                    class="form-control cls-total-qty"                     
+                    step="any"
+                    maxlength="12" 
+                    data-error="Material Order Quantity should be number." 
+                >
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_moq"></li>
+                    </ul>
+                </span>
             </div>                  
 
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Trigger Quanity<span class="required">*</span></label>
                 <input 
                     type="number" 
@@ -154,7 +155,7 @@
                     </ul>
                 </span>
             </div>            
-            <div class="form-group">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -164,8 +165,10 @@
                 </div>  
             </div>
             <div class="box-footer">
-                <button type="reset" class="btn btn-danger">Reset</button>
-                <button type="submit" class="btn btn-success pull-right">Save</button>
+                <div class="col-md-12 align-right">
+                    <button type="reset" class="btn btn-danger">Reset</button>
+                    <button type="submit" class="btn btn-success pull-right">Save</button>
+                </div>
             </div>
         </form>
         </div>
