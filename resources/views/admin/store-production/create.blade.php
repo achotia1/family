@@ -15,9 +15,14 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="batch_no" name="batch_no" required="" data-error="Batch Code field is required.">                    
+                <select class="form-control my-select" 
+                        id="batch_no" 
+                        name="batch_no"
+                        required="" 
+                        data-error="Batch Code field is required." 
+                        >                    
                     <option value="">Select Batch</option>
-                    @foreach($batchNos as $val){
+                    @foreach($batchNos as $val)
                     <option value="{{$val['id']}}">{{$val['batch_card_no']}}</option>
                     @endforeach
                 </select>                
@@ -33,7 +38,7 @@
                     <span class="required">*</span></label>
                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Material Number field is required.">                    
                     <option value="">Select Material</option>
-                    @foreach($materialIds as $val){
+                    @foreach($materialIds as $val)
                     <option value="{{$val['id']}}">{{$val['name']}}</option>
                     @endforeach
                 </select>            
@@ -84,5 +89,9 @@
 
 @endsection
 @section('scripts')
+    <script type="text/javascript">
+        var material_id = "";
+        var batch_id = "";
+    </script>
     <script type="text/javascript" src="{{ url('assets/admin/js/production/create-edit.js') }}"></script>    
 @endsection

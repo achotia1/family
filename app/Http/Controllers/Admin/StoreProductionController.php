@@ -22,10 +22,13 @@ class StoreProductionController extends Controller
 
     public function __construct(
 
-        StoreProductionModel $StoreProductionModel
+        StoreProductionModel $StoreProductionModel,
+        StoreRawMaterialModel $StoreRawMaterialModel
     )
     {
         $this->BaseModel  = $StoreProductionModel;
+        $this->StoreProductionModel  = $StoreProductionModel;
+        $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -194,7 +197,7 @@ class StoreProductionController extends Controller
             2 => 'store_productions.batch_no',
             3 => 'store_productions.material_id',
             4 => 'store_productions.quantity',            
-            5 => 'store_productions.status    ',           
+            5 => 'store_productions.status',           
         );
 
         /*--------------------------------------
@@ -353,38 +356,66 @@ class StoreProductionController extends Controller
     $this->JsonData['data']             = $data;
 
     return response()->json($this->JsonData);
-}
+    }
 
-public function bulkDelete(Request $request)
-{
-    //dd($request->all());
-    $this->JsonData['status'] = 'error';
-    $this->JsonData['msg'] = 'Failed to delete batch, Something went wrong on server.';
-
-    if (!empty($request->arrEncId)) 
+    public function bulkDelete(Request $request)
     {
-        $arrID = array_map(function($item)
+        //dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to delete batch, Something went wrong on server.';
+
+        if (!empty($request->arrEncId)) 
         {
-            return base64_decode(base64_decode($item));
+            $arrID = array_map(function($item)
+            {
+                return base64_decode(base64_decode($item));
 
-        }, $request->arrEncId);
+            }, $request->arrEncId);
 
+            try 
+            {
+
+                if ($this->BaseModel->whereIn('id', $arrID)->delete()) 
+                {
+                    $this->JsonData['status'] = 'success';
+                    $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
+                }
+
+            } catch (Exception $e) 
+            {
+               $this->JsonData['exception'] = $e->getMessage();
+           }
+       }
+
+       return response()->json($this->JsonData);   
+    }
+
+    public function getBatchMaterials(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get batch materials, Something went wrong on server.';
         try 
         {
-
-            if ($this->BaseModel->whereIn('id', $arrID)->delete()) 
-            {
-                $this->JsonData['status'] = 'success';
-                $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
+            $material_id   = $request->material_id;
+            $batch_id   = $request->batch_id;
+            
+            if(!empty($material_id)){
+                $html       = self::_getBatchMaterials($batch_id,$material_id);
+            }else{
+                $html       = self::_getBatchMaterials($batch_id);
             }
+ 
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
 
         } catch (Exception $e) 
         {
-           $this->JsonData['exception'] = $e->getMessage();
-       }
-   }
+            $this->JsonData['exception'] = $e->getMessage();
+        }
 
-   return response()->json($this->JsonData);   
-}
+        return response()->json($this->JsonData);   
+    }
 
 }

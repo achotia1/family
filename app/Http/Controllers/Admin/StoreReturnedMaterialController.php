@@ -21,10 +21,12 @@ class StoreReturnedMaterialController extends Controller
 
     public function __construct(
 
-        StoreReturnedMaterialModel $StoreReturnedMaterialModel
+        StoreReturnedMaterialModel $StoreReturnedMaterialModel,
+        StoreRawMaterialModel $StoreRawMaterialModel
     )
     {
         $this->BaseModel  = $StoreReturnedMaterialModel;
+        $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -201,15 +203,15 @@ class StoreReturnedMaterialController extends Controller
 
         ## FILTER COLUMNS
         $filter = array(
-            0 => 'store_issued_materials.id',
-            1 => 'store_issued_materials.id',
-            2 => 'store_issued_materials.return_date',
-            3 => 'store_issued_materials.material_id',
+            0 => 'store_returned_materials.id',
+            1 => 'store_returned_materials.id',
+            2 => 'store_returned_materials.return_date',
+            3 => 'store_returned_materials.material_id',
             4 => 'store_raw_materials.name',
-            5 => 'products.name',
-            6 => 'store_issued_materials.quantity',
-            7 => 'store_issued_materials.bill_number',
-            8 => 'store_issued_materials.status',            
+            5 => 'store_returned_materials.quantity',
+            6 => 'store_returned_materials.bill_number',
+            7 => 'store_returned_materials.status',
+           // 8 => 'store_returned_materials.status',            
         );
 
         /*--------------------------------------
@@ -343,7 +345,7 @@ class StoreReturnedMaterialController extends Controller
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
                 $data[$key]['return_date'] = date('d M Y',strtotime($row->return_date));
-				$data[$key]['item_code']  = $row->material_id;
+				//$data[$key]['item_code']  = $row->material_id;
 				$data[$key]['name']  = $row->name;
                 $data[$key]['product_name']  = $row->prod_name;
                 $data[$key]['quantity']  =  $row->quantity;
@@ -374,7 +376,7 @@ class StoreReturnedMaterialController extends Controller
     }
     $material_id_string .='</select>';
     $searchHTML['return_date']     =  '';    
-    $searchHTML['item_code']     =  '<input type="text" class="form-control" id="item-code" value="'.($request->custom['item_code']).'" placeholder="Search...">';
+    //$searchHTML['item_code']     =  '<input type="text" class="form-control" id="item-code" value="'.($request->custom['item_code']).'" placeholder="Search...">';
     $searchHTML['name'] = $material_id_string;
     $searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
     $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
@@ -438,5 +440,33 @@ public function bulkDelete(Request $request)
 
    return response()->json($this->JsonData);   
 }
+
+    public function getBatchMaterials(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get batch materials, Something went wrong on server.';
+        try 
+        {
+            $material_id   = $request->material_id;
+            $batch_id   = $request->batch_id;
+            
+            if(!empty($material_id)){
+                $html       = self::_getBatchMaterials($batch_id,$material_id);
+            }else{
+                $html       = self::_getBatchMaterials($batch_id);
+            }
+ 
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
 
 }

@@ -28,7 +28,7 @@ $(document).ready(function()
             { "data": "id",  "visible": false, },
             { "data": "select"},
             { "data": "return_date"},
-            { "data": "item_code"},
+            //{ "data": "item_code"},
             { "data": "name"},
             { "data": "product_name"},
             { "data": "quantity"},
@@ -36,7 +36,7 @@ $(document).ready(function()
             { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,9] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,8] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {

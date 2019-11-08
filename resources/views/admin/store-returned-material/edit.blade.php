@@ -125,5 +125,9 @@
 
 @endsection
 @section('scripts')
+    <script type="text/javascript">
+        var batch_id = "{{ $return_material->batch_no }}";
+        var material_id = "{{ $return_material->material_id }}";
+    </script>
     <script type="text/javascript" src="{{ url('assets/admin/js/returned-material/create-edit.js') }}"></script>    
 @endsection

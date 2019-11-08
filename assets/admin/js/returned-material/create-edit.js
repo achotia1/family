@@ -5,8 +5,36 @@ $(document).ready(function ()
       format: 'dd-mm-yyyy',
       // startDate: new Date()
     })
+    $('#batch_no').on('change', function() {
+        var batch_id=this.value;
+        getBatchMaterials(batch_id);
+     });
+
+    if(batch_id!=""){
+        getBatchMaterials(batch_id);
+    }
     
 })
+
+function getBatchMaterials(batch_id){
+    // console.log("getBactchMaterial");
+    // console.log(batch_id);
+    // return false;
+    var action = ADMINURL + '/return/getBatchMaterials';
+
+    axios.post(action, {batch_id:batch_id,material_id:material_id})
+    .then(response => 
+    {       
+        // $("#material_id").empty(); 
+        $("#material_id").html(response.data.html); 
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}
+
 
 // submitting form after validation
 $('#returnForm').validator().on('submit', function (e) 

@@ -105,4 +105,33 @@ trait GeneralTrait
         
     }
 
+    public function _getBatchMaterials($batch_id,$material_id=false){
+
+        $company_id  = self::_getCompanyId();
+
+        $get_material_id = $this->BaseModel
+                             ->where('batch_no',$batch_id)
+                             ->get(['material_id']);
+        $material_ids = array_column($get_material_id->toArray(), "material_id");
+        
+        if(!empty($material_id)){
+            $material_ids= array_diff($material_ids, [$material_id]);
+        }
+        $raw_materials = $this->StoreRawMaterialModel
+                              ->whereNotIn("id",$material_ids)
+                              ->get(['id','name']);
+
+        $html="<option value=''>Select Material</option>";
+        foreach($raw_materials as $material){
+            $selected="";
+            if($material_id==$material->id){
+                $selected="selected";
+            } 
+            $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+        }
+
+        return $html;
+
+    }
+
 }

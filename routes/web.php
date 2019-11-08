@@ -114,6 +114,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Production
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
+					Route::post('/production/getBatchMaterials',  'StoreProductionController@getBatchMaterials');
 					Route::get('/production/getRecords',  'StoreProductionController@getRecords');
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);
@@ -122,6 +123,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Sales
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
+					Route::post('/sales/getBatchMaterials',  'StoreIssuedMaterialController@getBatchMaterials');
 					Route::get('/sales/getRecords',  'StoreIssuedMaterialController@getRecords');
 					Route::post('/sales/bulkDelete',  'StoreIssuedMaterialController@bulkDelete');
 					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);
@@ -130,6 +132,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Return
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
+					Route::post('/return/getBatchMaterials',  'StoreReturnedMaterialController@getBatchMaterials');
 					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
 					Route::post('/return/StoreIssuedMaterialController',  'StoreIssuedMaterialController@bulkDelete');
 					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);

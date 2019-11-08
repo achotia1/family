@@ -120,6 +120,10 @@
 
 @endsection
 @section('scripts')
+    <script type="text/javascript">
+        var material_id = "";
+        var batch_id = "";
+    </script>
     <script type="text/javascript" src="{{ url('assets/admin/js/returned-material/create-edit.js') }}"></script>
         
 @endsection
