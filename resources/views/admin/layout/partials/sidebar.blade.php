@@ -188,6 +188,15 @@
         </li>
         <!-- end sales -->
         
+        <!-- Review Batch card -->
+        
+        <li class="{{ active(['admin/review-batch-card','admin/review-batch-card/*']) }}">
+          <a href="{{ url('admin/review-batch-card') }}">
+            <i class="fa fa-user-plus"></i> <span>Review Batch Cards</span>
+          </a>
+          
+        </li>
+        
         <!-- Manage Reports -->
         @can('manage-reports')
         <li class="treeview {{ active(['admin/report', 'admin/report/*']) }}">

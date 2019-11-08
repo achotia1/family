@@ -9,11 +9,14 @@ use App\Http\Controllers\Controller;
 ## MODELS
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
+use App\Models\StoreProductionModel;
+use App\Models\StoreReturnedMaterialModel;
 
-use App\Http\Requests\Admin\StoreBatchCardRequest;
+use App\Http\Requests\Admin\StoreReviewBatchCardRequest;
 use App\Traits\GeneralTrait;
 
-class StoreBatchCardController extends Controller
+use Illuminate\Support\Facades\Validator;
+class StoreReviewBatchCardController extends Controller
 {
 
     private $BaseModel;
@@ -30,8 +33,8 @@ class StoreBatchCardController extends Controller
         $this->JsonData = [];
 
         $this->ModuleTitle = 'Batch';
-        $this->ModuleView  = 'admin.store-batch-cards.';
-        $this->ModulePath = 'admin.rms-store.';
+        $this->ModuleView  = 'admin.store-review-batch.';
+        $this->ModulePath = 'admin.review-batch-card.';
 
         ## PERMISSION MIDDELWARE
        /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
@@ -44,102 +47,54 @@ class StoreBatchCardController extends Controller
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
-        $this->ViewData['modulePath']   = $this->ModulePath;
-        
-        /*$pendingBatches = $this->BaseModel->where('status', 1)->where('is_reviewed', 'no')->orderBy('id', 'DESC')->with(['assignedProduct'])->get();
-
-        foreach($pendingBatches as $key => $bat){
-            echo "<br>".$bat->assignedProduct->name;
-            echo "<br>".$bat->batch_card_no;
-        }
-        exit;*/
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $this->ViewData['pendingBatches']   = $this->BaseModel->where('status', 1)->where('is_reviewed', 'no')->orderBy('id', 'DESC')->with(['assignedProduct'])->get();
+        //dd('sfdsf');
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
     }
-
-    public function create()
+    public function show($encId)
     {
+        $id = base64_decode(base64_decode($encId));
         ## DEFAULT SITE SETTINGS
-        $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
-        $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
-        $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-       
-        $objStore = new StoreBatchCardModel;
-        $batchNo = $objStore->getBatchCardNo();
+        $this->ViewData['object'] = $this->BaseModel
+        ->with([   
+            'assignedProduct'
+        ])         
+        ->find($id);        
 
-        $objProduct = new ProductsModel;
-        $products = $objProduct->getProducts();
-        
-        $this->ViewData['batchNo']   = $batchNo;
-        $this->ViewData['products']   = $products;
-        
-        ## VIEW FILE WITH DATA
-        return view($this->ModuleView.'create', $this->ViewData);
+        $objStore = new StoreProductionModel;
+        $associatedMaterial = $objStore->where('batch_no', $id)->where('status', 1)->with(['associatedMateials'])->get();
+
+        $this->ViewData['materials'] = $associatedMaterial;
+
+        $objReturn = new StoreReturnedMaterialModel;
+        $this->ViewData['returnedData'] = $objReturn->getBatchReturnMaterial($id);  
+        //dd($this->ViewData['returnedData']);     
+        return view($this->ModuleView.'view', $this->ViewData); 
     }
-
-    public function store(StoreBatchCardRequest $request)
+    public function sendToBilling(StoreReviewBatchCardRequest $request, $encId)
     {        
         $this->JsonData['status'] = __('admin.RESP_ERROR');
-        $this->JsonData['msg'] = 'Failed to create Batch, Something went wrong on server.';
-        try {
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';       
+        $id = base64_decode(base64_decode($encId));
+        try
+        {
+            $collection = $this->BaseModel->find($id);
+            $collection->sell_cost   = $request->sell_cost;           
+            $collection->is_reviewed   = $request->is_reviewed;            
 
-            $collection = new $this->BaseModel;
-            $collection = self::_storeOrUpdate($collection,$request);
-
+            ## SAVE DATA
+            $collection->save();
             if($collection){
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.rms-store.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' created successfully.'; 
-            }
-
-        }
-        catch(\Exception $e) {
-            $this->JsonData['error_msg'] = $e->getMessage();
-            $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
-        }
-
-        return response()->json($this->JsonData);
-    }  
-
-    public function edit($encID)
-    {
-        ## DEFAULT SITE SETTINGS
-        $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
-        $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
-        $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
-        $this->ViewData['modulePath']   = $this->ModulePath;
-
-        $objProduct = new ProductsModel;
-        $products = $objProduct->getProducts();        
-        
-        $this->ViewData['products']   = $products;
-
-        ## ALL DATA
-        $this->ViewData['branch'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
-
-        ## VIEW FILE WITH DATA
-        return view($this->ModuleView.'edit', $this->ViewData);
-    }
-
-    public function update(StoreBatchCardRequest $request, $encID)    {
-        
-        $this->JsonData['status'] = __('admin.RESP_ERROR');
-        $this->JsonData['msg'] = 'Failed to update Branch, Something went wrong on server.';       
-
-        $id = base64_decode(base64_decode($encID));
-        try {
-
-            $collection = $this->BaseModel->find($id);   
-            
-            $collection = self::_storeOrUpdate($collection,$request);
-
-            if($collection){
-                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.rms-store.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
-            }
+                $this->JsonData['url'] = url('admin/review-batch-card');
+                $this->JsonData['msg'] = 'Batch is Reviewed successfully.'; 
+            }           
         }
         catch(\Exception $e) {
 
@@ -147,28 +102,8 @@ class StoreBatchCardController extends Controller
         }
 
         return response()->json($this->JsonData);
-
+        //dd($request->all());
     }
-
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function _storeOrUpdate($collection, $request)
-    {
-        $collection->company_id        = self::_getCompanyId();
-        $collection->product_code        = $request->product_code;
-        $collection->batch_card_no   = $request->batch_card_no;
-        $collection->batch_qty             = $request->batch_qty;         
-        $collection->status             = !empty($request->status) ? 1 : 0;
-        
-        ## SAVE DATA
-        $collection->save();
-        
-        return $collection;
-    }
-
     public function getRecords(Request $request)
     {
 		//dd($request->all());
@@ -203,8 +138,9 @@ class StoreBatchCardController extends Controller
 
         ## START MODEL QUERY       
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, products.name, products.code')
-        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code');       
+        ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, store_batch_cards.is_reviewed, products.name, products.code')
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+        ->where('store_batch_cards.status', 1)->where('is_reviewed', 'no');        
 
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
@@ -261,7 +197,7 @@ class StoreBatchCardController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_batch_cards.status', 'ASC'); 
+            $modelQuery = $modelQuery->orderBy('store_batch_cards.is_reviewed', 'ASC'); 
         }
         else
         {
@@ -274,7 +210,8 @@ class StoreBatchCardController extends Controller
             'store_batch_cards.product_code', 
             'store_batch_cards.batch_card_no', 
             'store_batch_cards.batch_qty',
-            'store_batch_cards.status', 
+            'store_batch_cards.status',
+            'store_batch_cards.is_reviewed', 
             'products.name',
             'products.code',          
         ]);  
@@ -301,18 +238,18 @@ class StoreBatchCardController extends Controller
                 $data[$key]['batch_card_no']  =  $row->batch_card_no;
                 $data[$key]['batch_qty']  =  $row->batch_qty;
                 
-                if($row->status==1){
-                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
-                }elseif($row->status==0) {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
+                if($row->is_reviewed=='no'){
+                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Pending</span>';
+                }elseif($row->is_reviewed=='yes') {
+                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Reviewed</span>';
                 }                
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-
+                // $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
                 $data[$key]['actions'] = '';
 
                /* if(auth()->user()->can('batch-add'))
                 {*/
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
                /* }*/
 
          }
@@ -347,36 +284,6 @@ class StoreBatchCardController extends Controller
     return response()->json($this->JsonData);
 }
 
-public function bulkDelete(Request $request)
-{
-    //dd($request->all());
-    $this->JsonData['status'] = 'error';
-    $this->JsonData['msg'] = 'Failed to delete batch, Something went wrong on server.';
-
-    if (!empty($request->arrEncId)) 
-    {
-        $arrID = array_map(function($item)
-        {
-            return base64_decode(base64_decode($item));
-
-        }, $request->arrEncId);
-
-        try 
-        {
-
-            if ($this->BaseModel->whereIn('id', $arrID)->delete()) 
-            {
-                $this->JsonData['status'] = 'success';
-                $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
-            }
-
-        } catch (Exception $e) 
-        {
-           $this->JsonData['exception'] = $e->getMessage();
-       }
-   }
-
-   return response()->json($this->JsonData);   
-}
+    
 
 }

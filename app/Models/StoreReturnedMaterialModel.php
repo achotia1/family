@@ -30,4 +30,13 @@ class StoreReturnedMaterialModel extends Model
     /*public function getMaterialNumbers() {
         return StoreRawMaterialModel::select('id','name')->get();
     }*/
+
+    public function getBatchReturnMaterial($batchNo) {
+        $arrReturnData = array();
+        $returnedData =  self::select('material_id','quantity')->where('status', 1)->where('batch_no', $batchNo)->get();
+        foreach($returnedData as $key => $data){            
+            $arrReturnData[$data->material_id] = $data->quantity;
+        }
+        return  $arrReturnData;
+    }
 }
