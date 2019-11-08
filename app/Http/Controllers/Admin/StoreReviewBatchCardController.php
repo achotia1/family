@@ -239,9 +239,9 @@ class StoreReviewBatchCardController extends Controller
                 $data[$key]['batch_qty']  =  $row->batch_qty;
                 
                 if($row->is_reviewed=='no'){
-                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Pending</span>';
+                    $data[$key]['is_reviewed'] = '<span class="theme-green semibold text-center f-18">Pending</span>';
                 }elseif($row->is_reviewed=='yes') {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Reviewed</span>';
+                 $data[$key]['is_reviewed'] = '<span class="theme-gray semibold text-center f-18">Reviewed</span>';
                 }                
                 // $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
@@ -268,7 +268,7 @@ class StoreReviewBatchCardController extends Controller
     $searchHTML['select']   =  '';    
     $searchHTML['batch_card_no']     =  '<input type="text" class="form-control" id="batch-card-no" value="'.($request->custom['batch_card_no']).'" placeholder="Search...">';
     $searchHTML['batch_qty']   =  '';     
-    $searchHTML['status']   =  '';
+    $searchHTML['is_reviewed']   =  '';
 
     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';    
 
