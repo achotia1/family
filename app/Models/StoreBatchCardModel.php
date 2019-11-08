@@ -15,7 +15,8 @@ class StoreBatchCardModel extends Model
 		'product_code',
         'batch_card_no',
         'batch_qty',
-        'status'
+        'status',
+        'is_reviewed'
     ];
 
     /**
@@ -29,6 +30,12 @@ class StoreBatchCardModel extends Model
     {
     	return $this->hasMany(UserHasProductsModel::class, 'product_id', 'id');
     }*/
+
+    public function assignedProduct()
+    {
+        return $this->belongsTo(ProductsModel::class, 'product_code', 'id');
+    }
+
     public function getBatchCardNo() {
         $todaysRecords = self::whereDate('created_at', Carbon::today())->orderBy('id', 'desc')->first();
         $cardNoArr[0] = 0;
@@ -45,4 +52,10 @@ class StoreBatchCardModel extends Model
     public function getBatchNumbers() {
         return self::select('id','batch_card_no')->get();
     }
+
+   /* public function getPendingBatches() {
+        return self::where('status', 1)->orderBy('id', 'DESC')->get();
+        
+        //'id','product_code','batch_card_no', 'batch_qty','status'
+    }*/
 }

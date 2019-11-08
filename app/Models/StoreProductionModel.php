@@ -26,9 +26,9 @@ class StoreProductionModel extends Model
      */
     protected $dates = ['deleted_at'];
 
-    /*public function assignedUserProducts()
+    public function associatedMateials()
     {
-    	return $this->hasMany(UserHasProductsModel::class, 'product_id', 'id');
-    }*/
+        return $this->belongsTo(StoreRawMaterialModel::class, 'material_id', 'id');
+    }
     
 }
