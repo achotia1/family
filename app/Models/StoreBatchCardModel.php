@@ -50,7 +50,7 @@ class StoreBatchCardModel extends Model
     }
 
     public function getBatchNumbers() {
-        return self::select('id','batch_card_no')->get();
+        return self::select('id','batch_card_no')->where('status', 1)->get();
     }
 
    /* public function getPendingBatches() {
