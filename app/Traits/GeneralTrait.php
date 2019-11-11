@@ -105,7 +105,7 @@ trait GeneralTrait
         
     }
 
-    public function _getBatchMaterials($batch_id,$material_id=false){
+    public function _getBatchMaterials($batch_id,$material_id=false,$module=false){
 
         $company_id  = self::_getCompanyId();
 
@@ -121,13 +121,31 @@ trait GeneralTrait
                               ->whereNotIn("id",$material_ids)
                               ->get(['id','name']);
 
+        //Show only Production Materials for Issues and Returned Materials
+        if(!empty($module) && $module=="non_material_module"){
+            $get_production_batches = $this->StoreProductionModel
+                                     ->where('batch_no',$batch_id)
+                                     ->get(['material_id']);
+            $production_material_ids = array_column($get_production_batches->toArray(), "material_id");
+        }                              
+
+        // dd($raw_materials->toArray(),$material_ids,$production_material_ids);
+
         $html="<option value=''>Select Material</option>";
         foreach($raw_materials as $material){
             $selected="";
             if($material_id==$material->id){
                 $selected="selected";
             } 
-            $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+            
+            if(!empty($module) && $module=="non_material_module"){
+                if(in_array($material->id, $production_material_ids)){
+                    $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+                }
+            }else{
+                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+
+            }
         }
 
         return $html;

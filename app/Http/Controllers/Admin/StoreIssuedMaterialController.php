@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreIssuedMaterialModel;
 use App\Models\StoreRawMaterialModel;
 use App\Models\StoreBatchCardModel;
+use App\Models\StoreProductionModel;
 
 use App\Http\Requests\Admin\StoreIssuedMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -22,11 +23,13 @@ class StoreIssuedMaterialController extends Controller
     public function __construct(
 
         StoreIssuedMaterialModel $StoreIssuedMaterialModel,
-        StoreRawMaterialModel $StoreRawMaterialModel
+        StoreRawMaterialModel $StoreRawMaterialModel,
+        StoreProductionModel $StoreProductionModel
     )
     {
         $this->BaseModel  = $StoreIssuedMaterialModel;
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
+        $this->StoreProductionModel  = $StoreProductionModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -444,10 +447,11 @@ public function bulkDelete(Request $request)
             $material_id   = $request->material_id;
             $batch_id   = $request->batch_id;
             
+            $module = "non_material_module";
             if(!empty($material_id)){
-                $html       = self::_getBatchMaterials($batch_id,$material_id);
+                $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
             }else{
-                $html       = self::_getBatchMaterials($batch_id);
+                $html       = self::_getBatchMaterials($batch_id,false,$module);
             }
  
             $this->JsonData['html'] = $html;
