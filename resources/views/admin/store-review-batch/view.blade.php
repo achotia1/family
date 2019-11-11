@@ -86,12 +86,14 @@
 	                    	<td><b>Planned Material :</b></td>
 	                    	<td colspan="4"><span id="planned-material"></span></td>
 	                    </tr>
+                        @if(!$materials->isEmpty())
 	                    <tr>
                             <td colspan="5"></td>
                         </tr>
                         <tr class="trExpense">
                             <td colspan="5" class="title"><b>Raw Material Details</b></td>
                         </tr>
+
                         <tr>
 	                    	<td><b>Sr.No</b></td>
 	                    	<td><b>Raw Material Name</b></td>
@@ -136,9 +138,16 @@
                         <tr>
                             <td colspan="5" class="yeild">{{$yeild}}%</td>
                         </tr>
+                        @else
+                        <tr>
+                            <td colspan="5" class="yeild">No any material is planned for this Batch.</td>
+                        </tr>
+                        @endif
+
                     </tbody>
                 </table>
             </div>
+            @if(!$materials->isEmpty())
 			<form id="reviewBatchForm" action="{{ route($modulePath.'send-to-billing', [base64_encode(base64_encode($object->id))]) }}" method="POST">
 			{{ csrf_field() }}
 			<input type="hidden" name="id" value="{{$object->id}}">
@@ -173,7 +182,7 @@
             <button type="submit" class="btn btn-success pull-right">Send</button>
             </div>
            </form> 
-			
+		  @endif
         </div>
     </div>
 </section>
