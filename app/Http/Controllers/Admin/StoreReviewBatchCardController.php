@@ -72,6 +72,7 @@ class StoreReviewBatchCardController extends Controller
 
         $this->ViewData['materials'] = $associatedMaterial;
 
+        //dd($associatedMaterial);
         $objReturn = new StoreReturnedMaterialModel;
         $this->ViewData['returnedData'] = $objReturn->getBatchReturnMaterial($id);  
         //dd($this->ViewData['returnedData']);     
