@@ -134,7 +134,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				{*/
 					Route::post('/return/getBatchMaterials',  'StoreReturnedMaterialController@getBatchMaterials');
 					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
-					Route::post('/return/StoreIssuedMaterialController',  'StoreIssuedMaterialController@bulkDelete');
+					Route::post('/return/bulkDelete',  'StoreReturnedMaterialController@bulkDelete');
 					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
