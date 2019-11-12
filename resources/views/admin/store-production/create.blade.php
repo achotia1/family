@@ -58,7 +58,7 @@
                     class="form-control" 
                     required
                     step="any"                   
-                    maxlength="12" 
+                    maxlength="20" 
                     data-error="Quantity should be number." 
                 >
                 <span class="help-block with-errors">
