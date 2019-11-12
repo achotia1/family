@@ -117,6 +117,12 @@ class StoreReturnedMaterialController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
 		
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->where('store_returned_materials.id', base64_decode(base64_decode($encID)))->where('store_returned_materials.company_id', $companyId)->first();
+        if(empty($data)) {            
+            return redirect()->route('admin.return.index');
+        }
+
 		$objStore = new StoreBatchCardModel;
         $batchNos = $objStore->getBatchNumbers();
 
@@ -127,9 +133,8 @@ class StoreReturnedMaterialController extends Controller
         $this->ViewData['materialIds']   = $materialIds;
         
         ## ALL DATA
-        $this->ViewData['return_material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
-        //dd(base64_decode(base64_decode($encID)));
-        //$this->ViewData['freturn_date'] = '';
+        /*$this->ViewData['return_material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));*/
+        $this->ViewData['return_material'] = $data;        
         $this->ViewData['freturn_date'] = date('d-m-Y',strtotime($this->ViewData['return_material']->return_date));
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
@@ -217,14 +222,15 @@ class StoreReturnedMaterialController extends Controller
         /*--------------------------------------
         |  MODEL QUERY AND FILTER
         ------------------------------*/
-
+        $companyId = self::_getCompanyId();
         ## START MODEL QUERY    
         //$modelQuery =  $this->BaseModel;
        $modelQuery =  $this->BaseModel        
         ->selectRaw('store_returned_materials.id, store_returned_materials.batch_no, store_returned_materials.material_id, store_returned_materials.return_date, store_returned_materials.quantity,store_returned_materials.bill_number, store_returned_materials.status, store_raw_materials.id as material_code, store_raw_materials.name, store_batch_cards.product_code,products.name as prod_name, products.code as prod_code')        
         ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_returned_materials.material_id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_returned_materials.batch_no')
-        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code');
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+        ->where('store_returned_materials.company_id', $companyId);
         
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            

@@ -141,7 +141,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
-					Route::get('/review-batch-card',  'StoreReviewBatchCardController@index');
+					Route::get('/review-batch-card',  'StoreReviewBatchCardController@index')->name($PREFIX.'.review-batch-card');
 					Route::get('/review-batch-card/getRecords',  'StoreReviewBatchCardController@getRecords');
 					Route::get('/review-batch-card/show/{id}',  'StoreReviewBatchCardController@show')->name($PREFIX.'.review-batch-card.show');
 					Route::post('/review-batch-card/send-to-billing/{id}','StoreReviewBatchCardController@sendToBilling')->name($PREFIX.'.review-batch-card.send-to-billing');

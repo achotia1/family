@@ -106,9 +106,16 @@ class StoreRawMaterialController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->where('store_raw_materials.id', base64_decode(base64_decode($encID)))->where('store_raw_materials.company_id', $companyId)->first();
+        if(empty($data)) {            
+            return redirect()->route('admin.materials.index');
+        }
+        
         ## ALL DATA
-        $this->ViewData['material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
-
+        //$this->ViewData['material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
+        $this->ViewData['material'] = $data;
+              
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
@@ -200,8 +207,9 @@ class StoreRawMaterialController extends Controller
         /*$modelQuery =  $this->BaseModel
        ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit,store_raw_materials.price_per_unit, store_raw_materials.total_price, store_raw_materials.opening_stock, store_raw_materials.balance_stock,store_raw_materials.trigger_qty,store_raw_materials.status,  store_issued_materials.quantity as issued_quantity')        
         ->leftjoin('store_issued_materials', 'store_issued_materials.material_id' , '=', 'store_raw_materials.id');*/
-        $modelQuery =  $this->BaseModel;
-
+        $companyId = self::_getCompanyId();
+        $modelQuery =  $this->BaseModel
+        ->where('store_raw_materials.company_id', $companyId);
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();

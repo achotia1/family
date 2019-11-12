@@ -110,6 +110,12 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->where('store_productions.id', base64_decode(base64_decode($encID)))->where('store_productions.company_id', $companyId)->first();
+        if(empty($data)) {            
+            return redirect()->route('admin.production.index');
+        }
+
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
 
@@ -119,9 +125,9 @@ class StoreProductionController extends Controller
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
 
-        ## ALL DATA
-        $this->ViewData['production'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
-
+        /*## ALL DATA
+        $this->ViewData['production'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));*/
+        $this->ViewData['production'] = $data;
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
@@ -203,12 +209,13 @@ class StoreProductionController extends Controller
         /*--------------------------------------
         |  MODEL QUERY AND FILTER
         ------------------------------*/
-
+        $companyId = self::_getCompanyId();
         ## START MODEL QUERY 
         $modelQuery =  $this->BaseModel        
         ->selectRaw('store_productions.id, store_productions.batch_no, store_productions.material_id, store_productions.quantity,store_productions.unit, store_productions.status, store_batch_cards.batch_card_no, store_raw_materials.name')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_no')
-        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_productions.material_id');
+        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_productions.material_id')
+        ->where('store_productions.company_id', $companyId);
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();

@@ -116,8 +116,15 @@ class StoreBatchCardController extends Controller
         
         $this->ViewData['products']   = $products;
 
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->where('store_batch_cards.id', base64_decode(base64_decode($encID)))->where('store_batch_cards.company_id', $companyId)->first();
+        if(empty($data)) {            
+            return redirect()->route('admin.rms-store.index');
+        }
+
         ## ALL DATA
-        $this->ViewData['branch'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
+        // $this->ViewData['branch'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
+        $this->ViewData['branch'] = $data;
 
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
@@ -200,11 +207,12 @@ class StoreBatchCardController extends Controller
         /*--------------------------------------
         |   MODEL QUERY AND FILTER
         ------------------------------*/
-
+        $companyId = self::_getCompanyId();
         ## START MODEL QUERY       
         $modelQuery =  $this->BaseModel        
         ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, products.name, products.code')
-        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code');       
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+        ->where('store_batch_cards.company_id', $companyId);         
 
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
