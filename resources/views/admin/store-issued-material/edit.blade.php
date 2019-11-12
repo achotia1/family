@@ -50,9 +50,8 @@
                     name="quantity"
                     value="{{$sales->quantity}}"
                     class="form-control" 
-                    
-                                     
-                    maxlength="12" 
+                    step="any"                   
+                    maxlength="20"                    
                     data-error="Quantity should be number." 
                 >
                 <span class="help-block with-errors">
@@ -68,8 +67,7 @@
                     type="text" 
                     name="bill_number"
                     value="{{$sales->bill_number}}"                  
-                    class="form-control" 
-                                                           
+                    class="form-control"        
                     data-error="Bill Number field is required." 
                 >
                 <span class="help-block with-errors">
