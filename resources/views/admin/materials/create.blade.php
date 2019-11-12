@@ -20,7 +20,7 @@
                     name="name" 
                     class="form-control" 
                     required
-                    maxlength="12" 
+                    maxlength="50" 
                     data-error="Material Name field is required." 
                 >
                 <span class="help-block with-errors">
@@ -55,7 +55,7 @@
                     class="form-control cls-unit-price" 
                     required
                     step="any"
-                    maxlength="12" 
+                    maxlength="20" 
                     data-error="Price Per Unit should be number." 
                 >
                 <span class="help-block with-errors">
@@ -90,7 +90,7 @@
                     name="opening_stock" 
                     class="form-control" 
                     required
-                    maxlength="12"
+                    maxlength="20"
                     step="any"
                     data-error="Opening Stock should be number."                
                 >
@@ -109,7 +109,7 @@
                     name="balance_stock" 
                     class="form-control" 
                     required
-                    maxlength="12"
+                    maxlength="20"
                     step="any"                  
                     data-error="Balance Stock should be number." 
                 >
@@ -128,7 +128,7 @@
                     value="0" 
                     class="form-control cls-total-qty"                     
                     step="any"
-                    maxlength="12" 
+                    maxlength="20" 
                     data-error="Material Order Quantity should be number." 
                 >
                 <span class="help-block with-errors">
@@ -145,7 +145,7 @@
                     name="trigger_qty" 
                     class="form-control" 
                     required
-                    maxlength="12"
+                    maxlength="20"
                     step="any"
                     data-error="Trigger Quanity should be number." 
                 >
