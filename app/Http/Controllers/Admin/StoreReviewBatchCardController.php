@@ -61,17 +61,17 @@ class StoreReviewBatchCardController extends Controller
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        /*$this->ViewData['object'] = $this->BaseModel
+        $this->ViewData['object'] = $this->BaseModel
         ->with([   
             'assignedProduct'
         ])         
-        ->find($id);*/        
-        $companyId = self::_getCompanyId();
+        ->find($id);        
+        /*$companyId = self::_getCompanyId();
         $dataObj = $this->BaseModel->with('assignedProduct')->where('store_batch_cards.id', base64_decode(base64_decode($encId)))->where('store_batch_cards.company_id', $companyId)->first();
         if(empty($data)) {            
             return redirect()->route('admin.review-batch-card');
         }
-        $this->ViewData['object'] = $dataObj;
+        $this->ViewData['object'] = $dataObj;*/
         $objStore = new StoreProductionModel;
         $associatedMaterial = $objStore->where('batch_no', $id)->where('status', 1)->with(['associatedMateials'])->get();
 
