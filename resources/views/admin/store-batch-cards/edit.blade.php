@@ -57,7 +57,7 @@
                     value="{{ $branch->batch_qty }}"
                     required
                     step="any"                   
-                    maxlength="12" 
+                    maxlength="20" 
                     data-error="Batch Quantity should be number." 
                 >
                 <span class="help-block with-errors">
