@@ -13,7 +13,7 @@
     <div class="box">
         
         <div class="box-header align-right">           
-            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Raw Material</a>            
+            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add In Material</a>            
             <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
         </div>
         
@@ -23,10 +23,10 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th class="w-100-px">Material Name</th>
-                        <th class="w-60-px">Balance Stock</th>                        
-                        <th class="w-60-px">Material Type</th>
-                        <th class="w-100-px">MOQ</th>
+                        <th class="w-100-px">Lot Number</th>
+                        <th class="w-60-px">Material Name</th>                        
+                        <th class="w-60-px">Lot Quantity</th>
+                        <th class="w-100-px">Lot Balance</th>
                         <th class="w-100-px">Status</th>                        
                         <th class="w-180-px">Actions</th>
                     </tr>
@@ -40,6 +40,6 @@
 @endsection
 @section('scripts')
 
-<script type="text/javascript" src="{{ url('assets/admin/js/materials/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('assets/admin/js/materials-in/index.js') }}"></script>
 
 @endsection

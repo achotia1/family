@@ -39,8 +39,8 @@ class StoreProductionRequest extends FormRequest
 
             'batch_no.required'    => 'Batch Card Number field is required.',
             'material_id.required'    => 'Material field is required.', 
-            'quantity.required'    => 'Batch Quantity field is required.',
-            'quantity.regex'    => 'Quantity should be correct.',        
+            'quantity.required'    => 'Production Quantity field is required.',
+            'quantity.regex'    => 'Production Quantity should be correct.',        
         ];
     }
 }

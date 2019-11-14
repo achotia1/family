@@ -7,65 +7,78 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="batchForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
+        <form id="materialInForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
             </div>
-            
-            <div class="form-group col-md-12">
+            <div class="form-group col-md-6">
                 <label class="theme-blue"> 
-                Product Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="product_code" name="product_code"required="" data-error="Product Code field is required.">
-                    <option value="">Select Product</option>
-                    @foreach($products as $product){
-                    <option value="{{$product['id']}}">{{$product['code']}}  ( {{$product['name']}} )</option>
+                Material <span class="required">*</span></label>
+                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Batch Code field is required.">
+                    <option value="">Select Material</option>
+                    @foreach($materialIds as $val)
+                    <option value="{{$val['id']}}">{{$val['name']}}</option>
                     @endforeach
-                    
-                 </select>                
+                   
+                </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_product_code"></li>
+                        <li class="err_material_id"></li>
                     </ul>
                 </span>
             </div>
-
             <div class="form-group col-md-6">
-                <label class="theme-blue">Batch Card Number
+                <label class="theme-blue">Lot Number
                     <span class="required">*</span></label>
                 <input 
                     type="text" 
-                    name="batch_card_no" 
-                    value="{{$batchNo}}" 
+                    name="lot_no"
+                    value="{{$lotNo}}"                   
                     class="form-control" 
                     required                                       
-                    data-error="Batch Card Number field is required." 
+                    data-error="Lot Number field is required." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_batch_card_no"></li>
+                        <li class="err_lot_no"></li>
                     </ul>
                 </span>
             </div>
-
             <div class="form-group col-md-6">
-                <label class="theme-blue">Production Quantity
+                <label class="theme-blue">Lot Quantity
                     <span class="required">*</span></label>
                 <input 
                     type="number" 
-                    name="batch_qty" 
+                    name="lot_qty" 
                     class="form-control" 
                     required
                     step="any"                   
                     maxlength="20" 
-                    data-error="Production Quantity should be number." 
+                    data-error="Lot Quantity should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_batch_qty"></li>
+                        <li class="err_lot_qty"></li>
                     </ul>
                 </span>
-            </div>                  
+            </div>
             <div class="form-group col-md-6">
+                <label class="theme-blue">Price Per Unit
+                    <span class="required">*</span></label>
+                <input 
+                    type="text" 
+                    name="price_per_unit"                    
+                    class="form-control" 
+                    required                                       
+                    data-error="Price Per Unit field is required." 
+                >
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_price_per_unit"></li>
+                    </ul>
+                </span>
+            </div>
+            <div class="form-group col-md-12">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -87,5 +100,10 @@
 
 @endsection
 @section('scripts')
-    <script type="text/javascript" src="{{ url('assets/admin/js/rms-store/create-edit.js') }}"></script>    
+    <script type="text/javascript">
+        var material_id = "";
+        var batch_id = "";
+    </script>
+    <script type="text/javascript" src="{{ url('assets/admin/js/materials-in/create-edit.js') }}"></script>
+        
 @endsection

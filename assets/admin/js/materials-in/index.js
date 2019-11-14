@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    var action = ADMINURL+'/materials/getRecords'; 
+    var action = ADMINURL+'/materials-in/getRecords'; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -16,10 +16,10 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "name" :  $('#name').val(),
-                    "balance_stock" : $('#balance-stock').val(),
-                    "material_type" : $('#material-type').val(),
-                    "moq" : $('#moq').val(),
+                    "lot_no" :  $('#lot-no').val(),
+                    "material_id" : $('#material-id').val(),
+                    "lot_qty" : $('#lot-qty').val(),
+                    "lot_balance" : $('#lot-balance').val(),
                     "status" : $('#search-status').val()
                 }
             }
@@ -27,14 +27,14 @@ $(document).ready(function()
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "name"},
-            { "data": "balance_stock"},            
-            { "data": "material_type"},
-            { "data": "moq"},
+            { "data": "lot_no"},
+            { "data": "material_id"},
+            { "data": "lot_qty"},
+            { "data": "lot_balance"},           
             { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,7] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -113,13 +113,12 @@ function doSearch(element)
 }
 
 function removeSearch(element)
-{
-  $('#name').val(''),
-  $('#balance-stock').val(''),
-  $('#material-type').val(''),
-  $('#moq').val(''),
-  $('#search-status').val(''),
-  $('#listingTable').DataTable().draw();
+{ 
+	$('#lot-no').val(''),
+	$('#material-id').val(''),
+	$('#lot-qty').val(''),
+	$('#lot-balance').val(''),
+	$('#listingTable').DataTable().draw();
 }
 
 function deleteCollections(element)
@@ -129,7 +128,7 @@ function deleteCollections(element)
 
    if ($members.length == 0) 
    {
-      swal("Error",'Please select atleast one material.','error');
+      swal("Error",'Please select atleast one record.','error');
       return false; 
    }
    else
@@ -140,8 +139,8 @@ function deleteCollections(element)
       {
             arrEncId.push($(this).val());            
       })
-		console.log(arrEncId);
-      action = ADMINURL+'/materials/bulkDelete';
+	
+      action = ADMINURL+'/materials-in/bulkDelete';
 
       swal({
           title: "Are you sure !!",
@@ -178,4 +177,3 @@ function deleteCollections(element)
         });
    } 
 }
-

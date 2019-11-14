@@ -14,12 +14,9 @@ class StoreRawMaterialModel extends Model
     protected $fillable = [
 		'name',
         'moq',
-        'unit',
-        'price_per_unit',
-        'total_price',
-        'opening_stock',
+        'unit',        
         'balance_stock',
-        'trigger_qty',
+        'material_type',
         'status'        
     ];
 
@@ -31,6 +28,6 @@ class StoreRawMaterialModel extends Model
     protected $dates = ['deleted_at'];
 
     public function getMaterialNumbers() {
-        return StoreRawMaterialModel::select('id','name')->get();
+        return StoreRawMaterialModel::select('id','name')->where('status', 1)->get();
     }
 }

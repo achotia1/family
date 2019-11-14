@@ -48,7 +48,7 @@
             </div>
 
             <div class="form-group col-md-6">
-                <label class="theme-blue">Batch Quantity
+                <label class="theme-blue">Production Quantity
                     <span class="required">*</span></label>
                 <input 
                     type="number" 
@@ -58,7 +58,7 @@
                     required
                     step="any"                   
                     maxlength="20" 
-                    data-error="Batch Quantity should be number." 
+                    data-error="Production Quantity should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">

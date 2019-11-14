@@ -103,6 +103,14 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('materials', 'StoreRawMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
+				// Material In
+				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
+				{*/
+					Route::get('/materials-in/getRecords',  'StoreInMaterialController@getRecords');
+					Route::post('/materials-in/bulkDelete',  'StoreInMaterialController@bulkDelete');
+					Route::resource('materials-in', 'StoreInMaterialController', ['as' => $PREFIX]);
+				/*});*/
+
 				// RM Store
 				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
 				{*/

@@ -22,7 +22,7 @@
                     value="{{ $material->name }}" 
                     class="form-control" 
                     required
-                    maxlength="50" 
+                    maxlength="150" 
                     data-error="Material Name field is required." 
                 >
                 <span class="help-block with-errors">
@@ -33,13 +33,27 @@
             </div>
 
             <div class="form-group col-md-6">
+                <label class="theme-blue">Material Type 
+                    <span class="required">*</span></label>
+                <select class="form-control my-select" name="material_type" required="" data-error="Unit field is required.">                    
+                    <option value="Raw" @if($material->material_type=="Raw") selected @endif>Raw Material</option>
+                    <option value="Packaging" @if($material->material_type=="Packaging") selected @endif>Packaging Material</option>
+                    <option value="Consumable" @if($material->material_type=="Consumable") selected @endif>Consumable Material</option>
+                 </select>
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_material_type"></li>
+                    </ul>
+                </span>
+            </div>
+
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Unit 
                     <span class="required">*</span></label>
-                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">
-                    <!-- <option value="">Select Unit</option>    -->                
-                    <option value="kg" @if($material->unit=="kg") selected @endif>Kg</option>
-                    <option value="rolls" @if($material->unit=="rolls") selected @endif>Rolls</option>
-                    <option value="nos" @if($material->unit=="nos") selected @endif>Nos</option>
+                <select class="form-control my-select" name="unit" required="" data-error="Unit field is required.">                    
+                    <option value="Kg" @if($material->unit=="Kg") selected @endif>Kg</option>
+                    <option value="Litre" @if($material->unit=="Litre") selected @endif>Litre</option>
+                    <option value="Nos" @if($material->unit=="Nos") selected @endif>Nos</option>
                  </select>
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -47,64 +61,6 @@
                     </ul>
                 </span>
             </div>
-
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Price Per <span id="price_unit">Unit</span>
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="price_per_unit"
-                    value="{{ $material->price_per_unit }}"
-                    class="form-control cls-unit-price" 
-                    required
-                    step="any"
-                    maxlength="20" 
-                    data-error="Price Per Unit should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_price_per_unit"></li>
-                    </ul>
-                </span>
-            </div>
-
-            <!-- <div class="form-group">
-                <label class="theme-blue">Total Price</label>
-                <input 
-                    type="text" 
-                    name="total_price" 
-                    class="form-control cls-total-price"
-                    readonly                 
-                    maxlength="12"                                     
-                    data-error="Total Price field is required" 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_total_price"></li>
-                    </ul>
-                </span>
-            </div> -->
-
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Opening Stock
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="opening_stock"
-                    value="{{ $material->opening_stock }}" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"
-                    data-error="Opening Stock should be number."                
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_opening_stock"></li>
-                    </ul>
-                </span>
-            </div>
-
             <div class="form-group col-md-6">
                 <label class="theme-blue">Balance Stock
                     <span class="required">*</span></label>
@@ -126,7 +82,7 @@
             </div>
 
             <div class="form-group col-md-6">
-                <label class="theme-blue">Material Order Quantity</label>
+                <label class="theme-blue">Minimum Order Quantity</label>
                 <input 
                     type="number" 
                     name="moq"
@@ -134,38 +90,19 @@
                     class="form-control cls-total-qty"                     
                     step="any"
                     maxlength="20" 
-                    data-error="Material Order Quantity should be number." 
+                    data-error="Minimum Order Quantity should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
                         <li class="err_moq"></li>
                     </ul>
                 </span>
-            </div>                  
-
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Trigger Quanity<span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="trigger_qty"
-                    value="{{ $material->trigger_qty }}"
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"
-                    data-error="Trigger Quanity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_trigger_qty"></li>
-                    </ul>
-                </span>
-            </div>            
+            </div>                    
             <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="status" checked value="1" @if($material->status==1) checked @endif>
+                      <input type="checkbox" name="status" value="1" @if($material->status==1) checked @endif>
                       Active
                     </label>
                 </div>  

@@ -69,30 +69,45 @@
         </li>
         @endcan   
 
-        <!-- Manage Raw Material -->
-        
+        <!-- Manage Material -->        
         <li class="treeview {{ active(['admin/materials', 'admin/materials/*']) }}">
           <a href="#">
             <i class="fa fa-list-alt"></i>
-            <span>Manage Raw Material</span>
+            <span>Manage Material</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
-          <ul class="treeview-menu">
-            
+          <ul class="treeview-menu">            
             <li class="{{ active('admin/materials') }}">
-              <a href="{{ route('admin.materials.index') }}"><i class="fa fa-hand-o-right"></i> View Raw materials</a>
-            </li>
-           
+              <a href="{{ route('admin.materials.index') }}"><i class="fa fa-hand-o-right"></i> View materials</a>
+            </li>           
             
             <li class="{{ active('admin/materials/create') }}">
-              <a href="{{ route('admin.materials.create') }}"><i class="fa fa-hand-o-right"></i> Add Raw material</a>
+              <a href="{{ route('admin.materials.create') }}"><i class="fa fa-hand-o-right"></i> Add material</a>
             </li>
            
           </ul>
+        </li>        
+        <!-- Manage Material In -->        
+        <li class="treeview {{ active(['admin/materials-in', 'admin/materials-in/*']) }}">
+          <a href="#">
+            <i class="fa fa-list-alt"></i>
+            <span>Manage Material In</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">            
+            <li class="{{ active('admin/materials-in') }}">
+              <a href="{{ route('admin.materials-in.index') }}"><i class="fa fa-hand-o-right"></i> View Material In</a>
+            </li>            
+            <li class="{{ active('admin/materials/create') }}">
+              <a href="{{ route('admin.materials.create') }}"><i class="fa fa-hand-o-right"></i> Add Material In</a>
+            </li>           
+          </ul>
         </li>
-        
+
         <!-- Manage RMS -->
         
         <li class="treeview {{ active(['admin/rms-store', 'admin/rms-store/*']) }}">
