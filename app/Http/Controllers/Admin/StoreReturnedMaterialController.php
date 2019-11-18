@@ -10,6 +10,7 @@ use App\Models\StoreReturnedMaterialModel;
 use App\Models\StoreRawMaterialModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreProductionModel;
+use App\Models\ProductionHasMaterialModel;
 
 use App\Http\Requests\Admin\StoreReturnedMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -24,12 +25,14 @@ class StoreReturnedMaterialController extends Controller
 
         StoreReturnedMaterialModel $StoreReturnedMaterialModel,
         StoreRawMaterialModel $StoreRawMaterialModel,
-        StoreProductionModel $StoreProductionModel
+        StoreProductionModel $StoreProductionModel,
+        ProductionHasMaterialModel $ProductionHasMaterialModel
     )
     {
         $this->BaseModel  = $StoreReturnedMaterialModel;
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
         $this->StoreProductionModel  = $StoreProductionModel;
+        $this->ProductionHasMaterialModel  = $ProductionHasMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -64,6 +67,8 @@ class StoreReturnedMaterialController extends Controller
         
         $objStore = new StoreBatchCardModel;
         $batchNos = $objStore->getBatchNumbers();
+
+         // dd($batchNos);
 
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers();
@@ -183,7 +188,7 @@ class StoreReturnedMaterialController extends Controller
         $collection->material_id        = $request->material_id;
         $collection->return_date   = date('Y-m-d',strtotime($request->return_date));   
         $collection->quantity             = $request->quantity;
-        $collection->bill_number             = $request->bill_number;       
+        //$collection->bill_number             = $request->bill_number;       
         $collection->status             = !empty($request->status) ? 1 : 0;
         //Save data
         $collection->save();
@@ -456,15 +461,25 @@ public function bulkDelete(Request $request)
         $this->JsonData['msg'] = 'Failed to get batch materials, Something went wrong on server.';
         try 
         {
-            $material_id   = $request->material_id;
+            // $material_id   = $request->material_id;
             $batch_id   = $request->batch_id;
+
+            // echo "string:".$batch_id;
+
+            $get_production_batches = $this->StoreProductionModel
+                                        ->join('store_production_has_materials','production_id','id')
+                                        ->where('batch_id',$batch_id)
+                                        ->get(['material_id']);
+                                       // ->with(['hasProductionMaterials'])
+
+            dd($get_production_batches);
             
-            $module = "non_material_module";
+            /*$module = "non_material_module";
             if(!empty($material_id)){
                 $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
             }else{
                 $html       = self::_getBatchMaterials($batch_id,false,$module);
-            }
+            }*/
  
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
