@@ -503,9 +503,10 @@ class StoreProductionController extends Controller
         $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
         try 
         {
-            $material_id   = $request->material_id;            
+            $material_id   = $request->material_id;
+            $selected_val      = $request->selected_val;      
             if(!empty($material_id)){
-                $html       = self::_getMaterialLots($material_id);
+                $html       = self::_getMaterialLots($material_id, $selected_val);
             }
  
             $this->JsonData['html'] = $html;

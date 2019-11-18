@@ -152,16 +152,21 @@ trait GeneralTrait
 
     }
     
-    public function _getMaterialLots($material_id){
-
+    public function _getMaterialLots($material_id, $selected_val=array()){       
+        
         $company_id  = self::_getCompanyId();        
         $objLots = new StoreInMaterialModel;
-        $lotIds = $objLots->getBalanceLots($material_id,$company_id);       
-
+        $lotIds = $objLots->getBalanceLots($material_id,$company_id);
+        $ids = array_column($lotIds, "id");
+        $filtered_lot_ids= array_diff($ids, $selected_val);        
         $html="<option value=''>Select Lot</option>";
-        foreach($lotIds as $lotId){
+        foreach($lotIds as $lotId){        
             $selected="";            
-            $html.="<option value='".$lotId['id']."' $selected>".$lotId['lot_no']."</option>";            
+            ## IF THIS LOT NUMBER IS ALREADY SELECTED IN PREVIOS DROPDOWN DO NOT SHOW AGAIN
+            if (!in_array($lotId['id'], $selected_val))
+            {
+                $html.="<option data-qty='".$lotId['lot_balance']."' value='".$lotId['id']."' $selected>".$lotId['lot_no']." (".$lotId['lot_balance'].")</option>";
+            }                        
         }
         return $html;
 
