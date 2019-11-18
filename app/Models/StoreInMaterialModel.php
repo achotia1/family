@@ -50,4 +50,18 @@ class StoreInMaterialModel extends Model
         $lotNo = "R-".$numRecord."/".$date;
         return $lotNo;
     }
+    public function getBalanceLots($material_id, $companyId=0) {
+        $balanceMaterials = array();        
+        $modelQuery = self::select('id','lot_no')
+        ->where('material_id',$material_id)
+        ->where('status', 1);
+        if($companyId > 0){
+            $modelQuery = $modelQuery->where('company_id', $companyId);
+        }
+        $balanceMaterials = $modelQuery->get()->toArray();
+        /*$balanceMaterials = self::select('id','lot_no')->where('material_id',$material_id)->where('status', 1)->get()->toArray();*/
+        //dd($balanceMaterials);
+
+        return $balanceMaterials;
+    }
 }

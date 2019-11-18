@@ -1,7 +1,7 @@
 <?php
 namespace App\Traits;
 use App\Models\CompanyModel;
-
+use App\Models\StoreInMaterialModel;
 use DB;
 use Request;
 use Browser;
@@ -148,6 +148,21 @@ trait GeneralTrait
             }
         }
 
+        return $html;
+
+    }
+    
+    public function _getMaterialLots($material_id){
+
+        $company_id  = self::_getCompanyId();        
+        $objLots = new StoreInMaterialModel;
+        $lotIds = $objLots->getBalanceLots($material_id,$company_id);       
+
+        $html="<option value=''>Select Lot</option>";
+        foreach($lotIds as $lotId){
+            $selected="";            
+            $html.="<option value='".$lotId['id']."' $selected>".$lotId['lot_no']."</option>";            
+        }
         return $html;
 
     }

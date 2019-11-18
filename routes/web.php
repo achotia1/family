@@ -123,6 +123,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
 					Route::post('/production/getBatchMaterials',  'StoreProductionController@getBatchMaterials');
+					Route::post('/production/getMaterialLots',  'StoreProductionController@getMaterialLots');
 					Route::get('/production/getRecords',  'StoreProductionController@getRecords');
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);

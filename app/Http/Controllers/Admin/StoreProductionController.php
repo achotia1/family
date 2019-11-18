@@ -10,10 +10,13 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreProductionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreRawMaterialModel;
+use App\Models\StoreInMaterialModel;
+use App\Models\ProductionHasMaterialModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
 
+use DB;
 class StoreProductionController extends Controller
 {
 
@@ -65,12 +68,32 @@ class StoreProductionController extends Controller
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
 
-        $objMaterial = new StoreRawMaterialModel();
-        $materialIds = $objMaterial->getMaterialNumbers();
-        /*$arrBatchNos = array();
-        foreach($batchNos as $val){
-            $arrBatchNos[$val['id']] = $val['batch_card_no'];
+        /*$objMaterial = new StoreRawMaterialModel();
+        $materialIds = $objMaterial->getMaterialNumbers();*/        
+        $companyId = self::_getCompanyId();
+        $objMaterial = new StoreRawMaterialModel;
+        $materialIds = $objMaterial->getLotMaterials($companyId);
+        
+        /*$objLots = new StoreInMaterialModel;
+        $lotIds = $objLots->getBalanceLots(1,$companyId);*/
+        
+        /*$lotmaterialIds = $objMaterial1->where('status', 1)->with(['hasInMaterials'=> function($q){
+                $q->where('status', 1);
+                $q->where('lot_qty', '>', 0);                 
+            }])
+        ->get(['id','name'])->toArray();
+        foreach($lotmaterialIds as $mval){
+            if(!empty($mval['has_in_materials'])){
+                $balanceMaterials[$mval['id']] = $mval['name'];    
+            }                      
         }*/
+        //dd($lotmaterialIds->toSql());
+
+        //$lotmaterialIds1 = $lotmaterialIds->has('hasInMaterials');
+        //dd();
+        //dd($materialIds);
+        /*$this->BaseModel->where('status', 1)->where('is_reviewed', 'no')->orderBy('id', 'DESC')->with(['assignedProduct'])->get();*/
+
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
         //dd($arrBatchNos);
@@ -80,23 +103,56 @@ class StoreProductionController extends Controller
 
     public function store(StoreProductionRequest $request)
     {        
+        DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
-        $this->JsonData['msg'] = 'Failed to create Batch, Something went wrong on server.';
+        $this->JsonData['msg'] = 'Failed to create Record, Something went wrong on server.';
         try {
 
             $collection = new $this->BaseModel;
             $collection = self::_storeOrUpdate($collection,$request);
 
-            if($collection){
-                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.production.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' created successfully.'; 
+            if($collection->save()){
+                $all_transactions = [];
+                ## ADD PRODUCTION RAW MATERIAL DATA
+                if (!empty($request->production) && sizeof($request->production) > 0) 
+                {                    
+                    ## ADD IN store_has_production_materials
+                    foreach ($request->production as $pkey => $prod) 
+                    {
+                        $prodRawMaterialObj = new ProductionHasMaterialModel;
+                        $prodRawMaterialObj->production_id   = $collection->id;
+                        $prodRawMaterialObj->material_id   = !empty($prod['material_id']) ? $prod['material_id'] : NULL;
+                        $prodRawMaterialObj->lot_id   =  !empty($prod['lot_id']) ? $prod['lot_id'] : NULL;
+                        $prodRawMaterialObj->quantity   = !empty($prod['quantity']) ? $prod['quantity'] : NULL;
+                        if ($prodRawMaterialObj->save()) 
+                        {
+                            $all_transactions[] = 1;
+                        }
+                        else
+                        {
+                            $all_transactions[] = 0;
+                        }
+                        
+                    }
+                }
+                if (!in_array(0,$all_transactions)) 
+                {
+                    $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                    $this->JsonData['url'] = route($this->ModulePath.'index');
+                    $this->JsonData['msg'] = 'Production Plan added successfully.';
+                    DB::commit();
+                }
+               
+            } 
+            else
+            {
+                DB::rollback();
             }
 
         }
         catch(\Exception $e) {
             $this->JsonData['error_msg'] = $e->getMessage();
-            $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
+            DB::rollback();
         }
 
         return response()->json($this->JsonData);
@@ -167,14 +223,11 @@ class StoreProductionController extends Controller
     public function _storeOrUpdate($collection, $request)
     {
         $collection->company_id        = self::_getCompanyId();
-        $collection->batch_no        = $request->batch_no;
-        $collection->material_id   = $request->material_id;
-        $collection->quantity             = $request->quantity;
-        $collection->unit             = '';        
+        $collection->batch_id        = $request->batch_id;        
         $collection->status             = !empty($request->status) ? 1 : 0;
-        ## SAVE DATA
-        $collection->save();
         
+        ## SAVE DATA
+        //$collection->save();        
         return $collection;
     }
 
@@ -410,6 +463,30 @@ class StoreProductionController extends Controller
                 $html       = self::_getBatchMaterials($batch_id,$material_id);
             }else{
                 $html       = self::_getBatchMaterials($batch_id);
+            }
+ 
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function getMaterialLots(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
+        try 
+        {
+            $material_id   = $request->material_id;            
+            if(!empty($material_id)){
+                $html       = self::_getMaterialLots($material_id);
             }
  
             $this->JsonData['html'] = $html;

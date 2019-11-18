@@ -102,8 +102,8 @@
             <li class="{{ active('admin/materials-in') }}">
               <a href="{{ route('admin.materials-in.index') }}"><i class="fa fa-hand-o-right"></i> View Material In</a>
             </li>            
-            <li class="{{ active('admin/materials/create') }}">
-              <a href="{{ route('admin.materials.create') }}"><i class="fa fa-hand-o-right"></i> Add Material In</a>
+            <li class="{{ active('admin/materials-in/create') }}">
+              <a href="{{ route('admin.materials-in.create') }}"><i class="fa fa-hand-o-right"></i> Add Material In</a>
             </li>           
           </ul>
         </li>

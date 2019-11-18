@@ -12,11 +12,9 @@ class StoreProductionModel extends Model
     protected $table = 'store_productions';
 
     protected $fillable = [
-		'batch_no',
-        'material_id',
-        'quantity',
-        'unit',
-        'status'
+		'company_id',
+        'batch_id',
+        'status',
     ];
 
     /**
@@ -26,9 +24,9 @@ class StoreProductionModel extends Model
      */
     protected $dates = ['deleted_at'];
 
-    public function associatedMateials()
+    public function hasProductionMaterials()
     {
-        return $this->belongsTo(StoreRawMaterialModel::class, 'material_id', 'id');
-    }
+        return $this->hasMany(ProductionHasMaterialModel::class, 'production_id', 'id');
+    }   
     
 }

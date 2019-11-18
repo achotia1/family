@@ -36,6 +36,11 @@ class StoreBatchCardModel extends Model
         return $this->belongsTo(ProductsModel::class, 'product_code', 'id');
     }
 
+    public function hasProduction()
+    {       
+        return $this->hasOne(StoreProductionModel::class, 'batch_id', 'id');
+    }
+
     public function getBatchCardNo() {
         $todaysRecords = self::whereDate('created_at', Carbon::today())->orderBy('id', 'desc')->first();
         $cardNoArr[0] = 0;
