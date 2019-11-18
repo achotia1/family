@@ -35,6 +35,91 @@ function getBatchMaterials(batch_id){
     return false;
 }
 
+function addPlan() 
+{
+    var counter = $(".plan").length;    
+    var plan_area = `<tr class="inner-td add_plan_area plan">                    
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select production_material" 
+                            placeholder="All Materials"                            
+                            name="production[${counter}][material_id]"
+                            id="${counter}"
+                            onchange="loadLot(this);"
+                        >
+                            <option value="">Select Material</option>
+                            ${plan_options}
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_production[${counter}][material_id][] err_production_material"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select production_lot" 
+                            placeholder="Material Lots"
+                            name="production[${counter}][lot_id]"
+                            required
+                            id="l_${counter}"
+                            data-error="Material Lot field is required." 
+                        >
+                            <option value="">Select Lot</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_production[${counter}][lot_id][] err_production_lot"></li>
+                            </ul>
+                        </span>
+                        </div>
+                    </td>
+                    <td><div class="add_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control quantity"
+                            name="production[${counter}][quantity]"
+                            step="any"                           
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_production[${counter}][quantity][] err_quantity"></li>
+                            </ul>
+                        </span>
+                    </div>                    
+                    </td>
+                    <td>
+                    <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
+                    </tr>`;
+    $(plan_area).insertAfter($(".add_plan_area:last"));    
+}
+
+function deletePlan(element)
+{
+    $(element).closest('.add_plan_area').find('*').attr('disabled', true);
+    $(element).closest('.add_plan_area').hide();
+}
+
+function loadLot(sel)
+{    
+    var id = $(sel).attr("id");    
+    var material_id = sel.value;
+    var action = ADMINURL + '/production/getMaterialLots';
+
+    axios.post(action, {material_id:material_id})
+    .then(response => 
+    { 
+        $("#l_"+id).html(response.data.html); 
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}
 
 // submitting form after validation
 $('#returnForm').validator().on('submit', function (e) 
