@@ -64,4 +64,14 @@ class StoreInMaterialModel extends Model
 
         return $balanceMaterials;
     }
+    public function updateBalance($inMaterialcollection, $quantity, $preQty=0) {
+        $return = false;        
+        //$inLotBal = $inMaterialcollection->lot_balance - $quantity;        
+        $inLotBal = ($inMaterialcollection->lot_balance) - $quantity;        
+        $inMaterialcollection->lot_balance = $inLotBal;
+        //dd($inMaterialcollection);
+        if($inMaterialcollection->save())
+            $return = true;
+        return $return;
+    }
 }

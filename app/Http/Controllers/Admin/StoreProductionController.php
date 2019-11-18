@@ -125,8 +125,27 @@ class StoreProductionController extends Controller
                         $prodRawMaterialObj->lot_id   =  !empty($prod['lot_id']) ? $prod['lot_id'] : NULL;
                         $prodRawMaterialObj->quantity   = !empty($prod['quantity']) ? $prod['quantity'] : NULL;
                         if ($prodRawMaterialObj->save()) 
-                        {
-                            $all_transactions[] = 1;
+                        {                            
+                            ## UPDATE LOT QUANTITY                            
+                            if($prod['lot_id'] > 0){
+                                $inObj = new StoreInMaterialModel;
+                                $inMaterialcollection = $inObj->find($prod['lot_id']);
+                                $updateBal = $inObj->updateBalance($inMaterialcollection, $prod['quantity']);
+                                /*$inMaterialcollection = $inObj->find($prod['lot_id']);
+                                $inLotBal = $inMaterialcollection->lot_balance - $prod['quantity'];
+                                $inMaterialcollection->lot_balance = $inLotBal;*/
+
+                                if($updateBal) 
+                                {
+                                    //dd('fgfdg');
+                                    $all_transactions[] = 1;
+                                } else {
+                                    $all_transactions[] = 0;
+                                }
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                           
                         }
                         else
                         {
