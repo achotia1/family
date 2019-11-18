@@ -183,7 +183,7 @@ var str = $(txtQty).attr("id");
 	var i = str.substring(2);
 	var lotSelectId = "l_"+i;
 	var qtyLimit = $( "#"+lotSelectId+" option:selected" ).attr('data-qty');	
-	if(parseFloat(qtyLimit) > parseFloat(qty)){		
+	if(parseFloat(qty) > parseFloat(qtyLimit)){		
 		$(".errq_"+i).closest('.form-group').addClass('has-error has-danger');
         $(".errq_"+i).text("You can not select more than available quantity "+qtyLimit).closest('span').show();
         $("#q_"+i).val("");
