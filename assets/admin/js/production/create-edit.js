@@ -5,12 +5,17 @@ $(document).ready(function ()
     if(batch_id!=""){
         getBatchMaterials(batch_id);
     }
-   
+   	/*$(".quantity").blur(function(){
+  		var $this = $(this);
+  		console.log($this.attr('id'));
+  		//var lotName = $('#aioConceptName').find(":selected").text();
+  		
+	});*/
+
     /*$('#batch_no').on('change', function() {
         var batch_id=this.value;
         getBatchMaterials(batch_id);
      });*/
-
 
 })
 
@@ -126,11 +131,13 @@ function addPlan()
                             type="number" 
                             class="form-control quantity"
                             name="production[${counter}][quantity]"
+                            id="q_${counter}"
+                            onblur="checkBal(this)"
                             step="any"                           
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_production[${counter}][quantity][] err_quantity"></li>
+                                <li class="errq_${counter} err_production[${counter}][quantity][] err_quantity"></li>
                             </ul>
                         </span>
                     </div>                    
@@ -150,11 +157,18 @@ function loadLot(sel)
     var id = $(sel).attr("id");    
     var material_id = sel.value;
     var action = ADMINURL + '/production/getMaterialLots';
-
-    axios.post(action, {material_id:material_id})
+	/* PASS PREVIOUS DROPDOWN SELECTED LOT NOs */
+	var selected_val=[];
+    $(".production_lot").each(function(){
+        selected_val.push(this.value);
+    });    
+	/* END PASS PREVIOUS DROPDOWN SELECTED LOT NOs */
+    axios.post(action, {material_id:material_id, selected_val:selected_val})
     .then(response => 
-    { 
-        $("#l_"+id).html(response.data.html); 
+    {         
+        //console.log(response.data.html);
+        $("#l_"+id).html(response.data.html);
+        
     })
     .catch(error =>
     {
@@ -162,3 +176,18 @@ function loadLot(sel)
     })
     return false;
 }
+function checkBal(txtQty)
+{	
+var str = $(txtQty).attr("id");
+	var qty = $(txtQty).val();
+	var i = str.substring(2);
+	var lotSelectId = "l_"+i;
+	var qtyLimit = $( "#"+lotSelectId+" option:selected" ).attr('data-qty');	
+	if(parseFloat(qtyLimit) > parseFloat(qty)){		
+		$(".errq_"+i).closest('.form-group').addClass('has-error has-danger');
+        $(".errq_"+i).text("You can not select more than available quantity "+qtyLimit).closest('span').show();
+        $("#q_"+i).val("");
+	}
+	return false;
+}
+
