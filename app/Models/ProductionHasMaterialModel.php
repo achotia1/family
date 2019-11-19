@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionHasMaterialModel extends Model
 {
-    use SoftDeletes;
+    //use SoftDeletes;
     
     protected $table = 'store_production_has_materials';
 
