@@ -23,10 +23,9 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th>Batch Number</th>
-                        <th class="w-100-px">Material</th>
-                        <th class="w-100-px">Quantity</th>                        
-                        <th class="w-100-px">Status</th>                       
+                        <th class="w-160-px">Batch Number</th>
+                        <th class="w-160-px">Product</th>
+                        <th class="w-100-px">Total Material</th>
                         <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>

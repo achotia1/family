@@ -17,7 +17,7 @@ class ProductionHasMaterialModel extends Model
         'lot_id',
         'quantity'
     ];
-	public $timestamps = false;
+	//public $timestamps = false;
     /**
      * The attributes that should be mutated to dates.
      *

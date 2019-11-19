@@ -124,7 +124,7 @@
            
 
                       
-            <div class="form-group col-md-12">
+            <!--<div class="form-group col-md-12">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -132,7 +132,7 @@
                       Active
                     </label>
                 </div>  
-            </div>
+            </div>-->
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>

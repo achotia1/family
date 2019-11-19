@@ -3,68 +3,188 @@
 @section('title')
    {{ $moduleTitle }}
 @endsection
+
+@section('style')
+<style>
+    .trExpense{
+        text-align: center;
+        /*color: maroon;*/
+        /*background: aliceblue;*/
+    }
+    .trExpenseTotal{
+        text-align: right;
+    }
+    .trCategory{
+        /*background-color: azure;*/
+        /*color: darkred;*/
+    }
+    .trSubCategory{
+        width: 30%;
+        text-align: right;
+    }
+    table,tbody ,tr, td {
+        border: 1px solid darkgray;
+    }
+    tbody:first-child{
+        border-top: 3px solid darkgray;   
+    }
+    #l_search_month{
+        float: left;
+        margin-right: 1%;
+    }
+    .l_search_month{
+        float: left;
+        margin-right: 1%;
+    }
+    #search_month{
+        width: 15%;
+        display: inline-block;
+    }
+    #search_state{
+        width: 16%;
+        display: inline-block;
+    }
+    #search_year{
+        width: 10%;
+        display: inline-block;
+    }
+    .title{
+        text-align: center; 
+        font-size: 20px;
+    }
+    .yeild{
+        text-align: center; 
+        font-size: 20px;
+        color: #550000;
+        font-weight: bold;
+    }
+</style>
+@endsection
 @section('content')
-<div class="row mb-5">
-        <div class="col-xs-12">
-            <form id="productsForm" data-toggle="validator" action="">
-                <div class="card border-0 shadow">
-                    <h1 class="title blue-border-bottom">
-                        {{ strtoupper($moduleAction) }}
-                    </h1>
-                    <div class="card-footer d-flex theme-bg-blue-light blue-border-bottom">
-                        <button class="btn-normal ml-auto blue-btn-inverse" type="button" onclick="window.history.back()">Back</button>
-                    	<!-- 
-                        <button class="btn-normal ml-3 blue-btn-inverse" type="submit">Save</button> -->
-                    </div>
-                    <h1 class="card-subtitle blue-border-bottom text-capitalize">
-                        Product Information
-                    </h1>
-                    <div class="card-body">
-                        <div class="f-col-6 p-0">
-
-                            <div class="d-flex flex-column mb-25 form-group">
-                                <label class="theme-blue">Product 
-                                Name <span class="required">*</span></label>
-                                <input 
-                                    type="text" 
-                                    name="name" 
-                                    class="form-control" 
-                                    value="{{ $product->name }}" 
-                                    disabled
-                                    required
-                                    maxlength="250" 
-                                    data-error="Name field is required." 
-                                >
-                                <span class="help-block with-errors">
-                                    <ul class="list-unstyled">
-                                        <li class="err_name"></li>
-                                    </ul>
-                                </span>
-                            </div>
-
-                            <div class="d-flex flex-column mb-25 form-group">
-                                <label class="theme-blue">Product 
-                                Code <span class="required">*</span></label>
-                                <input 
-                                    type="text" 
-                                    name="code" 
-                                    class="form-control" 
-                                    value="{{ $product->code }}" 
-                                    disabled
-                                    required
-                                    maxlength="250" 
-                                    data-error="Code field is required." 
-                                >
-                                <span class="help-block with-errors">
-                                    <ul class="list-unstyled">
-                                        <li class="err_code"></li>
-                                    </ul>
-                                </span>
-                            </div>
-
-                    </div>
-                </div>
-            </form>
+<section class="content">        
+    <div class="box">
+        <div class="box-body">
+        	<div class="table-responsive"  id="tblPrint">
+                <table class="table" border="1px;">
+                    <tbody>
+	                    <tr class="trExpense">
+	                        <td colspan="4" class="title"><b>Batch Card Details</b></td>
+	                    </tr>
+	                    <tr>	                    	
+	                    	<td class="w-90-px"><b>Batch Card :</b></td>
+	                    	<td colspan="3">	                    	
+	                    	{{$object->assignedBatch->batch_card_no}}
+	                    	</td>
+	                    </tr>
+	                    <tr>	                    	
+	                    	<td><b>Unit :</b></td>
+	                    	<td colspan="3">
+	                    		{{$object->assignedBatch->assignedProduct->name}}
+	                    	</td>
+	                    </tr>
+	                    <tr>	                    	
+	                    	<td><b>Product Code :</b></td>
+	                    	<td colspan="3">
+	                    		{{$object->assignedBatch->assignedProduct->code}}
+	                    	</td>
+	                    </tr>
+	                    <tr>	                    	
+	                    	<td><b>Total Raw Material :</b></td>
+	                    	<td colspan="3"><span id="planned-material"></span></td>
+	                    </tr>
+                        <tr class="cls-pmaterial">	                    	
+	                    	<td><b>Total Packaging Material :</b></td>
+	                    	<td colspan="3"><span id="planned-pmaterial"></span></td>
+	                    </tr>
+	                    <tr>
+                            <td colspan="4"></td>
+                        </tr>
+                        <tr class="trExpense">
+                            <td colspan="4" class="title"><b>Planned Raw Material</b></td>
+                        </tr>
+                        <tr>
+	                    	<td><b>Sr.No</b></td>
+	                    	<td><b>Raw Material Name</b></td>
+	                    	<td><b>Material Lot</b></td>
+	                    	<td><b>Quantity</b></td>	                    	
+	                    </tr>
+	                    @php 
+	                    $key = $rawTotal = 0;
+	                    $i = 1;
+	                    $otherMaterial = array();  
+	                    @endphp
+	                    @foreach($object->hasProductionMaterials as $material)
+	                    @php
+	                    if($material->mateialName->material_type == 'Raw'){
+	                    $key = $key + 1;
+	                    $rawTotal = $rawTotal + $material->quantity;
+	                    @endphp
+	                    <tr>
+	                    	<td>{{$key}}</td>
+	                    	<td>{{$material->mateialName->name}}</td>
+	                    	<td>{{$material->hasLot->lot_no}}</td>      	
+	                    	<td>{{$material->quantity}}</td>
+	                    </tr>
+	                    @php
+	                    } else {
+							$otherMaterial[$i]['name'] = $material->mateialName->name;
+							$otherMaterial[$i]['lot_no'] = $material->hasLot->lot_no;
+							$otherMaterial[$i]['quantity'] = $material->quantity;
+						$i++;
+						}
+	                    @endphp
+	                    @endforeach	                    
+	                    <tr>	                    	
+	                    	<td colspan="3"></td>
+	                    	<td><b><span id="planned-weight">{{$rawTotal}}</span></b></td>	                    	
+	                    </tr>
+	                    @php                        
+                        if(!empty($otherMaterial)){
+                        @endphp
+	                    <tr>
+                            <td colspan="4"></td>
+                        </tr>
+                        
+                        <tr class="trExpense">
+                            <td colspan="4" class="title"><b>Planned Packaging Material</b></td>             </tr>
+                        @php 
+	                    $packTotal = 0;
+	                    @endphp
+                        @foreach($otherMaterial as $oKey=>$oMaterial)
+                        @php
+                        $packTotal = $packTotal + $oMaterial['quantity'];
+                        @endphp
+                        <tr>
+	                    	<td>{{$oKey}}</td>
+	                    	<td>{{$oMaterial['name']}}</td>
+	                    	<td>{{$oMaterial['lot_no']}}</td>      	
+	                    	<td>{{$oMaterial['quantity']}}</td>
+	                    </tr>
+                        @endforeach
+                        <tr>	                    	
+	                    	<td colspan="3"></td>
+	                    	<td><b><span id="planned-pweight">{{$packTotal}}</span></b></td>	                    	
+	                    </tr>
+	                    @php
+	                    }
+	                    @endphp  
+                    </tbody>
+                </table>
+            </div>           
         </div>
     </div>
+</section>
+@endsection
+@section('scripts')
+    <script type="text/javascript">
+    	$(document).ready(function() {
+    		var planned_weight = $('#planned-weight').text();
+    		$('#planned-material').text(planned_weight+" kg");
+    		@if(!empty($otherMaterial))
+    			$('#planned-pmaterial').text($('#planned-pweight').text());
+    		@else
+    			$('table tr.cls-pmaterial').remove();	
+    		@endif
+    	});
+    </script>
 @endsection

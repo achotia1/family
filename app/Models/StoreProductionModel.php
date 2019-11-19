@@ -27,6 +27,10 @@ class StoreProductionModel extends Model
     public function hasProductionMaterials()
     {
         return $this->hasMany(ProductionHasMaterialModel::class, 'production_id', 'id');
-    }   
+    }
+    public function assignedBatch()
+    {
+        return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
+    }  
     
 }

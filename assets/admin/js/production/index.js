@@ -16,21 +16,20 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "batch_no" :  $('#batch-no').val(),
-                    "material_id" : $('#material-id').val(),
+                    "batch_id" :  $('#batch-id').val(),
+                    "product_code" :  $('#product-code').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "batch_no"},
-            { "data": "material_id"},
-            { "data": "quantity"},                                   
-            { "data": "status"},
+            { "data": "batch_id"},
+            { "data": "product_code"},            
+            { "data": "quantity"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,5] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -111,8 +110,8 @@ function doSearch(element)
 function removeSearch(element)
 { 
 
-  $('#batch-no').val(''),
-  $('#material-id').val(''),
+  $('#batch-id').val(''),
+  $('#product-code').val(''),
   $('#listingTable').DataTable().draw();
 }
 
