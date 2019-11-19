@@ -129,8 +129,8 @@
                         <select 
                             class="form-control my-select production_material" 
                             placeholder="All Materials"
-                            name="production[0][material_id]"
-                            id="0"
+                            name="returned[0][material_id]"
+                            id="material_0"
                             required
                             onchange="loadLot(this);"
                             data-error="Material Number field is required." 
@@ -144,7 +144,7 @@
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_production[0][material_id][] err_production_material"></li>
+                                <li class="err_returned[0][material_id][] err_production_material"></li>
                             </ul>
                         </span>
                     </div>
@@ -154,7 +154,7 @@
                         <select 
                             class="form-control my-select production_lot" 
                             placeholder="Material Lots"
-                            name="production[0][lot_id]"
+                            name="returned[0][lot_id]"
                             id="l_0"
                             required
                             data-error="Material Lot field is required." 
@@ -163,7 +163,7 @@
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_production[0][lot_id][] err_production_lot"></li>
+                                <li class="err_returned[0][lot_id][] err_production_lot"></li>
                             </ul>
                         </span>
                         </div>
@@ -173,14 +173,14 @@
                         <input 
                             type="number" 
                             class="form-control quantity"
-                            name="production[0][quantity]" 
+                            name="returned[0][quantity]" 
                             required
                             step="any" 
                             data-error="Quantity should be number."
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_production[0][quantity][] err_quantity"></li>
+                                <li class="err_returned[0][quantity][] err_quantity"></li>
                             </ul>
                         </span>
                     </div>

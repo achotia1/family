@@ -457,6 +457,7 @@ public function bulkDelete(Request $request)
 
     public function getBatchMaterials(Request $request)
     {
+        // dd($request->all());
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to get batch materials, Something went wrong on server.';
         try 
@@ -467,13 +468,27 @@ public function bulkDelete(Request $request)
             // echo "string:".$batch_id;
 
             $get_production_batches = $this->StoreProductionModel
-                                        ->join('store_production_has_materials','production_id','id')
+                                        ->join('store_production_has_materials','production_id','store_productions.id')
                                         ->where('batch_id',$batch_id)
                                         ->get(['material_id']);
                                        // ->with(['hasProductionMaterials'])
+            $material_ids = array_column($get_production_batches->toArray(), "material_id");
 
-            dd($get_production_batches);
-            
+            $raw_materials = $this->StoreRawMaterialModel
+                              ->whereNotIn("id",$material_ids)
+                              ->get(['id','name']);
+
+            $html="<option value=''>Select Material</option>";
+            foreach($raw_materials as $material){
+                $selected="";
+                /*if($material_id==$material->id){
+                    $selected="selected";
+                } */
+                
+                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+
+            }
+            // dd($get_production_batches,$raw_materials);
             /*$module = "non_material_module";
             if(!empty($material_id)){
                 $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
@@ -484,6 +499,60 @@ public function bulkDelete(Request $request)
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
             $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function getMaterialLots(Request $request)
+    {
+        dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get material lots, Something went wrong on server.';
+        try 
+        {
+            // $material_id   = $request->material_id;
+            $batch_id       = $request->batch_id;
+            $material_id    = $request->material_id;
+            // echo "string:".$batch_id;
+
+            $get_production_batches = $this->StoreProductionModel
+                                        ->join('store_production_has_materials','production_id','store_productions.id')
+                                        ->where('batch_id',$batch_id)
+                                        ->get(['material_id']);
+                                       // ->with(['hasProductionMaterials'])
+            $material_ids = array_column($get_production_batches->toArray(), "material_id");
+
+            $raw_materials = $this->StoreRawMaterialModel
+                              ->whereNotIn("id",$material_ids)
+                              ->get(['id','name']);
+
+            $html="<option value=''>Select Material</option>";
+            foreach($raw_materials as $material){
+                $selected="";
+                /*if($material_id==$material->id){
+                    $selected="selected";
+                } */
+                
+                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+
+            }
+            // dd($get_production_batches,$raw_materials);
+            /*$module = "non_material_module";
+            if(!empty($material_id)){
+                $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
+            }else{
+                $html       = self::_getBatchMaterials($batch_id,false,$module);
+            }*/
+ 
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Materials Lots';
             $this->JsonData['status']  = 'Success';
 
         } catch (Exception $e) 
