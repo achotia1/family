@@ -178,7 +178,7 @@ function loadLot(sel)
 }
 function checkBal(txtQty)
 {	
-var str = $(txtQty).attr("id");
+	var str = $(txtQty).attr("id");
 	var qty = $(txtQty).val();
 	var i = str.substring(2);
 	var lotSelectId = "l_"+i;

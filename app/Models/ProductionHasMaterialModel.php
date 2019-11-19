@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductionHasMaterialModel extends Model
 {
-    use SoftDeletes;
+    //use SoftDeletes;
     
     protected $table = 'store_production_has_materials';
 
@@ -17,7 +17,7 @@ class ProductionHasMaterialModel extends Model
         'lot_id',
         'quantity'
     ];
-	public $timestamps = false;
+	//public $timestamps = false;
     /**
      * The attributes that should be mutated to dates.
      *

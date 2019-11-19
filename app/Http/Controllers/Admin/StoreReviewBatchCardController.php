@@ -73,7 +73,7 @@ class StoreReviewBatchCardController extends Controller
         }
         $this->ViewData['object'] = $dataObj;*/
         $objStore = new StoreProductionModel;
-        $associatedMaterial = $objStore->where('batch_no', $id)->where('status', 1)->with(['associatedMateials'])->get();
+        $associatedMaterial = $objStore->where('batch_id', $id)->where('status', 1)->with(['associatedMateials'])->get();
 
         $this->ViewData['materials'] = $associatedMaterial;
 
