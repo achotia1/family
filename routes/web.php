@@ -141,6 +141,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Return
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
+					Route::post('/return/getMaterialLots',  'StoreReturnedMaterialController@getMaterialLots');
 					Route::post('/return/getBatchMaterials',  'StoreReturnedMaterialController@getBatchMaterials');
 					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
 					Route::post('/return/bulkDelete',  'StoreReturnedMaterialController@bulkDelete');

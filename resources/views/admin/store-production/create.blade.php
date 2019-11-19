@@ -79,7 +79,6 @@
                             placeholder="Material Lots"
                             name="production[0][lot_id]"
                             id="l_0"
-                            data-qty="0"
                             required
                             data-error="Material Lot field is required." 
                         >
@@ -97,20 +96,16 @@
                         <input 
                             type="number" 
                             class="form-control quantity"
-                            name="production[0][quantity]"
-                            id="q_0"
-                            onblur="checkBal(this)"
+                            name="production[0][quantity]" 
                             required
                             step="any" 
                             data-error="Quantity should be number."
-                            
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="errq_0 err_production[0][quantity][] err_quantity"></li>
+                                <li class="err_production[0][quantity][] err_quantity"></li>
                             </ul>
                         </span>
-                        <!--<input type="hidden" id="lot_0" value=""/>-->
                     </div>
                     </td>
                     <td></td>
