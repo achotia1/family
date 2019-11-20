@@ -346,8 +346,8 @@ class StoreProductionController extends Controller
         }
         ]);*/
         $modelQuery = $this->BaseModel
-        ->with(['assignedBatch.assignedProduct'
-        ]);
+                                    ->with(['assignedBatch.assignedProduct'
+                                    ]);
 
         ## START MODEL QUERY 
         //$modelQuery = $this->BaseModel->with('hasProductionMaterials');

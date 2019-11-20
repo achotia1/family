@@ -215,7 +215,18 @@ class StoreReturnedMaterialController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
 		
         $companyId = self::_getCompanyId();
-        $data = $this->BaseModel->where('store_returned_materials.id', base64_decode(base64_decode($encID)))->where('store_returned_materials.company_id', $companyId)->first();
+
+        $data = $this->BaseModel->with([   
+                            'hasReturnedMaterials' => function($q)
+                            {  
+                                $q->with('material');
+                                $q->with('lot');
+                            }
+                        ])
+                    ->where('store_returned_materials.id', base64_decode(base64_decode($encID)))
+                    ->where('store_returned_materials.company_id', $companyId)
+                    ->first();
+        // dd($data);
         if(empty($data)) {            
             return redirect()->route('admin.return.index');
         }
@@ -239,25 +250,127 @@ class StoreReturnedMaterialController extends Controller
 
     public function update(StoreReturnedMaterialRequest $request, $encID)
     {
+        dump($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Return Material, Something went wrong on server.';       
 
         $id = base64_decode(base64_decode($encID));
-        try {
+        
+
+        try {     
+
+            $companyId = self::_getCompanyId();      
 
             $collection = $this->BaseModel->find($id);   
-            
             $collection = self::_storeOrUpdate($collection,$request);
 
-            if($collection){
-                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.return.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
+            if($collection)
+            {
+                $all_transactions = [];
+                ## ADD PRODUCTION RAW MATERIAL DATA
+                if (!empty($request->returned) && sizeof($request->returned) > 0) 
+                {   
+
+                    $previousReturnedMaterials=$this->StoreReturnedHasMaterialModel
+                                                    ->where('returned_id', $collection->id)
+                                                    ->get();
+
+                    dump($previousReturnedMaterials->toArray());
+                    if(!empty($previousReturnedMaterials)){
+                        foreach($previousReturnedMaterials as $previous) {
+
+                            dd($previous->lot_id);
+
+                            $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
+                                    join store_productions ON store_production_has_materials.production_id=store_productions.id 
+                                            WHERE store_productions.batch_id = '".$request->batch_id."'
+                                            AND store_productions.company_id = '".$companyId."'
+                                            AND store_production_has_materials.material_id = '".$previous->material_id."'
+                                            AND store_production_has_materials.lot_id = '".$previous->lot_id."'
+                                            ";
+                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
+
+                            ## UPDATE Production Planned QUANTITY                            
+                            if($collectionReturn)
+                            {
+
+                                $returnData = $collectionReturn->first();
+                                if($returnData->spmid){
+                                    //$updateQty = $returnData->quantity+$return['quantity'];
+                                    ##update returned quantity in production and update returned qty+actual qty in store
+                                    $updateQtyQry = DB::table('store_production_has_materials')
+                                                        ->where('id', $returnData->spmid)
+                                                        ->update(['returned_quantity' => $return['quantity']]);
+
+                                    $updateLotBalance = $this->StoreInMaterialModel->find($return['lot_id']);
+                                    if($updateLotBalance){
+                                        $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity)+$return['quantity'];
+                                        if ($updateLotBalance->save()) 
+                                        {
+                                           $all_transactions[] = 1;
+                                        }else{
+                                           $all_transactions[] = 0;
+                                        }
+
+                                    }
+
+
+                                }
+
+                            }
+                            
+
+                         }
+
+                    }//ifclose
+
+
+
+                    //Delete records
+                    $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->delete();
+
+                    ## ADD IN store_has_production_materials
+                    foreach ($request->returned as $pkey => $return) 
+                    {
+                        $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
+                        $returnRawMaterialObj->returned_id   = $collection->id;
+                        $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
+                        $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
+                        $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
+                        if ($returnRawMaterialObj->save()) 
+                        {                            
+                            
+                            
+                            $all_transactions[] = 1;
+                           
+                        }
+                        else
+                        {
+                            $all_transactions[] = 0;
+                        }
+                        
+                    }
+               
+                }
             }
+
+            if (!in_array(0,$all_transactions)) 
+            {
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route($this->ModulePath.'index');
+                $this->JsonData['msg'] = $this->ModuleTitle.' updated successfully.';
+                DB::commit();
+            }else
+            {
+                DB::rollback();
+                $this->JsonData['error_msg'] = $e->getMessage();
+            }
+
         }
         catch(\Exception $e) {
-
-            $this->JsonData['msg'] = $e->getMessage();
+            DB::rollback();
+            $this->JsonData['error_msg'] = $e->getMessage();
+            $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
         }
 
         return response()->json($this->JsonData);
@@ -276,7 +389,7 @@ class StoreReturnedMaterialController extends Controller
         $collection->batch_id    = $request->batch_id;
         $collection->return_date = date('Y-m-d',strtotime($request->return_date));   
         //Save data
-        $collection->save();
+       // $collection->save();
         
         return $collection;
     }
@@ -413,7 +526,7 @@ class StoreReturnedMaterialController extends Controller
 
          }
      }
-     
+
     $objStore = new StoreBatchCardModel;
     $batchNos = $objStore->getBatchNumbers();
 

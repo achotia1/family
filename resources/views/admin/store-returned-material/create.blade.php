@@ -216,6 +216,7 @@
     <script type="text/javascript">
         var material_id = "";
         var batch_id = "";
+        var index = 0;
         // PLAN OPTIONS
         var plan_options = '';
         @if(!empty($materialIds) && sizeof($materialIds) > 0)
