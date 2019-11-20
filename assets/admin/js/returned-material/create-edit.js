@@ -47,7 +47,7 @@ function addPlan()
                             class="form-control my-select production_material" 
                             placeholder="All Materials"                            
                             name="returned[${counter}][material_id]"
-                            id=material_"${counter}"
+                            id="material_${counter}"
                             onchange="loadLot(this);"
                         >
                             ${plan_options}
@@ -66,7 +66,8 @@ function addPlan()
                             placeholder="Material Lots"
                             name="returned[${counter}][lot_id]"
                             required
-                            id="l_${counter}"
+                            onchange="setQuantityLimit(${counter});"
+                            id="lot_material_${counter}"
                             data-error="Material Lot field is required." 
                         >
                             <option value="">Select Lot</option>
@@ -83,6 +84,7 @@ function addPlan()
                             type="number" 
                             class="form-control quantity"
                             name="returned[${counter}][quantity]"
+                            id="quantity_${counter}"
                             step="any"                           
                         >
                         <span class="help-block with-errors">
@@ -96,6 +98,7 @@ function addPlan()
                     <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
                     </tr>`;
     $(plan_area).insertAfter($(".add_plan_area:last"));    
+    $(".add_plan_area").validator();
 }
 
 function deletePlan(element)
@@ -104,9 +107,19 @@ function deletePlan(element)
     $(element).closest('.add_plan_area').hide();
 }
 
+function setQuantityLimit(index)
+{
+    var qtyLimit = $( "#lot_material_"+index+" option:selected" ).attr('data-qty');    
+
+    $("#quantity_"+index).val("");
+    $("#quantity_"+index).attr("min",1);
+    $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
+}
+
 function loadLot(sel)
 {    
-    var id = $(sel).attr("id");    
+    var id = $(sel).attr("id");   
     var material_id = sel.value;
     var batch_id = $("#batch_no").val();
     var action = ADMINURL + '/return/getMaterialLots';
@@ -114,7 +127,9 @@ function loadLot(sel)
     axios.post(action, {batch_id:batch_id,material_id:material_id})
     .then(response => 
     { 
-        $("#l_"+id).html(response.data.html); 
+        $("#lot_"+id).html(response.data.html); 
+
+        //$("#lot_"+id).html(response.data.html); 
     })
     .catch(error =>
     {

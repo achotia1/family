@@ -99,7 +99,7 @@
                 </span>
             </div>         
                                             
-            <div class="form-group col-md-6">
+            <!-- <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -107,7 +107,7 @@
                       Active
                     </label>
                 </div>  
-            </div>
+            </div> -->
 
             <div class="with-border col-md-12">
                 <h4 class="">Plan Material</h4>
@@ -155,7 +155,8 @@
                             class="form-control my-select production_lot" 
                             placeholder="Material Lots"
                             name="returned[0][lot_id]"
-                            id="l_0"
+                            onchange="setQuantityLimit(0);"
+                            id="lot_material_0"
                             required
                             data-error="Material Lot field is required." 
                         >
@@ -174,6 +175,7 @@
                             type="number" 
                             class="form-control quantity"
                             name="returned[0][quantity]" 
+                            id="quantity_0"
                             required
                             step="any" 
                             data-error="Quantity should be number."

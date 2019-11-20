@@ -12,6 +12,8 @@ use App\Models\StoreBatchCardModel;
 use App\Models\StoreProductionModel;
 use App\Models\ProductionHasMaterialModel;
 
+use App\Models\StoreInMaterialModel;
+
 use App\Http\Requests\Admin\StoreReturnedMaterialRequest;
 use App\Traits\GeneralTrait;
 
@@ -26,13 +28,15 @@ class StoreReturnedMaterialController extends Controller
         StoreReturnedMaterialModel $StoreReturnedMaterialModel,
         StoreRawMaterialModel $StoreRawMaterialModel,
         StoreProductionModel $StoreProductionModel,
-        ProductionHasMaterialModel $ProductionHasMaterialModel
+        ProductionHasMaterialModel $ProductionHasMaterialModel,
+        StoreInMaterialModel $StoreInMaterialModel
     )
     {
         $this->BaseModel  = $StoreReturnedMaterialModel;
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
         $this->StoreProductionModel  = $StoreProductionModel;
         $this->ProductionHasMaterialModel  = $ProductionHasMaterialModel;
+        $this->StoreInMaterialModel  = $StoreInMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -464,20 +468,29 @@ public function bulkDelete(Request $request)
         {
             // $material_id   = $request->material_id;
             $batch_id   = $request->batch_id;
-
+            $companyId = self::_getCompanyId();
+           // dd($companyId);
             // echo "string:".$batch_id;
 
             $get_production_batches = $this->StoreProductionModel
                                         ->join('store_production_has_materials','production_id','store_productions.id')
                                         ->where('batch_id',$batch_id)
+                                        ->where('company_id',$companyId)
                                         ->get(['material_id']);
                                        // ->with(['hasProductionMaterials'])
+           // dd($get_production_batches->toArray());
             $material_ids = array_column($get_production_batches->toArray(), "material_id");
 
             $raw_materials = $this->StoreRawMaterialModel
-                              ->whereNotIn("id",$material_ids)
-                              ->get(['id','name']);
-
+                                  ->whereIn("id",$material_ids)
+                                  ->get(['id','name']);
+           /* $raw_materials = $this->StoreRawMaterialModel
+                                    ->join('store_productions','store_productions.batch_id','store_productions.id')
+                                    ->join('store_production_has_materials','production_id','store_productions.id')
+                                    ->where('batch_id',$batch_id)
+                                  // ->whereIn("id",$material_ids)
+                                      ->get(['id','name']);*/
+            // dd($raw_materials);
             $html="<option value=''>Select Material</option>";
             foreach($raw_materials as $material){
                 $selected="";
@@ -511,48 +524,49 @@ public function bulkDelete(Request $request)
 
     public function getMaterialLots(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to get material lots, Something went wrong on server.';
+        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
         try 
         {
-            // $material_id   = $request->material_id;
             $batch_id       = $request->batch_id;
             $material_id    = $request->material_id;
+            $companyId = self::_getCompanyId();
+           // dd($companyId);
             // echo "string:".$batch_id;
 
-            $get_production_batches = $this->StoreProductionModel
+            $get_lot_ids = $this->StoreProductionModel
                                         ->join('store_production_has_materials','production_id','store_productions.id')
                                         ->where('batch_id',$batch_id)
-                                        ->get(['material_id']);
-                                       // ->with(['hasProductionMaterials'])
-            $material_ids = array_column($get_production_batches->toArray(), "material_id");
+                                        ->where('material_id',$material_id)
+                                        ->where('company_id',$companyId)
+                                        ->get(['lot_id']);
+            // dd($get_lot_ids->toArray());      
+            $lot_ids = array_column($get_lot_ids->toArray(), "lot_id");
+                                  
+            $get_material_lots = $this->StoreInMaterialModel
+                                        ->join('store_production_has_materials','lot_id','store_in_materials.id')
+                                      ->whereIn("store_in_materials.id",$lot_ids)
+                                      ->get(['store_in_materials.id','store_in_materials.material_id','lot_no','lot_qty','lot_balance','store_production_has_materials.quantity as production_quantity']);
+            //dd($get_material_lots);
 
-            $raw_materials = $this->StoreRawMaterialModel
-                              ->whereNotIn("id",$material_ids)
-                              ->get(['id','name']);
-
-            $html="<option value=''>Select Material</option>";
-            foreach($raw_materials as $material){
-                $selected="";
-                /*if($material_id==$material->id){
-                    $selected="selected";
-                } */
-                
-                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
-
+            $html="<option value=''>Select Lot</option>";
+            foreach($get_material_lots as $lotId){        
+                $selected="";            
+                //if (!in_array($lotId['id'], $selected_val))
+                //{
+                    $html.="<option data-qty='".$lotId['production_quantity']."' value='".$lotId['id']."' $selected>".$lotId['lot_no']." (".$lotId['production_quantity'].")</option>";
+                //}                        
             }
-            // dd($get_production_batches,$raw_materials);
-            /*$module = "non_material_module";
-            if(!empty($material_id)){
-                $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
-            }else{
-                $html       = self::_getBatchMaterials($batch_id,false,$module);
-            }*/
+            // $material_id   = $request->material_id;
+            // $selected_val      = $request->selected_val;      
+            // if(!empty($material_id)){
+            //     $html       = self::_getMaterialLots($material_id, $selected_val);
+            // }
  
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
-            $this->JsonData['msg']  = 'Materials Lots';
+            $this->JsonData['msg']  = 'Material Lots';
             $this->JsonData['status']  = 'Success';
 
         } catch (Exception $e) 
