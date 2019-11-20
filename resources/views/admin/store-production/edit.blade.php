@@ -61,17 +61,15 @@
                         @foreach($production->hasProductionMaterials as $material)
                         <tr class="inner-td add_plan_area plan">
                         <td>
+                        <input type="hidden" class="production-id" name="production[{{$k}}][id]" value="{{ $material->id }}" >
                         	<div class="form-group"> 
 	                        <select 
 	                            class="form-control my-select production_material" 
 	                            placeholder="All Materials"
 	                            name="production[{{$k}}][material_id]"
-	                            id="{{$k}}"
-	                            required
+	                            id="{{$k}}"	                            
 	                            onchange="loadLot(this);"
-	                            data-error="Material Number field is required." 
-	                        >
-	                        	<option value="">Select Material</option>
+	                        >	                        	
 	                            <option value="{{ $material->mateialName->id }}"  selected >{{ $material->mateialName->name }}</option>
 	                        </select>
 	                        <span class="help-block with-errors">
@@ -87,11 +85,8 @@
 	                            class="form-control my-select production_lot" 
 	                            placeholder="Material Lots"
 	                            name="production[{{$k}}][lot_id]"
-	                            id="l_{{$k}}"
-	                            required
-	                            data-error="Material Lot field is required." 
-	                        >
-	                            <option value="">Select Lot</option>
+	                            id="l_{{$k}}"	                            
+	                        >	                            
 	                            <option value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_qty}})</option>
 	                        </select>
 	                        <span class="help-block with-errors">
@@ -108,9 +103,8 @@
 	                            class="form-control quantity"
 	                            name="production[{{$k}}][quantity]"
 	                            value="{{$material->quantity}}"
-	                            required
 	                            step="any" 
-	                            data-error="Quantity should be number."
+	                            
 	                        >
 	                        <span class="help-block with-errors">
 	                            <ul class="list-unstyled">
