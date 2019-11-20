@@ -110,7 +110,8 @@
                     </td>
                     <td></td>
                     </tr>
-                    </tbody>
+                    <input type="text" name="total_items" id="total_items" value="1">
+                    </tbody>                    
                 </table>
             	<div class="col-md-8">
             	<a href="javascript:void(0)" class="theme-green bold f-16 text-underline"
