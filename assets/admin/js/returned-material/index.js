@@ -17,26 +17,25 @@ $(document).ready(function()
             {
                 object.custom = {
                     "item_code" : $('#item-code').val(),
-                    "material_id" : $('#material-id').val(),
+                    "batch_id" : $('#batch-id').val(),
                     "product_name" : $('#product-name').val(),
-                    "quantity" :  $('#quantity').val(),
-                    "bill_number" :  $('#bill-number').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
+            { "data": "batch_id"},
             { "data": "return_date"},
             //{ "data": "item_code"},
-            { "data": "name"},
             { "data": "product_name"},
-            { "data": "quantity"},
+            //{ "data": "product_name"},
+            //{ "data": "quantity"},
            // { "data": "bill_number"},            
             //{ "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,5] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {

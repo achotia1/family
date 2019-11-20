@@ -303,13 +303,10 @@ class StoreReturnedMaterialController extends Controller
         $filter = array(
             0 => 'store_returned_materials.id',
             1 => 'store_returned_materials.id',
-            2 => 'store_returned_materials.return_date',
-            3 => 'store_returned_materials_has_materials.material_id',
-            4 => 'store_raw_materials.name',
-            5 => 'store_returned_materials.quantity',
-           // 6 => 'store_returned_materials.bill_number',
-            //7 => 'store_returned_materials.status',
-           // 8 => 'store_returned_materials.status',            
+            2 => 'store_returned_materials.batch_id',
+            3 => 'store_returned_materials.return_date',
+            4 => 'products.code',
+            5 => 'store_returned_materials.id',
         );
 
         /*--------------------------------------
@@ -319,13 +316,11 @@ class StoreReturnedMaterialController extends Controller
         ## START MODEL QUERY    
         //$modelQuery =  $this->BaseModel;
        $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_returned_materials.id, store_returned_materials.batch_id, store_returned_materials_has_materials.material_id, store_returned_materials.return_date, store_returned_materials_has_materials.quantity,store_raw_materials.id as material_code, store_raw_materials.name, store_batch_cards.product_code,products.name as prod_name, products.code as prod_code') 
-        ->leftjoin('store_returned_materials_has_materials', 'store_returned_materials.id' , '=', 'store_returned_materials_has_materials.returned_id')       
-        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_returned_materials_has_materials.material_id')
+        // ->leftjoin('store_returned_materials_has_materials', 'store_returned_materials.id' , '=', 'store_returned_materials_has_materials.returned_id')       
+        // ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_returned_materials_has_materials.material_id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_returned_materials.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
         ->where('store_returned_materials.company_id', $companyId);
-        
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
@@ -333,70 +328,28 @@ class StoreReturnedMaterialController extends Controller
         ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
-        {
-           if (!empty($request->custom['item_code'])) 
-           {
-                $custom_search = true;
-                $key = $request->custom['item_code'];                
-                $modelQuery = $modelQuery
-                ->where('store_returned_materials_has_materials.material_id', $key);
-
-           }
-           if (!empty($request->custom['material_id'])) 
-            {
-                $custom_search = true;
-                $key = $request->custom['material_id'];                
-                $modelQuery = $modelQuery
-                ->where('store_returned_materials_has_materials.material_id', $key);
-
-            }
-            if (!empty($request->custom['quantity'])) 
+        {   
+            if (!empty($request->custom['batch_id'])) 
             {
                 $custom_search = true;
 
-                $key = $request->custom['quantity'];
-                //dd($key);
+                $key = $request->custom['batch_id'];
                 $modelQuery = $modelQuery
-                ->where('store_returned_materials.quantity',  'LIKE', '%'.$key.'%');
+                    ->where('batch_id', $key);
 
             }
+
+           
             if (!empty($request->custom['product_name'])) 
             {
                 $custom_search = true;
 
                 $key = $request->custom['product_name'];
-                //dd($key);
                 $modelQuery = $modelQuery
-                ->where('products.name',  'LIKE', '%'.$key.'%');
+                ->where('products.code',  'LIKE', '%'.$key.'%');
 
             }
-            if (!empty($request->custom['bill_number'])) 
-            {
-                $custom_search = true;
-
-                $key = $request->custom['bill_number'];
-                //dd($key);
-                $modelQuery = $modelQuery
-                ->where('store_returned_materials.bill_number',  'LIKE', '%'.$key.'%');
-
-            }           
-        }
-
-        if (!empty($request->search))
-        {
-            if (!empty($request->search['value'])) 
-            {
-                $search = $request->search['value'];
-
-                 $modelQuery = $modelQuery->where(function ($query) use($search)
-                {
-                    $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_returned_materials.quantity', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_returned_materials.bill_number', 'LIKE', '%'.$search.'%');
-                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');  
-                });              
-
-            }
+                
         }
 
         ## GET TOTAL FILTER
@@ -417,15 +370,16 @@ class StoreReturnedMaterialController extends Controller
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get(['store_returned_materials.id', 
+            'store_batch_cards.batch_card_no',
             'store_returned_materials.return_date',
-            'store_returned_materials.material_id',
-            'store_returned_materials.quantity',
-            'store_raw_materials.name',
-            'prod_code',
-            'prod_name',            
+           // 'store_returned_materials.material_id',
+            //'store_returned_materials.quantity',
+           // 'store_raw_materials.name',
+            'products.name as prod_name',
+            'products.code as prod_code',            
         ]);    
 
-        // dd($object);
+         // dd($object->toArray());
 
 
         /*--------------------------------------
@@ -443,14 +397,10 @@ class StoreReturnedMaterialController extends Controller
                 $data[$key]['id'] = $row->id;
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
+                $data[$key]['batch_id']  = $row->batch_card_no;
 
                 $data[$key]['return_date'] = date('d M Y',strtotime($row->return_date));
-				//$data[$key]['item_code']  = $row->material_id;
-				$data[$key]['name']  = $row->name;
-                $data[$key]['product_name']  = $row->prod_name;
-                $data[$key]['quantity']  =  $row->quantity;
-                //$data[$key]['bill_number']  =  $row->bill_number;                
-
+                $data[$key]['product_name']  =  $row->prod_code." ( ".$row->prod_name." )";
                 /*if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
                 }elseif($row->status==0) {
@@ -463,37 +413,26 @@ class StoreReturnedMaterialController extends Controller
 
          }
      }
-	$objMaterial = new StoreRawMaterialModel;
-    $materialIds = $objMaterial->getMaterialNumbers();
-    
+     
+    $objStore = new StoreBatchCardModel;
+    $batchNos = $objStore->getBatchNumbers();
+
+    $batch_no_string = '<select name="batch_no" id="batch-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
+        foreach ($batchNos as $val) {
+            $batch_no_string .='<option class="theme-black blue-select" value="'.$val['id'].'" '.( $request->custom['batch_id'] == $val['id'] ? 'selected' : '').' >'.$val['batch_card_no'].'</option>';
+        }
+    $batch_no_string .='</select>';    
+
     
     ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
-    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
-    foreach ($materialIds as $mval) {
-    $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
-    }
-    $material_id_string .='</select>';
+    $searchHTML['batch_id'] = $batch_no_string;
     $searchHTML['return_date']     =  '';    
-    //$searchHTML['item_code']     =  '<input type="text" class="form-control" id="item-code" value="'.($request->custom['item_code']).'" placeholder="Search...">';
-    $searchHTML['name'] = $material_id_string;
     $searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
-    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
-   // $searchHTML['bill_number'] = '<input type="text" class="form-control" id="bill-number" value="'.($request->custom['bill_number']).'" placeholder="Search...">';
-
     //$searchHTML['status']   =  '';
 
     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-
-    /*if ($custom_search) 
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger">Remove Filter</a></div>';
-    }
-    else
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary">Search</a></div>';
-    }*/
 
     $searchHTML['actions'] = $seachAction;
 
