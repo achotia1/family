@@ -86,7 +86,10 @@ $('#productionForm').validator().on('submit', function (e)
 
 function addPlan() 
 {
-	var counter = $(".plan").length;	
+	var items = parseInt($("#total_items").val()) + 1;
+	$("#total_items").val(items);
+	var counter = items;	
+	//var counter = $(".plan").length;	
 	var plan_area = `<tr class="inner-td add_plan_area plan">                    
                     <td>
                     	<div class="form-group"> 
@@ -150,7 +153,8 @@ function addPlan()
 function deletePlan(element)
 {
 	$(element).closest('.add_plan_area').find('*').attr('disabled', true);
-	$(element).closest('.add_plan_area').hide();
+	//$(element).closest('.add_plan_area').hide();
+	$(element).closest('.add_plan_area').remove();
 }
 function loadLot(sel)
 {    

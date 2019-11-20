@@ -66,12 +66,13 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        $companyId = self::_getCompanyId();
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
 
         /*$objMaterial = new StoreRawMaterialModel();
         $materialIds = $objMaterial->getMaterialNumbers();*/        
-        $companyId = self::_getCompanyId();
+        
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
         
@@ -185,19 +186,35 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
-
+        $id = base64_decode(base64_decode($encID));
         $companyId = self::_getCompanyId();
+        /*$companyId = self::_getCompanyId();
         $data = $this->BaseModel->where('store_productions.id', base64_decode(base64_decode($encID)))->where('store_productions.company_id', $companyId)->first();
         if(empty($data)) {            
             return redirect()->route('admin.production.index');
+        }*/
+        $data = $this->BaseModel
+        ->with([   
+            'hasProductionMaterials' => function($q)
+            {  
+                $q->with('mateialName');
+                $q->with('hasLot');
+            }
+        ])->with(['assignedBatch' => function($q){
+                $q->with('assignedProduct');
         }
-
+        ])->where('company_id', $companyId)
+        ->find($id);
+        //dd($data);
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
 
-        $objMaterial = new StoreRawMaterialModel();
-        $materialIds = $objMaterial->getMaterialNumbers();
+        /*$objMaterial = new StoreRawMaterialModel();
+        $materialIds = $objMaterial->getMaterialNumbers();*/
 
+        $objMaterial = new StoreRawMaterialModel;
+        $materialIds = $objMaterial->getLotMaterials($companyId);
+        //d($materialIds);
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
 
@@ -292,28 +309,57 @@ class StoreProductionController extends Controller
         $dir = $request->order[0]['dir'];
 
         ## FILTER COLUMNS
-        $filter = array(
+        /*$filter = array(
             0 => 'store_productions.id',
             1 => 'store_productions.id',
             2 => 'store_productions.batch_id',
             3 => 'store_batch_cards.product_code', 
             4 => 'total_qty',                   
+        );*/
+        $filter = array(
+            0 => 'id',
+            1 => 'id',
+            2 => 'id',
+            3 => 'id', 
+            4 => 'id',                   
         );
 
         /*--------------------------------------
         |  MODEL QUERY AND FILTER
         ------------------------------*/
         $companyId = self::_getCompanyId();
+        /*$modelQuery = $this->BaseModel
+        ->with([   
+            'hasProductionMaterials' => function($q)
+            {  
+                $q->with('mateialName');
+                $q->with('hasLot');
+            }
+        ])->with(['assignedBatch' => function($q){
+                $q->with('assignedProduct');
+        }
+        ]);*/
+        
+        /*$modelQuery = $this->BaseModel
+        ->with(['assignedBatch' => function($q){
+                $q->with('assignedProduct');
+        }
+        ]);*/
+        $modelQuery = $this->BaseModel
+        ->with(['assignedBatch.assignedProduct'
+        ]);
+
         ## START MODEL QUERY 
         //$modelQuery = $this->BaseModel->with('hasProductionMaterials');
 
-        $modelQuery =  $this->BaseModel        
+        /*$modelQuery =  $this->BaseModel        
         ->selectRaw('store_productions.id, store_productions.batch_id,  store_batch_cards.batch_card_no, products.name, products.code, SUM(store_production_has_materials.quantity) as total_qty')
         ->leftjoin('store_production_has_materials', 'store_production_has_materials.production_id' , '=', 'store_productions.id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')     
         ->where('store_productions.company_id', $companyId);
-        ## GET TOTAL COUNT
+
+        ## GET TOTAL COUNT*/
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
 
@@ -327,9 +373,10 @@ class StoreProductionController extends Controller
                 $custom_search = true;
 
                 $key = $request->custom['batch_id'];
-                //dd($key);
                 $modelQuery = $modelQuery
-                ->where('store_productions.batch_id',  $key);
+                    ->where('batch_id', $key);
+                /*$modelQuery = $modelQuery
+                ->where('store_productions.batch_id',  $key);*/
 
             }
 
@@ -337,8 +384,12 @@ class StoreProductionController extends Controller
             {
                 $custom_search = true;
                 $key = $request->custom['product_code'];               
+                /*$modelQuery = $modelQuery
+                ->where('store_batch_cards.product_code',  $key);*/
                 $modelQuery = $modelQuery
-                ->where('store_batch_cards.product_code',  $key);
+                    ->whereHas('assignedBatch', function ($query) use ($key) {
+                        $query->where('product_code',  $key);
+                    });
             }
         }
 
@@ -347,12 +398,18 @@ class StoreProductionController extends Controller
             if (!empty($request->search['value'])) 
             {
                 $search = $request->search['value'];
+                
+                $modelQuery = $modelQuery
+                    ->whereHas('assignedBatch', function ($query) use ($search) {
+                        $query->where('batch_card_no',  'LIKE', '%'.$search.'%');
+                    });
 
-                 $modelQuery = $modelQuery->where(function ($query) use($search)
+                 /*$modelQuery = $modelQuery->where(function ($query) use($search)
                 {
                     $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
                     $query->orwhere('store_batch_cards.product_code', 'LIKE', '%'.$search.'%');
-                });              
+                });*/                
+                                
 
             }
         }
@@ -370,16 +427,10 @@ class StoreProductionController extends Controller
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
-        
+        //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_productions.id', 
-            'store_productions.batch_id', 
-            'store_batch_cards.batch_card_no', 
-            'products.name',            
-            'products.code',
-            'total_qty',            
-        ]);  
+        ->get();  
 
         //dd($object);
         /*--------------------------------------
@@ -398,9 +449,11 @@ class StoreProductionController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_productions[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['batch_id']  = $row->batch_card_no;
-                $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
-                $data[$key]['quantity']  =  $row->total_qty;                
+                $data[$key]['batch_id']  = $row->assignedBatch->batch_card_no;
+                $data[$key]['product_code']  =  $row->assignedBatch->assignedProduct->code." ( ".$row->assignedBatch->assignedProduct->name." )";
+
+                //$row->code." ( ".$row->name." )";
+                $data[$key]['quantity']  =  1;//$row->total_qty;                
                                
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
