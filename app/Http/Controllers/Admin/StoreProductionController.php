@@ -187,13 +187,8 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
         $id = base64_decode(base64_decode($encID));
-        $companyId = self::_getCompanyId();
+        $companyId = self::_getCompanyId();        
         
-        /*$companyId = self::_getCompanyId();
-        $data = $this->BaseModel->where('store_productions.id', base64_decode(base64_decode($encID)))->where('store_productions.company_id', $companyId)->first();
-        if(empty($data)) {            
-            return redirect()->route('admin.production.index');
-        }*/
         $data = $this->BaseModel
         ->with([   
             'hasProductionMaterials' => function($q)
@@ -217,11 +212,9 @@ class StoreProductionController extends Controller
         $materialIds = $objMaterial->getLotMaterials($companyId);
         //d($materialIds);
         $this->ViewData['batchNos']   = $batchNos;
-        $this->ViewData['materialIds']   = $materialIds;
-
-        /*## ALL DATA
-        $this->ViewData['production'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));*/
+        $this->ViewData['materialIds']   = $materialIds;        
         $this->ViewData['production'] = $data;
+        
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
@@ -237,34 +230,34 @@ class StoreProductionController extends Controller
 
             $collection = $this->BaseModel->find($id);            
             $collection = self::_storeOrUpdate($collection,$request);
+            //dd($request->all());
             if($collection->save()){
                 $all_transactions = [];
                 $productionId = $id;
                 if (!empty($request->production) && sizeof($request->production) > 0) 
-                { 
+                {                     
                     ## GET PREIOUS LOT QUANTITIES
                     $prodRawMaterialModel = new ProductionHasMaterialModel;
                     $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity'])->toArray();
-                    //dd($prevRecords);
+                    
                     $result = array();
                     ## IF Duplicate row for same material and lot id
                     # MAKE addition of quantities and create one record
-                    //$newQuantities = array();
                     foreach($request->production as $val){
                         if(isset($result[$val['material_id']][$val['lot_id']])){
                             $result[$val['material_id']][$val['lot_id']] = $result[$val['material_id']][$val['lot_id']] + $val['quantity'];
-                            //$newQuantities[$val['lot_id']] = 
                         }
                         else {
                             $result[$val['material_id']][$val['lot_id']] = $val['quantity'];
                         }
                         
-                    }                   
+                    }
+
                     $finalArray = $correntRecords = array();
                     $i = 0;
                     foreach($result as $materialId=>$rVal){     
                         foreach($rVal as $lotId=>$quantity){
-                            if($quantity > 0){
+                            if($quantity > 0 && $materialId > 0 && $lotId > 0){
                                 $finalArray[$i]['production_id'] = $productionId;
                                 $finalArray[$i]['material_id'] = $materialId;
                                 $finalArray[$i]['lot_id'] = $lotId;
@@ -274,13 +267,15 @@ class StoreProductionController extends Controller
                             }                            
                         }   
                     }
+
                     if(!empty($finalArray)){
-                        $detailIds = array_column($request->production, 'id');
+                        //$detailIds = array_column($request->production, 'id');
                         $prodRawMaterialObj = new ProductionHasMaterialModel;
-                        $prodRawMaterialObj->whereIn('id', $detailIds)->delete();
+                        $prodRawMaterialObj->where('production_id', $productionId)->delete();
 
                         $prodRawMaterialObj1 = new ProductionHasMaterialModel;
                         $prodRawMaterialObj1->insert($finalArray);
+                        
                         ## ADD BALANCE In MATERIAL IN
                         foreach($prevRecords as $pKey=>$pVal){
                             $inObj = new StoreInMaterialModel;
@@ -316,22 +311,15 @@ class StoreProductionController extends Controller
                     $this->JsonData['url'] = route($this->ModulePath.'index');
                     $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.';
                     DB::commit();
-                }
-                //dd($request->all());
-                /*$this->JsonData['status'] = __('admin.RESP_SUCCESS');
-                $this->JsonData['url'] = route('admin.production.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; */
+                }                
             } else {
                 DB::rollback();
             }
         }
         catch(\Exception $e) {
-
             $this->JsonData['msg'] = $e->getMessage();
         }
-
         return response()->json($this->JsonData);
-
     }
 
     public function destroy($id)

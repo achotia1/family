@@ -73,7 +73,7 @@ $('#productionForm').validator().on('submit', function (e)
                 $('.box-body').LoadingOverlay("hide");
 
                 const errorBag = error.response.data.errors;
-
+				//console.log(errorBag);
                 $.each(errorBag, function (fieldName, value) {
                     $('.err_' + fieldName).closest('.form-group').addClass('has-error has-danger');
                     $('.err_' + fieldName).text(value[0]).closest('span').show();
