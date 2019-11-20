@@ -23,13 +23,13 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th class="w-100-px">Date</th>
+                        <th class="w-100-px">Batch Number</th>
+                        <th class="w-100-px">Returned Date</th>
                         <!-- <th class="w-100-px">Item Code</th> -->
-                        <th class="w-100-px">Raw Material</th>
-                        <th class="w-100-px">Unit</th>
-                        <th class="w-100-px">Quantity</th>
-                        <th class="w-100-px">Bill Number</th>
-                        <th class="w-100-px">Status</th>                        
+                        <th class="w-100-px">Product</th>
+                        <!-- <th class="w-100-px">Quantity</th> -->
+                        <!-- <th class="w-100-px">Bill Number</th> -->
+                        <!-- <th class="w-100-px">Status</th>         -->                
                         <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>

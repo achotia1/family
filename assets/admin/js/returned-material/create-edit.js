@@ -6,7 +6,7 @@ $(document).ready(function ()
       // startDate: new Date()
     })
     var plan_options='';
-    $('#batch_no').on('change', function() {
+    $('#batch_id').on('change', function() {
         var batch_id=this.value;
         getBatchMaterials(batch_id);
      });
@@ -121,7 +121,7 @@ function loadLot(sel)
 {    
     var id = $(sel).attr("id");   
     var material_id = sel.value;
-    var batch_id = $("#batch_no").val();
+    var batch_id = $("#batch_id").val();
     var action = ADMINURL + '/return/getMaterialLots';
 
     axios.post(action, {batch_id:batch_id,material_id:material_id})
