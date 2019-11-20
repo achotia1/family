@@ -110,7 +110,7 @@
                     </td>
                     <td></td>
                     </tr>
-                    <input type="text" name="total_items" id="total_items" value="1">
+                    <input type="hidden" name="total_items" id="total_items" value="1">
                     </tbody>                    
                 </table>
             	<div class="col-md-8">

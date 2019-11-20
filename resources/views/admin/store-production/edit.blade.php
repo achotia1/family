@@ -61,6 +61,7 @@
                         @foreach($production->hasProductionMaterials as $material)
                         <tr class="inner-td add_plan_area plan">
                         <td>
+                        <input type="hidden" class="production-id" name="production[{{$k}}][id]" value="{{ $material->id }}" >
                         	<div class="form-group"> 
 	                        <select 
 	                            class="form-control my-select production_material" 

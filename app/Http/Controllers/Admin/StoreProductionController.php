@@ -188,6 +188,7 @@ class StoreProductionController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
         $id = base64_decode(base64_decode($encID));
         $companyId = self::_getCompanyId();
+        
         /*$companyId = self::_getCompanyId();
         $data = $this->BaseModel->where('store_productions.id', base64_decode(base64_decode($encID)))->where('store_productions.company_id', $companyId)->first();
         if(empty($data)) {            
@@ -206,11 +207,11 @@ class StoreProductionController extends Controller
         ])->where('company_id', $companyId)
         ->find($id);
         //dd($data);
+        if(empty($data)) {            
+            return redirect()->route('admin.production.index');
+        }
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
-
-        /*$objMaterial = new StoreRawMaterialModel();
-        $materialIds = $objMaterial->getMaterialNumbers();*/
 
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
@@ -227,20 +228,101 @@ class StoreProductionController extends Controller
 
     public function update(StoreProductionRequest $request, $encID)    {
         
+        DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Branch, Something went wrong on server.';       
 
         $id = base64_decode(base64_decode($encID));
         try {
 
-            $collection = $this->BaseModel->find($id);   
-            
+            $collection = $this->BaseModel->find($id);            
             $collection = self::_storeOrUpdate($collection,$request);
+            if($collection->save()){
+                $all_transactions = [];
+                $productionId = $id;
+                if (!empty($request->production) && sizeof($request->production) > 0) 
+                { 
+                    ## GET PREIOUS LOT QUANTITIES
+                    $prodRawMaterialModel = new ProductionHasMaterialModel;
+                    $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity'])->toArray();
+                    //dd($prevRecords);
+                    $result = array();
+                    ## IF Duplicate row for same material and lot id
+                    # MAKE addition of quantities and create one record
+                    //$newQuantities = array();
+                    foreach($request->production as $val){
+                        if(isset($result[$val['material_id']][$val['lot_id']])){
+                            $result[$val['material_id']][$val['lot_id']] = $result[$val['material_id']][$val['lot_id']] + $val['quantity'];
+                            //$newQuantities[$val['lot_id']] = 
+                        }
+                        else {
+                            $result[$val['material_id']][$val['lot_id']] = $val['quantity'];
+                        }
+                        
+                    }                   
+                    $finalArray = $correntRecords = array();
+                    $i = 0;
+                    foreach($result as $materialId=>$rVal){     
+                        foreach($rVal as $lotId=>$quantity){
+                            if($quantity > 0){
+                                $finalArray[$i]['production_id'] = $productionId;
+                                $finalArray[$i]['material_id'] = $materialId;
+                                $finalArray[$i]['lot_id'] = $lotId;
+                                $finalArray[$i]['quantity'] = $quantity;
+                                $i++;
+                                $correntRecords[$lotId] = $quantity;
+                            }                            
+                        }   
+                    }
+                    if(!empty($finalArray)){
+                        $detailIds = array_column($request->production, 'id');
+                        $prodRawMaterialObj = new ProductionHasMaterialModel;
+                        $prodRawMaterialObj->whereIn('id', $detailIds)->delete();
 
-            if($collection){
-                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                        $prodRawMaterialObj1 = new ProductionHasMaterialModel;
+                        $prodRawMaterialObj1->insert($finalArray);
+                        ## ADD BALANCE In MATERIAL IN
+                        foreach($prevRecords as $pKey=>$pVal){
+                            $inObj = new StoreInMaterialModel;
+                            $inMaterialcollection = $inObj->find($pVal['lot_id']);
+                            $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true);
+                            if($updateBal) 
+                            {                            
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }
+                        ## REMOVE THE NEW PLANNED QUANTITY FROM STOCK
+                        foreach($correntRecords as $cLotId=>$cQuantity){
+                            $inObj = new StoreInMaterialModel;
+                            $inMaterialcollection = $inObj->find($cLotId);
+                            $updateBal = $inObj->updateBalance($inMaterialcollection, $cQuantity);
+                            if($updateBal) 
+                            {                            
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }                     
+                    } else {
+                        $all_transactions[] = 0;
+                    }
+                   
+                }
+                if (!in_array(0,$all_transactions)) 
+                {
+                    $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                    $this->JsonData['url'] = route($this->ModulePath.'index');
+                    $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.';
+                    DB::commit();
+                }
+                //dd($request->all());
+                /*$this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.production.index');
-                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
+                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; */
+            } else {
+                DB::rollback();
             }
         }
         catch(\Exception $e) {
