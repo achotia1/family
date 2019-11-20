@@ -118,43 +118,53 @@ class StoreProductionController extends Controller
                 ## ADD PRODUCTION RAW MATERIAL DATA
                 if (!empty($request->production) && sizeof($request->production) > 0) 
                 {                    
-                    ## ADD IN store_has_production_materials
-                    foreach ($request->production as $pkey => $prod) 
-                    {
-                        $prodRawMaterialObj = new ProductionHasMaterialModel;
-                        $prodRawMaterialObj->production_id   = $collection->id;
-                        $prodRawMaterialObj->material_id   = !empty($prod['material_id']) ? $prod['material_id'] : NULL;
-                        $prodRawMaterialObj->lot_id   =  !empty($prod['lot_id']) ? $prod['lot_id'] : NULL;
-                        $prodRawMaterialObj->quantity   = !empty($prod['quantity']) ? $prod['quantity'] : NULL;
-                        if ($prodRawMaterialObj->save()) 
-                        {                            
-                            ## UPDATE LOT QUANTITY                            
-                            if($prod['lot_id'] > 0){
-                                $inObj = new StoreInMaterialModel;
-                                $inMaterialcollection = $inObj->find($prod['lot_id']);
-                                $updateBal = $inObj->updateBalance($inMaterialcollection, $prod['quantity']);
-                                /*$inMaterialcollection = $inObj->find($prod['lot_id']);
-                                $inLotBal = $inMaterialcollection->lot_balance - $prod['quantity'];
-                                $inMaterialcollection->lot_balance = $inLotBal;*/
-
-                                if($updateBal) 
-                                {
-                                    //dd('fgfdg');
-                                    $all_transactions[] = 1;
-                                } else {
-                                    $all_transactions[] = 0;
-                                }
-                            } else {
-                                $all_transactions[] = 0;
-                            }
-                           
+                    
+                    $result = array();
+                    ## IF Duplicate row for same material and lot id
+                    # MAKE addition of quantities and create one record
+                    foreach($request->production as $val){
+                        if(isset($result[$val['material_id']][$val['lot_id']])){
+                            $result[$val['material_id']][$val['lot_id']] = $result[$val['material_id']][$val['lot_id']] + $val['quantity'];
                         }
-                        else
-                        {
-                            $all_transactions[] = 0;
+                        else {
+                            $result[$val['material_id']][$val['lot_id']] = $val['quantity'];
                         }
                         
                     }
+
+                    $finalArray = $correntRecords = array();
+                    $i = 0;
+                    foreach($result as $materialId=>$rVal){                        
+                        foreach($rVal as $lotId=>$quantity){                            
+                            if($quantity > 0 && $materialId > 0 && $lotId > 0){
+                                $finalArray[$i]['production_id'] = $collection->id;
+                                $finalArray[$i]['material_id'] = $materialId;
+                                $finalArray[$i]['lot_id'] = $lotId;
+                                $finalArray[$i]['quantity'] = $quantity;
+                                $i++;
+                                $correntRecords[$lotId] = $quantity;
+                            }                            
+                        }   
+                    }                   
+                    if(!empty($finalArray)){
+                        $prodRawMaterialObj1 = new ProductionHasMaterialModel;
+                        $prodRawMaterialObj1->insert($finalArray);
+                        ## REMOVE THE NEW PLANNED QUANTITY FROM STOCK
+                        foreach($correntRecords as $cLotId=>$cQuantity){
+                            $inObj = new StoreInMaterialModel;
+                            $inMaterialcollection = $inObj->find($cLotId);
+                            $updateBal = $inObj->updateBalance($inMaterialcollection, $cQuantity);
+                            if($updateBal) 
+                            {                            
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }
+                    } else {
+                        $all_transactions[] = 0;
+                    }                    
+                    
                 }
                 if (!in_array(0,$all_transactions)) 
                 {
@@ -162,20 +172,17 @@ class StoreProductionController extends Controller
                     $this->JsonData['url'] = route($this->ModulePath.'index');
                     $this->JsonData['msg'] = 'Production Plan added successfully.';
                     DB::commit();
-                }
-               
+                }               
             } 
             else
             {
                 DB::rollback();
             }
-
         }
         catch(\Exception $e) {
             $this->JsonData['error_msg'] = $e->getMessage();
             DB::rollback();
         }
-
         return response()->json($this->JsonData);
     }  
 
@@ -214,7 +221,7 @@ class StoreProductionController extends Controller
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;        
         $this->ViewData['production'] = $data;
-        
+
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
