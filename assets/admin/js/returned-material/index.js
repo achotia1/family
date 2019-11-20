@@ -32,11 +32,11 @@ $(document).ready(function()
             { "data": "name"},
             { "data": "product_name"},
             { "data": "quantity"},
-            { "data": "bill_number"},            
-            { "data": "status"},
+           // { "data": "bill_number"},            
+            //{ "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,8] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {

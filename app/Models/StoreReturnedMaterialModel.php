@@ -12,12 +12,12 @@ class StoreReturnedMaterialModel extends Model
     protected $table = 'store_returned_materials';
 
     protected $fillable = [
-		'batch_no',
-        'material_id',
+		'batch_id',
+        'company_id',
         'return_date',
         'quantity',
-        'bill_number',
-        'status'        
+       // 'bill_number',
+        //'status'        
     ];
 
     /**

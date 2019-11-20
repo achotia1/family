@@ -21,20 +21,20 @@ class StoreReturnedMaterialRequest extends FormRequest
         if ($id == null) 
         {
            return [                
-                'batch_no'     => 'required',
-                'material_id'     => 'required',
+                'batch_id'     => 'required',
                 'return_date'     => 'required',
-                'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'bill_number'     => 'required',                                
+               // 'material_id'     => 'required',
+                //'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+                //'bill_number'     => 'required',                                
             ];
         }else{
              return [                
-                'batch_no'     => 'required',
-                'material_id'     => 'required',
+                'batch_id'     => 'required',
                 'return_date'     => 'required',
-                'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'quantity.regex'    => 'Quantity should be correct.',
-                'bill_number'     => 'required',                               
+                // 'material_id'     => 'required',
+                // 'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+                // 'quantity.regex'    => 'Quantity should be correct.',
+                // 'bill_number'     => 'required',                               
             ];
         }          
      
@@ -46,11 +46,11 @@ class StoreReturnedMaterialRequest extends FormRequest
 
             // 'name.required'    => 'Name field is required.',            
             // 'name.regex'       => 'Name field should be in latter\'s and number\'s only.', 
-            'batch_no.required'    => 'Batch Card Number field is required.',           
-            'material_id.required'    => 'Raw Material field is required.',            
+            'batch_id.required'    => 'Batch Card Number field is required.',           
             'return_date.required'    => 'Return Date field is required.',            
-            'quantity.required'    => 'Quantity field is required.',            
-            'bill_number.required'    => 'Bill number field is required.',
+            // 'material_id.required'    => 'Raw Material field is required.',            
+            // 'quantity.required'    => 'Quantity field is required.',            
+            // 'bill_number.required'    => 'Bill number field is required.',
         ];
     }
 }

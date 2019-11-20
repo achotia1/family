@@ -28,8 +28,8 @@
                         <th class="w-100-px">Raw Material</th>
                         <th class="w-100-px">Unit</th>
                         <th class="w-100-px">Quantity</th>
-                        <th class="w-100-px">Bill Number</th>
-                        <th class="w-100-px">Status</th>                        
+                        <!-- <th class="w-100-px">Bill Number</th> -->
+                        <!-- <th class="w-100-px">Status</th>         -->                
                         <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>
