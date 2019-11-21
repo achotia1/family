@@ -250,13 +250,11 @@ class StoreReturnedMaterialController extends Controller
 
     public function update(StoreReturnedMaterialRequest $request, $encID)
     {
-        dump($request->all());
+       // dump($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Return Material, Something went wrong on server.';       
 
         $id = base64_decode(base64_decode($encID));
-        
-
         try {     
 
             $companyId = self::_getCompanyId();      
@@ -275,28 +273,80 @@ class StoreReturnedMaterialController extends Controller
                                                     ->where('returned_id', $collection->id)
                                                     ->get();
 
-                    dump($previousReturnedMaterials->toArray());
-                    if(!empty($previousReturnedMaterials)){
-                        foreach($previousReturnedMaterials as $previous) {
-
-                            dd($previous->lot_id);
-
+                    //Update lot balance for all the previous materials
+                    if(!empty($previousReturnedMaterials))
+                    {
+                        foreach($previousReturnedMaterials as $previous) 
+                        {
                             $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
                                     join store_productions ON store_production_has_materials.production_id=store_productions.id 
                                             WHERE store_productions.batch_id = '".$request->batch_id."'
                                             AND store_productions.company_id = '".$companyId."'
                                             AND store_production_has_materials.material_id = '".$previous->material_id."'
-                                            AND store_production_has_materials.lot_id = '".$previous->lot_id."'
-                                            ";
+                                            AND store_production_has_materials.lot_id = '".$previous->lot_id."'";
                             $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
 
                             ## UPDATE Production Planned QUANTITY                            
                             if($collectionReturn)
                             {
+                                $returnData = $collectionReturn->first();
+                                if($returnData->spmid)
+                                {
+                                   ##update returned quantity in production and update returned qty+actual qty in store
+                                    $updateLotBalance = $this->StoreInMaterialModel->find($previous->lot_id);
+                                    if($updateLotBalance)
+                                    {
+                                        $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity);
+                                        if($updateLotBalance->save()) 
+                                        {
+                                           $all_transactions[] = 1;
+                                        }else{
+                                           $all_transactions[] = 0;
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                    }
+
+                }//ifclose
+
+                //Delete records
+                $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->delete();
+
+                //Update return quantity and lot balance for the current items
+                ## ADD IN store_has_production_materials
+                foreach ($request->returned as $pkey => $return) 
+                {
+                    $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
+                    $returnRawMaterialObj->returned_id   = $collection->id;
+                    $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
+                    $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
+                    $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
+                    if ($returnRawMaterialObj->save()) 
+                    {                            
+                        ## UPDATE Production Planned QUANTITY                            
+                        if($return['lot_id'] > 0)
+                        {
+
+                            $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity FROM store_production_has_materials
+                                join store_productions ON store_production_has_materials.production_id=store_productions.id 
+                                        WHERE store_productions.batch_id = '".$request->batch_id."'
+                                        AND store_productions.company_id = '".$companyId."'
+                                        AND store_production_has_materials.material_id = '".$return['material_id']."'
+                                        AND store_production_has_materials.lot_id = '".$return['lot_id']."'
+                                        ";
+                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
+
+                            if($collectionReturn)
+                            {
 
                                 $returnData = $collectionReturn->first();
                                 if($returnData->spmid){
-                                    //$updateQty = $returnData->quantity+$return['quantity'];
                                     ##update returned quantity in production and update returned qty+actual qty in store
                                     $updateQtyQry = DB::table('store_production_has_materials')
                                                         ->where('id', $returnData->spmid)
@@ -304,7 +354,7 @@ class StoreReturnedMaterialController extends Controller
 
                                     $updateLotBalance = $this->StoreInMaterialModel->find($return['lot_id']);
                                     if($updateLotBalance){
-                                        $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity)+$return['quantity'];
+                                        $updateLotBalance->lot_balance=$updateLotBalance->lot_balance+$return['quantity'];
                                         if ($updateLotBalance->save()) 
                                         {
                                            $all_transactions[] = 1;
@@ -318,40 +368,18 @@ class StoreReturnedMaterialController extends Controller
                                 }
 
                             }
-                            
-
-                         }
-
-                    }//ifclose
-
-
-
-                    //Delete records
-                    $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->delete();
-
-                    ## ADD IN store_has_production_materials
-                    foreach ($request->returned as $pkey => $return) 
-                    {
-                        $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
-                        $returnRawMaterialObj->returned_id   = $collection->id;
-                        $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
-                        $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
-                        $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
-                        if ($returnRawMaterialObj->save()) 
-                        {                            
-                            
-                            
-                            $all_transactions[] = 1;
-                           
-                        }
-                        else
-                        {
-                            $all_transactions[] = 0;
                         }
                         
+                        $all_transactions[] = 1;
+                       
                     }
-               
+                    else
+                    {
+                        $all_transactions[] = 0;
+                    }
+                    
                 }
+               
             }
 
             if (!in_array(0,$all_transactions)) 
@@ -389,7 +417,7 @@ class StoreReturnedMaterialController extends Controller
         $collection->batch_id    = $request->batch_id;
         $collection->return_date = date('Y-m-d',strtotime($request->return_date));   
         //Save data
-       // $collection->save();
+       $collection->save();
         
         return $collection;
     }
@@ -561,37 +589,104 @@ class StoreReturnedMaterialController extends Controller
     return response()->json($this->JsonData);
 }
 
-public function bulkDelete(Request $request)
-{
-    //dd($request->all());
-    $this->JsonData['status'] = 'error';
-    $this->JsonData['msg'] = 'Failed to delete materials, Something went wrong on server.';
-
-    if (!empty($request->arrEncId)) 
+    public function bulkDelete(Request $request)
     {
-        $arrID = array_map(function($item)
+        // dd($request->all());
+        $companyId = self::_getCompanyId();
+
+        DB::beginTransaction();
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to delete materials, Something went wrong on server.';
+
+        if (!empty($request->arrEncId)) 
         {
-            return base64_decode(base64_decode($item));
-
-        }, $request->arrEncId);
-
-        try 
-        {
-
-            if ($this->BaseModel->whereIn('id', $arrID)->delete()) 
+            $arrID = array_map(function($item)
             {
+                return base64_decode(base64_decode($item));
+
+            }, $request->arrEncId);
+
+            try 
+            {
+                $object = $this->BaseModel->whereIn('id', $arrID)->get();
+               // dump($object->toArray());
+                foreach ($object as $key => $collection) 
+                {
+
+                   // dump($collection);
+                    //dump($collection->id);
+                    if(!empty($collection->id))
+                    {
+
+                        $returnedMaterialObject = $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->get();
+                   // dd($returnedMaterialObject);
+                    //if(!empty($returnedMaterialObject->id))
+                    //{
+                        foreach($returnedMaterialObject as $mkey => $mvalue) 
+                        {
+                           
+
+                             $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
+                                        join store_productions ON store_production_has_materials.production_id=store_productions.id 
+                                                WHERE store_productions.batch_id = '".$collection->batch_id."'
+                                                AND store_productions.company_id = '".$companyId."'
+                                                AND store_production_has_materials.material_id = '".$mvalue->material_id."'
+                                                AND store_production_has_materials.lot_id = '".$mvalue->lot_id."'";
+                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
+ //dd($collectionReturn);
+                            if($collectionReturn)
+                            {
+                                $returnData = $collectionReturn->first();
+                                if($returnData->spmid)
+                                {
+                                   ##update returned quantity in production and update returned qty+actual qty in store
+                                    $updateQtyQry = DB::table('store_production_has_materials')
+                                                                ->where('id', $returnData->spmid)
+                                                                ->update(['returned_quantity' => 0]);
+
+                                    $updateLotBalance = $this->StoreInMaterialModel->find($mvalue->lot_id);
+                                    if($updateLotBalance)
+                                    {
+                                        $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity);
+                                        if($updateLotBalance->save()) 
+                                        {
+                                           $all_transactions[] = 1;
+                                        }else{
+                                           $all_transactions[] = 0;
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                        }
+                    //}
+
+                    
+                    $this->StoreReturnedHasMaterialModel->where('returned_id',$collection->id)->delete();
+
+                    }
+                    
+                    $this->BaseModel->where('id', $collection->id)->delete();
+
+
+                }
+
+                DB::commit();
+
                 $this->JsonData['status'] = 'success';
                 $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
-            }
 
-        } catch (Exception $e) 
-        {
-           $this->JsonData['exception'] = $e->getMessage();
+            } catch (Exception $e) 
+            {
+               $this->JsonData['exception'] = $e->getMessage();
+                DB::rollback();
+           }
        }
-   }
 
-   return response()->json($this->JsonData);   
-}
+       return response()->json($this->JsonData);   
+    }
 
     public function getBatchMaterials(Request $request)
     {

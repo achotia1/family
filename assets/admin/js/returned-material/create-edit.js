@@ -18,10 +18,6 @@ $(document).ready(function ()
 })
 
 function getBatchMaterials(batch_id){
-    // console.log("getBactchMaterial");
-    // console.log(batch_id);
-    // return false;
-//,material_id:material_id
     var action = ADMINURL + '/return/getBatchMaterials';
     axios.post(action, {batch_id:batch_id})
     .then(response => 
