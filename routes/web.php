@@ -124,6 +124,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				{*/
 					Route::post('/production/getBatchMaterials',  'StoreProductionController@getBatchMaterials');
 					Route::post('/production/getMaterialLots',  'StoreProductionController@getMaterialLots');
+					Route::post('/production/getExistingBatch',  'StoreProductionController@getExistingBatch');
 					Route::get('/production/getRecords',  'StoreProductionController@getRecords');
 					Route::get('/production/show/{id}',  'StoreProductionController@show')->name($PREFIX.'.production.show');
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');

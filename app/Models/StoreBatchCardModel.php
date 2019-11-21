@@ -66,12 +66,9 @@ class StoreBatchCardModel extends Model
                     ->get();
     }
 
-   /* public function getBatchDetails() {
-        return self::with(['assignedProduct'])
-                    ->select('id','batch_card_no','product_code')
-                    ->whereStatus(1)
-                    ->get();
-    }*/
+    public function getBatchDetails($id) {
+        return self::with(['assignedProduct'])->find($id);
+    }
 
    /* public function getPendingBatches() {
         return self::where('status', 1)->orderBy('id', 'DESC')->get();

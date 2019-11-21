@@ -18,6 +18,7 @@ $(document).ready(function()
                 object.custom = {
                     "batch_id" :  $('#batch-id').val(),
                     "product_code" :  $('#product-code').val(),
+                    "quantity" :  $('#quantity').val(),
                 }
             }
         },
@@ -108,10 +109,10 @@ function doSearch(element)
 }
 
 function removeSearch(element)
-{ 
-
+{
   $('#batch-id').val(''),
   $('#product-code').val(''),
+  $('#quantity').val('')
   $('#listingTable').DataTable().draw();
 }
 
