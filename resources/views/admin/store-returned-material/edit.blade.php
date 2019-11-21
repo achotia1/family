@@ -15,66 +15,15 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="batch_no" name="batch_no" required="" data-error="Batch Code field is required.">                    
+                <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">                    
                     <option value="">Select Batch</option>
                     @foreach($batchNos as $val){
-                    <option value="{{$val['id']}}" @if($return_material->batch_no==$val['id']) selected @endif>{{$val['batch_card_no']}}</option>
+                    <option value="{{$val['id']}}" @if($return_material->batch_id==$val['id']) selected @endif>{{$val['batch_card_no']}}</option>
                     @endforeach
                 </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_batch_no"></li>
-                    </ul>
-                </span>
-            </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue"> 
-                Raw Material <span class="required">*</span></label>
-                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Raw Material field is required.">                    
-                    <option value="">Select Material</option>
-                    @foreach($materialIds as $val){
-                    <option value="{{$val['id']}}" @if($return_material->material_id==$val['id']) selected @endif>{{$val['name']}}</option>
-                    @endforeach
-                </select>               
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_material_id"></li>
-                    </ul>
-                </span>
-            </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Quantity
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="quantity"
-                    value="{{$return_material->quantity}}"
-                    class="form-control" 
-                    required
-                    step="any"                   
-                    maxlength="20" 
-                    data-error="Quantity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_quantity"></li>
-                    </ul>
-                </span>
-            </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Bill Number
-                    <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    name="bill_number"
-                    value="{{$return_material->bill_number}}"                  
-                    class="form-control" 
-                    required                                       
-                    data-error="Bill Number field is required." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_bill_number"></li>
+                        <li class="err_batch_id"></li>
                     </ul>
                 </span>
             </div>
@@ -102,16 +51,108 @@
                     </ul>
                 </span>
             </div>
-                  
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Status</label>
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="status" value="1" @if($return_material->status==1) checked @endif>
-                      Active
-                    </label>
-                </div>  
+
+
+            <div class="with-border col-md-12">
+                <h4 class="">Plan Material</h4>
             </div>
+            <div class="col-md-12">
+                <table class="table mb-0 border-none ">
+                    <thead class="theme-bg-blue-light-opacity-15">
+                        <tr>                            
+                            <th class="w-160-px">Material Name</th>                            
+                            <th class="w-160-px">Material Lot Number</th>
+                            <th class="w-160-px">Quantity</th>
+                            <th class="w-50-px"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="no-border">
+                 @php
+                    $k = 0;
+                @endphp
+                @foreach($return_material->hasReturnedMaterials as $material)
+                    <tr class="inner-td add_plan_area plan">                    
+                    <td>
+                    <div class="form-group"> 
+                        <select 
+                            class="form-control my-select production_material" 
+                            placeholder="All Materials"
+                            name="returned[{{$k}}][material_id]"
+                            id="material_{{$k}}"
+                            required
+                            onchange="loadLot(this);"
+                            data-error="Material Number field is required." 
+                        >
+                            <option value="">Select Material</option>
+                             <option value="{{ $material->material->id }}"  selected >{{ $material->material->name }}</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_returned[{{$k}}][material_id][] err_production_material"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select production_lot" 
+                            placeholder="Material Lots"
+                            name="returned[{{$k}}][lot_id]"
+                            onchange="setQuantityLimit({{$k}});"
+                            id="lot_material_{{$k}}"
+                            required
+                            data-error="Material Lot field is required." 
+                        >
+                            <option value="">Select Lot</option>
+                             <option value="{{ $material->lot->id }}"  selected >{{ $material->lot->lot_no }}</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_returned[{{$k}}][lot_id][] err_production_lot"></li>
+                            </ul>
+                        </span>
+                        </div>
+                    </td>
+                    <td>
+                    <div class="add_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control quantity"
+                            name="returned[{{$k}}][quantity]" 
+                            id="quantity_{{$k}}"
+                            value="{{ $material->quantity }}" 
+                            required
+                            step="any" 
+                            data-error="Quantity should be number."
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_returned[{{$k}}][quantity][] err_quantity"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${{$k}}" style="cursor:pointer">Remove</p>
+                    </td>
+                    </tr>
+                    @php
+                        $k++;
+                    @endphp
+                    @endforeach
+                    </tbody>
+                </table>
+                <div class="col-md-8">
+                <a href="javascript:void(0)" class="theme-green bold f-16 text-underline"
+                                onclick="return addPlan()" style="cursor: pointer;">
+                                <span class="mr-2"><img src="{{ url('/assets/admin/images') }}/icons/green_plus.svg"
+                                        alt=" view"></span> Add More
+                            </a>
+                </div>
+            </div> 
+                  
+            
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>
@@ -126,8 +167,9 @@
 @endsection
 @section('scripts')
     <script type="text/javascript">
-        var batch_id = "{{ $return_material->batch_no }}";
-        var material_id = "{{ $return_material->material_id }}";
+        var batch_id = "{{ $return_material->batch_id }}";
+        var index = "{{ $k }}";
+        //var material_id = "{{ $return_material->material_id }}";
     </script>
     <script type="text/javascript" src="{{ url('assets/admin/js/returned-material/create-edit.js') }}"></script>    
 @endsection

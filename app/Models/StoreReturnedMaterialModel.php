@@ -16,7 +16,6 @@ class StoreReturnedMaterialModel extends Model
         'company_id',
         'return_date',
         'quantity',
-       // 'bill_number',
         //'status'        
     ];
 
@@ -38,5 +37,10 @@ class StoreReturnedMaterialModel extends Model
             $arrReturnData[$data->material_id] = $data->quantity;
         }
         return  $arrReturnData;
+    }
+
+    public function hasReturnedMaterials()
+    {
+        return $this->hasMany(StoreReturnedHasMaterialModel::class, 'returned_id', 'id');
     }
 }

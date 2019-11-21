@@ -21,14 +21,14 @@ function getBatchMaterials(batch_id){
     // console.log("getBactchMaterial");
     // console.log(batch_id);
     // return false;
-    var action = ADMINURL + '/return/getBatchMaterials';
 //,material_id:material_id
+    var action = ADMINURL + '/return/getBatchMaterials';
     axios.post(action, {batch_id:batch_id})
     .then(response => 
     {       
         // $("#material_id").empty(); 
         plan_options=response.data.html;
-        $("#material_0").html(response.data.html); 
+        $("#material_"+index).html(response.data.html); 
     })
     .catch(error =>
     {

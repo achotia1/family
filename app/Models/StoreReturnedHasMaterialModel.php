@@ -17,10 +17,15 @@ class StoreReturnedHasMaterialModel extends Model
     ];
 	//public $timestamps = false;
    //protected $dates = ['deleted_at'];
-    /*public function associatedProduction()
+    public function material()
     {
-        return $this->belongsTo(StoreProductionModel::class, 'production_id', 'id');
-    }*/
+        return $this->belongsTo(StoreRawMaterialModel::class, 'material_id', 'id');
+    }
+
+    public function lot()
+    {
+        return $this->belongsTo(StoreInMaterialModel::class, 'lot_id', 'id');
+    }
     
     
 }

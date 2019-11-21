@@ -398,7 +398,6 @@ class StoreProductionController extends Controller
         |  MODEL QUERY AND FILTER
         ------------------------------*/
         $companyId = self::_getCompanyId();
-
         $modelQuery =  $this->BaseModel        
         ->selectRaw('store_productions.id, store_productions.batch_id,  store_batch_cards.batch_card_no, products.name, products.code, SUM(store_production_has_materials.quantity) as total_qty')
         ->leftjoin('store_production_has_materials', 'store_production_has_materials.production_id' , '=', 'store_productions.id')
