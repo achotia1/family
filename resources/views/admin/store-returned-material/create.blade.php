@@ -26,56 +26,6 @@
                     </ul>
                 </span>
             </div>
-           <!-- <div class="form-group col-md-6">
-                <label class="theme-blue"> 
-                Raw Material <span class="required">*</span></label>
-                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Raw Material field is required.">                    
-                    <option value="">Select Material</option>
-                    @foreach($materialIds as $val){
-                    <option value="{{$val['id']}}">{{$val['name']}}</option>
-                    @endforeach
-                </select>               
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_material_id"></li>
-                    </ul>
-                </span>
-            </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Quantity
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="quantity" 
-                    class="form-control" 
-                    required
-                    step="any"                   
-                    maxlength="20" 
-                    data-error="Quantity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_quantity"></li>
-                    </ul>
-                </span>
-            </div>
-             <div class="form-group col-md-6">
-                <label class="theme-blue">Bill Number
-                    <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    name="bill_number"                    
-                    class="form-control" 
-                    required                                       
-                    data-error="Bill Number field is required." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_bill_number"></li>
-                    </ul>
-                </span>
-            </div> -->
-            
 
             <div class="form-group col-md-6">
                 <label class="theme-blue">Return Date
