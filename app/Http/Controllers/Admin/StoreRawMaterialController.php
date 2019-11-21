@@ -261,7 +261,7 @@ class StoreRawMaterialController extends Controller
             {
                 $search = $request->search['value'];
 
-                 $modelQuery = $modelQuery->where(function ($query) use($search)
+                $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
                     $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');   
                     $query->orwhere('store_raw_materials.moq', 'LIKE', '%'.$search.'%');

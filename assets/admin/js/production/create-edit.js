@@ -194,4 +194,21 @@ function checkBal(txtQty)
 	}
 	return false;
 }
+function checkBatch(batch)
+{    
+    var batch_id = $(batch).val();
+    var action = ADMINURL + '/production/getExistingBatch';
+    axios.post(action, {batch_id:batch_id})
+    .then(response => 
+    {
+        var url = response.data.url;
+        if(url != '')
+        	window.location.href = url;
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}
 

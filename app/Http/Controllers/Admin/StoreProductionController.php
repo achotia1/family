@@ -386,60 +386,32 @@ class StoreProductionController extends Controller
         $dir = $request->order[0]['dir'];
 
         ## FILTER COLUMNS
-        /*$filter = array(
+        $filter = array(
             0 => 'store_productions.id',
             1 => 'store_productions.id',
             2 => 'store_productions.batch_id',
             3 => 'store_batch_cards.product_code', 
             4 => 'total_qty',                   
-        );*/
-        $filter = array(
-            0 => 'id',
-            1 => 'id',
-            2 => 'id',
-            3 => 'id', 
-            4 => 'id',                   
-        );
+        );       
 
         /*--------------------------------------
         |  MODEL QUERY AND FILTER
         ------------------------------*/
         $companyId = self::_getCompanyId();
-        /*$modelQuery = $this->BaseModel
-        ->with([   
-            'hasProductionMaterials' => function($q)
-            {  
-                $q->with('mateialName');
-                $q->with('hasLot');
-            }
-        ])->with(['assignedBatch' => function($q){
-                $q->with('assignedProduct');
-        }
-        ]);*/
-        
-        /*$modelQuery = $this->BaseModel
-        ->with(['assignedBatch' => function($q){
-                $q->with('assignedProduct');
-        }
-        ]);*/
-        $modelQuery = $this->BaseModel
-        ->with(['assignedBatch.assignedProduct'
-        ]);
 
-        ## START MODEL QUERY 
-        //$modelQuery = $this->BaseModel->with('hasProductionMaterials');
-
-        /*$modelQuery =  $this->BaseModel        
+        $modelQuery =  $this->BaseModel        
         ->selectRaw('store_productions.id, store_productions.batch_id,  store_batch_cards.batch_card_no, products.name, products.code, SUM(store_production_has_materials.quantity) as total_qty')
         ->leftjoin('store_production_has_materials', 'store_production_has_materials.production_id' , '=', 'store_productions.id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
-        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')     
-        ->where('store_productions.company_id', $companyId);
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_production_has_materials.material_id')     
+        ->where('store_productions.company_id', $companyId)
+        ->where('store_raw_materials.material_type', 'Raw');
 
-        ## GET TOTAL COUNT*/
+        ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
-
+        
         //dd($request->custom);
         ## FILTER OPTIONS
         $custom_search = false;
@@ -448,25 +420,17 @@ class StoreProductionController extends Controller
             if (!empty($request->custom['batch_id'])) 
             {
                 $custom_search = true;
-
-                $key = $request->custom['batch_id'];
+                $key = $request->custom['batch_id'];                
                 $modelQuery = $modelQuery
-                    ->where('batch_id', $key);
-                /*$modelQuery = $modelQuery
-                ->where('store_productions.batch_id',  $key);*/
-
+                ->where('store_productions.batch_id', $key);
             }
 
             if (!empty($request->custom['product_code'])) 
             {
                 $custom_search = true;
                 $key = $request->custom['product_code'];               
-                /*$modelQuery = $modelQuery
-                ->where('store_batch_cards.product_code',  $key);*/
                 $modelQuery = $modelQuery
-                    ->whereHas('assignedBatch', function ($query) use ($key) {
-                        $query->where('product_code',  $key);
-                    });
+                ->where('store_batch_cards.product_code',  $key);               
             }
         }
 
@@ -476,18 +440,12 @@ class StoreProductionController extends Controller
             {
                 $search = $request->search['value'];
                 
-                $modelQuery = $modelQuery
-                    ->whereHas('assignedBatch', function ($query) use ($search) {
-                        $query->where('batch_card_no',  'LIKE', '%'.$search.'%');
-                    });
-
-                 /*$modelQuery = $modelQuery->where(function ($query) use($search)
+                $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
                     $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_batch_cards.product_code', 'LIKE', '%'.$search.'%');
-                });*/                
-                                
-
+                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.code', 'LIKE', '%'.$search.'%');
+                });
             }
         }
 
@@ -505,11 +463,27 @@ class StoreProductionController extends Controller
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
         //dd($modelQuery->toSql());
-        $object = $modelQuery->skip($start)
+       /* $object = $modelQuery->skip($start)
         ->take($length)
-        ->get();  
+        ->groupBy('store_production_has_materials.production_id')
+        ->havingRaw('sum(store_production_has_materials.quantity)>6' )
+        ->get(); */ 
+         $modelQuery =  $modelQuery->skip($start)
+        ->take($length)
+        ->groupBy('store_production_has_materials.production_id');
 
-        //dd($object);
+        if (!empty($request->custom['quantity'])) 
+        {
+            $custom_search = true;
+            $key = $request->custom['quantity'];                
+            $modelQuery = $modelQuery
+            ->havingRaw('sum(store_production_has_materials.quantity) = '.$key );
+        }
+
+         $object = $modelQuery
+         ->get(); 
+
+        //dd($object->toArray());
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -526,11 +500,9 @@ class StoreProductionController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_productions[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['batch_id']  = $row->assignedBatch->batch_card_no;
-                $data[$key]['product_code']  =  $row->assignedBatch->assignedProduct->code." ( ".$row->assignedBatch->assignedProduct->name." )";
-
-                //$row->code." ( ".$row->name." )";
-                $data[$key]['quantity']  =  1;//$row->total_qty;                
+                $data[$key]['batch_id']  = $row->batch_card_no;
+                $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
+                $data[$key]['quantity']  =  $row->total_qty;                
                                
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
@@ -546,9 +518,6 @@ class StoreProductionController extends Controller
     $objStore = new StoreBatchCardModel;
     $batchNos = $objStore->getBatchNumbers();
 
-    /*$objMaterial = new StoreRawMaterialModel;
-    $materialIds = $objMaterial->getMaterialNumbers();*/
-
     ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
@@ -557,13 +526,7 @@ class StoreProductionController extends Controller
         foreach ($batchNos as $val) {
             $batch_no_string .='<option class="theme-black blue-select" value="'.$val['id'].'" '.( $request->custom['batch_id'] == $val['id'] ? 'selected' : '').' >'.$val['batch_card_no'].'</option>';
         }
-    $batch_no_string .='</select>';    
-
-   /* $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
-        foreach ($materialIds as $mval) {
-        $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
-        }
-    $material_id_string .='</select>';*/
+    $batch_no_string .='</select>';
 
     $objProduct = new ProductsModel;
     $products = $objProduct->getProducts();
@@ -574,10 +537,16 @@ class StoreProductionController extends Controller
     $product_code_string .='</select>';
     $searchHTML['batch_id'] = $batch_no_string;
     $searchHTML['product_code'] = $product_code_string;
-    $searchHTML['quantity']     =  '';
-
-    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';    
-
+    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
+      
+    if ($custom_search) 
+    {
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
+    }
+    else
+    {
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    }
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
 
@@ -664,6 +633,31 @@ class StoreProductionController extends Controller
  
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function getExistingBatch(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
+        try 
+        {
+            $batch_id   = $request->batch_id;
+            $collection = $this->BaseModel->where('batch_id',$batch_id)->first();      
+            //dd($collection->toArray());
+            $url = '';
+            if($collection){               
+                $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
+            }
+            $this->JsonData['url']  = $url;
             $this->JsonData['msg']  = 'Raw Materials';
             $this->JsonData['status']  = 'Success';
 

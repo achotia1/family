@@ -18,6 +18,7 @@
                 <select class="form-control my-select" 
                         id="batch_id" 
                         name="batch_id"
+                        onchange="checkBatch(this);"
                         required="" 
                         data-error="Batch Code field is required." 
                         >                    
