@@ -66,6 +66,8 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        
+
         /*$objStore = new StoreBatchCardModel();
         $batcDetails = $objStore->with(['assignedProduct'])->find(1)->toArray();
         dd($batcDetails);
@@ -80,6 +82,13 @@ class StoreProductionController extends Controller
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
         
+        /*$d = $objMaterial->find(6)->delete();
+        if($d){
+            echo "innn";
+        } else {
+            echo "else";
+        }
+        dd($d);*/
         /*$objLots = new StoreInMaterialModel;
         $lotIds = $objLots->getBalanceLots(1,$companyId);*/
         
@@ -564,32 +573,57 @@ class StoreProductionController extends Controller
 
     public function bulkDelete(Request $request)
     {
-        //dd($request->all());
+        DB::beginTransaction();
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to delete batch, Something went wrong on server.';
-
-        if (!empty($request->arrEncId)) 
-        {
-            $arrID = array_map(function($item)
+        try {
+            if (!empty($request->arrEncId)) 
             {
-                return base64_decode(base64_decode($item));
-
-            }, $request->arrEncId);
-
-            try 
-            {
-
-                if ($this->BaseModel->whereIn('id', $arrID)->delete()) 
+                $all_transactions = [];
+                $arrID = array_map(function($item)
                 {
-                    $this->JsonData['status'] = 'success';
-                    $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
-                }
+                    return base64_decode(base64_decode($item));
 
-            } catch (Exception $e) 
-            {
-               $this->JsonData['exception'] = $e->getMessage();
-           }
-       }
+                }, $request->arrEncId);
+                $prodRawMaterialModel = new ProductionHasMaterialModel;
+                foreach($arrID as $id){                    
+                    $prevRecords = $prodRawMaterialModel->where('production_id',$id)->get(['lot_id','quantity'])->toArray();
+                    if($this->BaseModel->where('id', $id)->delete()){
+                        //$prodRawMaterialObj = new ProductionHasMaterialModel;
+                        $prodRawMaterialModel->where('production_id', $id)->delete();
+                         ## ADD BALANCE In MATERIAL IN
+                        foreach($prevRecords as $pKey=>$pVal){
+                            $inObj = new StoreInMaterialModel;
+                            $inMaterialcollection = $inObj->find($pVal['lot_id']);
+                            $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true);
+                            if($updateBal) 
+                            {                            
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }
+
+                    } else {
+                        $all_transactions[] = 0;
+                    }
+                }
+                if (!in_array(0,$all_transactions)) 
+                {
+                    $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                    $this->JsonData['url'] = route($this->ModulePath.'index');
+                    $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
+                    DB::commit();
+                }     
+
+            } else {
+                DB::rollback();
+            }
+
+        } catch(\Exception $e) {
+            $this->JsonData['error_msg'] = $e->getMessage();
+            DB::rollback();
+        }       
 
        return response()->json($this->JsonData);   
     }
