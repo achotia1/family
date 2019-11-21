@@ -12,7 +12,7 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
             </div>
             
-            <div class="form-group col-md-12">
+            <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
                 <select class="form-control my-select" 
@@ -33,7 +33,17 @@
                     </ul>
                 </span>
             </div>
-            
+            <div class="form-group col-md-6">
+                <label class="theme-blue"> Product </label>
+                <input 
+                    type="text" 
+                    name="product"
+                    id="product_id"
+                    value=""
+                    class="form-control" 
+                    readonly
+                >               
+            </div>
         	<div class="with-border col-md-12">
           		<h4 class="">Plan Material</h4>
         	</div>
