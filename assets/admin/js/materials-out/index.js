@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    var action = ADMINURL+'/materials-in/getRecords'; 
+    var action = ADMINURL+'/materials-out/getRecords'; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -16,25 +16,25 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                    "lot_no" :  $('#lot-no').val(),
-                    "material_id" : $('#material-id').val(),
-                    "lot_qty" : $('#lot-qty').val(),
-                    "lot_balance" : $('#lot-balance').val(),
-                    "status" : $('#search-status').val()
+                	"batch_id" :  $('#batch-id').val(),
+                	"product_code" :  $('#product-code').val(),
+                	"sellable_qty" :  $('#sellable-qty').val(),
+                	"loss_material" :  $('#loss-material').val(),
+                	"yield" :  $('#yield').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "lot_no"},
-            { "data": "material_id"},
-            { "data": "lot_qty"},
-            { "data": "lot_balance"},           
-            { "data": "status"},
+            { "data": "batch_id"},
+            { "data": "product_code"},
+            { "data": "sellable_qty"},
+            { "data": "loss_material"},
+            { "data": "yield"},            
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,7] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -114,10 +114,11 @@ function doSearch(element)
 
 function removeSearch(element)
 { 
-	$('#lot-no').val(''),
-	$('#material-id').val(''),
-	$('#lot-qty').val(''),
-	$('#lot-balance').val(''),
+	$('#batch-id').val('')
+	$('#product-code').val('')
+	$('#sellable-qty').val('')
+	$('#loss-material').val('')
+	$('#yield').val('')
 	$('#listingTable').DataTable().draw();
 }
 
@@ -140,7 +141,7 @@ function deleteCollections(element)
             arrEncId.push($(this).val());            
       })
 	
-      action = ADMINURL+'/materials-in/bulkDelete';
+      action = ADMINURL+'/materials-out/bulkDelete';
 
       swal({
           title: "Are you sure !!",

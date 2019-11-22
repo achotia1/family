@@ -23,7 +23,7 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th class="w-160-px">Batch Number</th>
+                        <th class="w-160-px">Batch Code</th>
                         <th class="w-160-px">Product</th>
                         <th class="w-100-px">Total Raw Material</th>
                         <th class="w-180-px">Actions</th>                        

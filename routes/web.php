@@ -153,8 +153,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Material In
 				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
 				{*/
-					/*Route::get('/materials-out/getRecords',  'StoreInMaterialController@getRecords');
-					Route::post('/materials-out/bulkDelete',  'StoreInMaterialController@bulkDelete');*/
+					Route::get('/materials-out/getRecords',  'StoreOutMaterialController@getRecords');
+					/*Route::post('/materials-out/bulkDelete',  'StoreOutMaterialController@bulkDelete');*/
 					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
