@@ -13,6 +13,7 @@ class StoreInMaterialModel extends Model
     protected $table = 'store_in_materials';
 
     protected $fillable = [
+        'id',
 		'material_id',
         'lot_no',
         'lot_qty',        
@@ -31,6 +32,11 @@ class StoreInMaterialModel extends Model
     public function hasMateials()
     {
         return $this->belongsTo(StoreRawMaterialModel::class, 'material_id', 'id');
+    }
+
+    public function hasProductionMaterial()
+    {
+        return $this->hasMany(ProductionHasMaterialModel::class, 'lot_id', 'id');
     }
 
     /*public function getMaterialNumbers() {

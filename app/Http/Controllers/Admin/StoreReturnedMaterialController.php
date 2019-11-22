@@ -220,13 +220,17 @@ class StoreReturnedMaterialController extends Controller
                             'hasReturnedMaterials' => function($q)
                             {  
                                 $q->with('material');
-                                $q->with('lot');
+                                $q->with(['lot' => function($q1)
+                                        {  
+                                            $q1->with('hasProductionMaterial');
+                                        }]
+                                    );
                             }
                         ])
                     ->where('store_returned_materials.id', base64_decode(base64_decode($encID)))
                     ->where('store_returned_materials.company_id', $companyId)
                     ->first();
-        // dd($data);
+        // dd($data->toArray());
         if(empty($data)) {            
             return redirect()->route('admin.return.index');
         }
@@ -756,6 +760,7 @@ class StoreReturnedMaterialController extends Controller
         {
             $batch_id       = $request->batch_id;
             $material_id    = $request->material_id;
+            $selected_val   = $request->selected_val;
             $companyId = self::_getCompanyId();
            // dd($companyId);
             $get_lot_ids = $this->StoreProductionModel
@@ -776,10 +781,10 @@ class StoreReturnedMaterialController extends Controller
             $html="<option value=''>Select Lot</option>";
             foreach($get_material_lots as $lotId){        
                 $selected="";            
-                //if (!in_array($lotId['id'], $selected_val))
-                //{
+                if (!in_array($lotId['id'], $selected_val))
+                {
                     $html.="<option data-qty='".$lotId['production_quantity']."' value='".$lotId['id']."' $selected>".$lotId['lot_no']." (".$lotId['production_quantity'].")</option>";
-                //}                        
+                }                        
             }
             // $material_id   = $request->material_id;
             // $selected_val      = $request->selected_val;      
