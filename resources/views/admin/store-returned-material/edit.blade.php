@@ -94,6 +94,22 @@
                     </div>
                     </td>
                     <td>
+
+                        @php
+                            $production_qty=0;
+                           // dd($material->lot);
+                            if(!empty($material->lot->hasProductionMaterial)){
+                                foreach($material->lot->hasProductionMaterial as $production_material)
+                                {
+                                    if($production_material->lot_id==$material->lot->id)
+                                    {
+                                        $production_qty=$production_material->quantity;
+                                    }
+                                }
+                            }
+
+                        @endphp
+
                         <div class="form-group"> 
                         <select 
                             class="form-control my-select production_lot" 
@@ -105,7 +121,7 @@
                             data-error="Material Lot field is required." 
                         >
                             <option value="">Select Lot</option>
-                             <option value="{{ $material->lot->id }}"  selected >{{ $material->lot->lot_no }}</option>
+                             <option data-qty="{{ $production_qty }}" value="{{ $material->lot->id }}"  selected >{{ $material->lot->lot_no }} ({{ $production_qty }})</option>
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
@@ -122,9 +138,10 @@
                             name="returned[{{$k}}][quantity]" 
                             id="quantity_{{$k}}"
                             value="{{ $material->quantity }}" 
-                            
+                            min="1"
+                            max="{{$production_qty}}"
                             step="any" 
-                            data-error="Quantity should be number."
+                            data-error="You can not select more than available quantity: {{$production_qty}}"
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">

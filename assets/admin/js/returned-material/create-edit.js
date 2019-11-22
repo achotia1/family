@@ -122,9 +122,17 @@ function loadLot(sel)
     var id = $(sel).attr("id");   
     var material_id = sel.value;
     var batch_id = $("#batch_id").val();
+
+    var selected_val=[];
+    $(".production_lot").each(function(){
+        if(this.value!=""){
+            selected_val.push(this.value);
+        }
+    });  
+
     var action = ADMINURL + '/return/getMaterialLots';
 
-    axios.post(action, {batch_id:batch_id,material_id:material_id})
+    axios.post(action, {batch_id:batch_id,material_id:material_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#lot_"+id).html(response.data.html); 
