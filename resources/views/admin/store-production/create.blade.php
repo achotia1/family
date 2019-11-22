@@ -107,14 +107,16 @@
                         <input 
                             type="number" 
                             class="form-control quantity"
-                            name="production[0][quantity]" 
+                            name="production[0][quantity]"
+                            id="q_0"
+                            onblur="checkBal(this)"
                             required
                             step="any" 
                             data-error="Quantity should be number."
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_production[0][quantity][] err_quantity"></li>
+                                <li class="errq_0 err_production[0][quantity][] err_quantity"></li>
                             </ul>
                         </span>
                     </div>
