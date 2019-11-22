@@ -413,9 +413,37 @@ class StoreReturnedMaterialController extends Controller
 
     }
 
-    public function destroy($id)
+    public function show($encId)
     {
-        //
+        
+        $id = base64_decode(base64_decode($encId));
+       // dd($id);
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['modulePath']   = $this->ModulePath;
+
+        $data = $this->BaseModel->with([   
+                            'hasReturnedMaterials' => function($q)
+                            {  
+                                $q->with('material');
+                                $q->with(['lot' => function($q1)
+                                        {  
+                                            $q1->with('hasProductionMaterial');
+                                        }]
+                                    );
+                            },'hasBatch' => function($q){
+                                    $q->with('assignedProduct');
+                            }])
+                            
+                    ->find($id);  
+                    // ->where('store_returned_materials.company_id', $companyId)
+                   // ->first();
+// dd($data->toArray());
+        $this->ViewData['object'] = $data;         
+        //->find($id)->toArray(); //
+        //dd($this->ViewData['object']);
+        return view($this->ModuleView.'view', $this->ViewData);
     }
 
     public function _storeOrUpdate($collection, $request)
@@ -555,9 +583,10 @@ class StoreReturnedMaterialController extends Controller
                 }elseif($row->status==0) {
                  $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
                 }    */            
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
+                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="fa fa-eye"></span></a>';
                 //$data[$key]['actions'] = '';               
-                $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+                $data[$key]['actions'] =  '<div class="text-center">'.$edit.$view.'</div>';
                
 
          }
@@ -795,6 +824,37 @@ class StoreReturnedMaterialController extends Controller
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
             $this->JsonData['msg']  = 'Material Lots';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function getExistingBatch(Request $request)
+    {
+         // dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
+        try 
+        {
+            $batch_id   = $request->batch_id;
+            $collection = $this->BaseModel->where('batch_id',$batch_id)->first();
+            // dd($collection);
+            // $objStore = new StoreBatchCardModel;
+            // $batcDetails = $objStore->getBatchDetails($batch_id);
+            // $product = $batcDetails->assignedProduct->code." (".$batcDetails->assignedProduct->name.")";      
+            //dd($collection->toArray());
+            $url = '';
+            if(!empty($collection)){               
+                $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
+            }
+            $this->JsonData['url']  = $url;
+            // $this->JsonData['product']  = $product;
+            $this->JsonData['msg']  = 'Raw Materials';
             $this->JsonData['status']  = 'Success';
 
         } catch (Exception $e) 

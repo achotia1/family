@@ -8,8 +8,13 @@ $(document).ready(function ()
     var plan_options='';
     $('#batch_id').on('change', function() {
         var batch_id=this.value;
+        
+        checkBatch(batch_id);
         getBatchMaterials(batch_id);
+        
      });
+
+
 
     if(batch_id!=""){
         getBatchMaterials(batch_id);
@@ -191,3 +196,27 @@ $('#returnForm').validator().on('submit', function (e)
         return false;
     }
 })
+
+function checkBatch(batch_id)
+{    
+    //var batch_id = $(batch).val();
+    var action = ADMINURL + '/return/getExistingBatch';
+
+    axios.post(action, {batch_id:batch_id})
+    .then(response => 
+    {
+        // console.log(response);
+        // return false;
+        //var product = response.data.product;
+       // $("#product_id").val(product);
+        var url = response.data.url;
+        if(url != ''){
+            window.location.href = url;
+        }
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}

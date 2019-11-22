@@ -43,4 +43,9 @@ class StoreReturnedMaterialModel extends Model
     {
         return $this->hasMany(StoreReturnedHasMaterialModel::class, 'returned_id', 'id');
     }
+
+    public function hasBatch()
+    {
+        return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
+    }
 }
