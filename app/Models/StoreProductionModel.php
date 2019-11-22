@@ -31,6 +31,20 @@ class StoreProductionModel extends Model
     public function assignedBatch()
     {
         return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
-    }  
+    }
+    public function hasOutMaterial()
+    {       
+        return $this->hasOne(StoreOutMaterialModel::class, 'plan_id', 'id');
+    }
+
+    public function getProductionPlans($companyId) {      
+        return self::with([
+            'assignedBatch' => function($q){
+                $q->with('assignedProduct');
+            }
+        ])->where('company_id', $companyId)
+        ->get();
+        
+    } 
     
 }

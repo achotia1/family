@@ -87,7 +87,7 @@
 	                            name="production[{{$k}}][lot_id]"
 	                            id="l_{{$k}}"	                            
 	                        >	                            
-	                            <option value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_qty}})</option>
+	                            <option data-qty="{{$material->hasLot->lot_balance}}" value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_balance}})</option>
 	                        </select>
 	                        <span class="help-block with-errors">
 	                            <ul class="list-unstyled">
@@ -103,12 +103,14 @@
 	                            class="form-control quantity"
 	                            name="production[{{$k}}][quantity]"
 	                            value="{{$material->quantity}}"
+	                            id="q_{{$k}}"
+	                            onblur="checkBal(this)"
 	                            step="any" 
 	                            
 	                        >
 	                        <span class="help-block with-errors">
 	                            <ul class="list-unstyled">
-	                                <li class="err_production[{{$k}}][quantity][] err_quantity"></li>
+	                                <li class="errq_{{$k}} err_production[{{$k}}][quantity][] err_quantity"></li>
 	                            </ul>
                         	</span>
                     	</div>

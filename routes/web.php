@@ -150,15 +150,24 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
+				// Material In
+				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
+				{*/
+					/*Route::get('/materials-out/getRecords',  'StoreInMaterialController@getRecords');
+					Route::post('/materials-out/bulkDelete',  'StoreInMaterialController@bulkDelete');*/
+					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
+				/*});*/
+
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
-					Route::get('/review-batch-card',  'StoreReviewBatchCardController@index')->name($PREFIX.'.review-batch-card');
+					/*Route::get('/review-batch-card',  'StoreReviewBatchCardController@index')->name($PREFIX.'.review-batch-card');
 					Route::get('/review-batch-card/getRecords',  'StoreReviewBatchCardController@getRecords');
 					Route::get('/review-batch-card/show/{id}',  'StoreReviewBatchCardController@show')->name($PREFIX.'.review-batch-card.show');
-					Route::post('/review-batch-card/send-to-billing/{id}','StoreReviewBatchCardController@sendToBilling')->name($PREFIX.'.review-batch-card.send-to-billing');
+					Route::post('/review-batch-card/send-to-billing/{id}','StoreReviewBatchCardController@sendToBilling')->name($PREFIX.'.review-batch-card.send-to-billing');*/
 					
-					
+				
+
 				/*});*/
 
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');
