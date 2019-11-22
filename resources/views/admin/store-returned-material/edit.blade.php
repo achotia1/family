@@ -18,7 +18,7 @@
                 <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">                    
                     <option value="">Select Batch</option>
                     @foreach($batchNos as $val){
-                    <option value="{{$val['id']}}" @if($return_material->batch_id==$val['id']) selected @endif>{{$val['batch_card_no']}}</option>
+                    <option value="{{$val['id']}}" @if($return_material->batch_id==$val['id']) selected @endif>{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
                     @endforeach
                 </select>                
                 <span class="help-block with-errors">
@@ -79,7 +79,7 @@
                             placeholder="All Materials"
                             name="returned[{{$k}}][material_id]"
                             id="material_{{$k}}"
-                            required
+                            
                             onchange="loadLot(this);"
                             data-error="Material Number field is required." 
                         >
@@ -101,7 +101,7 @@
                             name="returned[{{$k}}][lot_id]"
                             onchange="setQuantityLimit({{$k}});"
                             id="lot_material_{{$k}}"
-                            required
+                            
                             data-error="Material Lot field is required." 
                         >
                             <option value="">Select Lot</option>
@@ -122,7 +122,7 @@
                             name="returned[{{$k}}][quantity]" 
                             id="quantity_{{$k}}"
                             value="{{ $material->quantity }}" 
-                            required
+                            
                             step="any" 
                             data-error="Quantity should be number."
                         >
@@ -141,6 +141,7 @@
                         $k++;
                     @endphp
                     @endforeach
+                    <input type="hidden" name="total_items" id="total_items" value="{{$k}}">
                     </tbody>
                 </table>
                 <div class="col-md-8">

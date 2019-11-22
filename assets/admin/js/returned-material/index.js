@@ -142,7 +142,7 @@ function deleteCollections(element)
       {
             arrEncId.push($(this).val());            
       })
-		console.log(arrEncId);
+		//console.log(arrEncId);
       action = ADMINURL+'/return/bulkDelete';
 
       swal({
