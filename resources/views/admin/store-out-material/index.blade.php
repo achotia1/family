@@ -23,11 +23,11 @@
                     <tr>
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
-                        <th class="w-100-px">Lot Number</th>
-                        <th class="w-60-px">Material Name</th>                        
-                        <th class="w-60-px">Lot Quantity</th>
-                        <th class="w-100-px">Lot Balance</th>
-                        <th class="w-100-px">Status</th>                        
+                        <th class="w-100-px">Batch Code</th>
+                        <th class="w-60-px">Product</th>                        
+                        <th class="w-60-px">Sellable Quantity</th>
+                        <th class="w-100-px">Loss Material</th>
+                        <th class="w-100-px">Yield</th>                        
                         <th class="w-180-px">Actions</th>
                     </tr>
                 </thead>
@@ -40,6 +40,6 @@
 @endsection
 @section('scripts')
 
-<script type="text/javascript" src="{{ url('assets/admin/js/materials-in/index.js') }}"></script>
+<script type="text/javascript" src="{{ url('assets/admin/js/materials-out/index.js') }}"></script>
 
 @endsection

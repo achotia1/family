@@ -8,8 +8,8 @@ use App\Http\Controllers\Controller;
 ## MODELS
 use App\Models\StoreOutMaterialModel;
 use App\Models\StoreProductionModel;
-use App\Models\StoreRawMaterialModel;
-
+use App\Models\StoreBatchCardModel;
+use App\Models\ProductsModel;
 
 use App\Http\Requests\Admin\StoreOutMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -132,6 +132,7 @@ class StoreOutMaterialController extends Controller
             }
         ])->where('company_id', $companyId)
         ->find($id);
+        //dd($data);
         if(empty($data)) {            
             return redirect()->route('admin.materials-out.index');
         }
@@ -150,7 +151,7 @@ class StoreOutMaterialController extends Controller
         //dd($id);
         try {
             $collection = $this->BaseModel->find($id);
-            $preLotQty =  $collection->lot_qty;                
+            //$preLotQty =  $collection->lot_qty;                
             $collection = self::_storeOrUpdate($collection,$request);
             if($collection){
                 ## UPDATE Lot Quantity in material balance
@@ -210,13 +211,13 @@ class StoreOutMaterialController extends Controller
 
         ## FILTER COLUMNS
         $filter = array(
-            0 => 'store_in_materials.id',
-            1 => 'store_in_materials.id',
-            2 => 'store_in_materials.lot_no',
-            3 => 'store_in_materials.material_id',            
-            4 => 'store_in_materials.lot_qty',
-            5 => 'store_in_materials.lot_balance',
-            6 => 'store_in_materials.status',           
+            0 => 'store_out_materials.id',
+            1 => 'store_out_materials.id',
+            2 => 'store_batch_cards.batch_card_no',
+            3 => 'products.code',            
+            4 => 'store_out_materials.sellable_qty',
+            5 => 'store_out_materials.loss_material',
+            6 => 'store_out_materials.yield',                    
         );
 
         /*--------------------------------------
@@ -226,9 +227,13 @@ class StoreOutMaterialController extends Controller
         ## START MODEL QUERY         
         $companyId = self::_getCompanyId();
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_in_materials.id, store_in_materials.material_id, store_in_materials.lot_no, store_in_materials.lot_qty,store_in_materials.price_per_unit, store_in_materials.lot_balance, store_in_materials.status, store_raw_materials.name')       
-        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
-        ->where('store_in_materials.company_id', $companyId);
+        ->selectRaw('store_out_materials.id, store_out_materials.plan_id, store_out_materials.sellable_qty, store_out_materials.loss_material, store_out_materials.yield, store_productions.batch_id, store_batch_cards.batch_card_no, products.name, products.code')
+        ->leftjoin('store_productions', 'store_productions.id' , '=', 'store_out_materials.plan_id')
+        ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
+        ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+        ->where('store_out_materials.company_id', $companyId);
+
+        //dd($modelQuery->toSql());
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
@@ -236,46 +241,44 @@ class StoreOutMaterialController extends Controller
         ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
-        {
-            if (!empty($request->custom['lot_no'])) 
+        {            
+            if (!empty($request->custom['batch_id'])) 
             {
                 $custom_search = true;
-                $key = $request->custom['lot_no'];                
+                $key = $request->custom['batch_id'];                
                 $modelQuery = $modelQuery
-                ->where('store_in_materials.lot_no', 'LIKE', '%'.$key.'%');
+                ->where('store_productions.batch_id', $key);
 
             }
-            if (!empty($request->custom['material_id'])) 
+            if (!empty($request->custom['product_code'])) 
             {
                 $custom_search = true;
-                $key = $request->custom['material_id'];                
+                $key = $request->custom['product_code'];               
                 $modelQuery = $modelQuery
-                ->where('store_in_materials.material_id', $key);
-
+                ->where('store_batch_cards.product_code',  $key);               
             }
-
-            if (!empty($request->custom['lot_qty'])) 
+            if (!empty($request->custom['sellable_qty'])) 
             {
                 $custom_search = true;
-                $key = $request->custom['lot_qty'];               
+                $key = $request->custom['sellable_qty'];               
                 $modelQuery = $modelQuery
-                ->where('store_in_materials.lot_qty', 'LIKE', '%'.$key.'%');
-
-            }            
-            if (isset($request->custom['lot_balance'])) 
-            {
-                $custom_search = true;
-                $key = $request->custom['lot_balance'];
-                $modelQuery = $modelQuery
-                ->where('store_in_materials.lot_balance', $key);
-            }            
-            if (isset($request->custom['status'])) 
-            {
-                $custom_search = true;
-                $key = $request->custom['status'];
-                $modelQuery = $modelQuery
-                ->where('store_in_materials.status', $key);
+                ->where('store_out_materials.sellable_qty',  'LIKE', '%'.$key.'%');               
             }
+            if (!empty($request->custom['loss_material'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['loss_material'];               
+                $modelQuery = $modelQuery
+                ->where('store_out_materials.loss_material',  'LIKE', '%'.$key.'%');               
+            } 
+            if (!empty($request->custom['yield'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['yield'];               
+                $modelQuery = $modelQuery
+                ->where('store_out_materials.yield',  'LIKE', '%'.$key.'%');               
+            }          
+            
         }
 
         if (!empty($request->search))
@@ -286,11 +289,12 @@ class StoreOutMaterialController extends Controller
 
                  $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
-                    $query->orwhere('store_in_materials.lot_no', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');
-
-                    $query->orwhere('store_in_materials.lot_qty', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('store_in_materials.lot_balance', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.code', 'LIKE', '%'.$search.'%'); 
+                    $query->orwhere('store_out_materials.sellable_qty', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('store_out_materials.loss_material', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('store_out_materials.yield', 'LIKE', '%'.$search.'%');
                 });              
 
             }
@@ -303,7 +307,7 @@ class StoreOutMaterialController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_in_materials.status', 'ASC');
+            $modelQuery = $modelQuery->orderBy('store_out_materials.id', 'DESC');
                         
         }
         else
@@ -313,15 +317,7 @@ class StoreOutMaterialController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_in_materials.id', 
-            'store_in_materials.material_id', 
-            'store_in_materials.lot_no',            
-            'store_in_materials.lot_qty',
-            'store_in_materials.price_per_unit',             
-            'store_in_materials.lot_balance',
-            'store_in_materials.status',
-            'store_raw_materials.name',            
-        ]);  
+        ->get();  
 
 
         /*--------------------------------------
@@ -340,10 +336,11 @@ class StoreOutMaterialController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_in_materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['lot_no']  = $row->lot_no;
-                $data[$key]['material_id']  =  $row->name;
-                $data[$key]['lot_qty']  =  $row->lot_qty;
-                $data[$key]['lot_balance']  =  $row->lot_balance;              
+                $data[$key]['batch_id']  = $row->batch_card_no;
+                $data[$key]['product_code']  =  $row->name;
+                $data[$key]['sellable_qty']  =  $row->sellable_qty;
+                $data[$key]['loss_material']  =  $row->loss_material;
+                $data[$key]['yield']  =  $row->yield;              
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
@@ -363,28 +360,34 @@ class StoreOutMaterialController extends Controller
         }
     }
 
-    $objMaterial = new StoreRawMaterialModel;
-    $materialIds = $objMaterial->getMaterialNumbers();
-    
-    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
-        foreach ($materialIds as $mval) {
-        $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
+    $objStore = new StoreBatchCardModel;
+    $batchNos = $objStore->getBatchNumbers();
+    $batch_no_string = '<select name="batch_id" id="batch-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
+        foreach ($batchNos as $val) {
+            $batch_no_string .='<option class="theme-black blue-select" value="'.$val['id'].'" '.( $request->custom['batch_id'] == $val['id'] ? 'selected' : '').' >'.$val['batch_card_no'].'</option>';
         }
-    $material_id_string .='</select>';
-
+    $batch_no_string .='</select>';
+    $objProduct = new ProductsModel;
+    $products = $objProduct->getProducts();
+    $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
+        foreach ($products as $product) {
+            $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';
+        }
+    $product_code_string .='</select>';
     ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
-    $searchHTML['lot_no']     =  '<input type="text" class="form-control" id="lot-no" value="'.($request->custom['lot_no']).'" placeholder="Search...">';
-    $searchHTML['material_id']     =  $material_id_string;
-    $searchHTML['lot_qty']   =  '<input type="text" class="form-control" id="lot-qty" value="'.($request->custom['lot_qty']).'" placeholder="Search...">';
-    $searchHTML['lot_balance']   =  '<input type="text" class="form-control" id="lot-balance" value="'.($request->custom['lot_balance']).'" placeholder="Search...">';
+    $searchHTML['batch_id']     =  $batch_no_string;
+    $searchHTML['product_code']     =  $product_code_string;
+    $searchHTML['sellable_qty']   =  '<input type="text" class="form-control" id="sellable-qty" value="'.($request->custom['sellable_qty']).'" placeholder="Search...">';
+    $searchHTML['loss_material']   =  '<input type="text" class="form-control" id="loss-material" value="'.($request->custom['loss_material']).'" placeholder="Search...">';
+    $searchHTML['yield']   =  '<input type="text" class="form-control" id="yield" value="'.($request->custom['yield']).'" placeholder="Search...">';
     //$searchHTML['status']   =  '';  
-    $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
+    /*$searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>
             <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>
             <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Closed</option>            
-            </select>';
+            </select>';*/
     /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';removeSearch*/
 
     if ($custom_search) 
