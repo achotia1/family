@@ -87,7 +87,7 @@
 	                            name="production[{{$k}}][lot_id]"
 	                            id="l_{{$k}}"	                            
 	                        >	                            
-	                            <option value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_qty}})</option>
+	                            <option value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_balance}})</option>
 	                        </select>
 	                        <span class="help-block with-errors">
 	                            <ul class="list-unstyled">

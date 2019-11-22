@@ -156,7 +156,7 @@
         <!-- end production -->
 
         <!-- sales -->
-        <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
+        <!-- <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
             <i class="fa fa-user-secret"></i>
             <span>Manage Issued Material</span>
@@ -176,7 +176,7 @@
             </li>
            
           </ul>
-        </li>
+        </li> -->
         <!-- end sales -->
 		
 		<!-- return material -->
