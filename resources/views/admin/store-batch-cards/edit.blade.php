@@ -11,6 +11,7 @@
             <input type="hidden" name="_method" value="PUT">
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
+              <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
             
             <div class="form-group col-md-12">
@@ -78,8 +79,8 @@
             </div>
             <div class="box-footer">
                 <div class="col-md-12 align-right">
-                <button type="reset" class="btn btn-danger">Reset</button>
-                <button type="submit" class="btn btn-success pull-right">Save</button>
+                <!-- <button type="reset" class="btn btn-danger">Reset</button> -->
+                <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </div>
         </form>

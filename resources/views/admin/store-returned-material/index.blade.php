@@ -24,9 +24,9 @@
                         <th style="display: none"></th>
                         <!-- <th class="w-90-px">Select</th> -->
                         <th class="w-100-px">Batch Number</th>
+                        <th class="w-100-px">Product</th>
                         <th class="w-100-px">Returned Date</th>
                         <!-- <th class="w-100-px">Item Code</th> -->
-                        <th class="w-100-px">Product</th>
                         <!-- <th class="w-100-px">Quantity</th> -->
                         <!-- <th class="w-100-px">Bill Number</th> -->
                         <!-- <th class="w-100-px">Status</th>         -->                

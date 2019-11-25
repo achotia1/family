@@ -27,9 +27,9 @@ $(document).ready(function()
             { "data": "id",  "visible": false, },
            /* { "data": "select"},*/
             { "data": "plan_id"},
+            { "data": "product_name"},
             { "data": "return_date"},
             //{ "data": "item_code"},
-            { "data": "product_name"},
             //{ "data": "product_name"},
             //{ "data": "quantity"},
            // { "data": "bill_number"},            

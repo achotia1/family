@@ -13,6 +13,7 @@ use App\Models\StoreProductionModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\StoreReturnedHasMaterialModel;
 use App\Models\StoreOutMaterialModel;
+use App\Models\ProductsModel;
 
 use App\Models\StoreInMaterialModel;
 
@@ -565,13 +566,21 @@ class StoreReturnedMaterialController extends Controller
                     ->where('plan_id', $key);
             }
            
-            if (!empty($request->custom['product_name'])) 
+            /*if (!empty($request->custom['product_name'])) 
             {
                 $custom_search = true;
 
                 $key = $request->custom['product_name'];
                 $modelQuery = $modelQuery
                 ->where('products.code',  'LIKE', '%'.$key.'%');
+            }*/
+
+            if (!empty($request->custom['product_name'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['product_name'];               
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.product_code',  $key);               
             }
                 
         }
@@ -651,13 +660,23 @@ class StoreReturnedMaterialController extends Controller
         }
     $batch_no_string .='</select>';    
 
+
+    $objProduct = new ProductsModel;
+    $products = $objProduct->getProducts();
+    $product_code_string = '<select name="product_name" id="product-name" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
+        foreach ($products as $product) {
+            $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_name'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';
+        }
+    $product_code_string .='</select>';
+
     
     ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
     $searchHTML['plan_id'] = $batch_no_string;
     $searchHTML['return_date']     =  '';    
-    $searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
+     $searchHTML['product_name'] = $product_code_string;
+    //$searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
     //$searchHTML['status']   =  '';
 
     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';

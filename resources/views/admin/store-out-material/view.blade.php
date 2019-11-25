@@ -68,7 +68,9 @@
                 <table class="table" border="1px;">
                     <tbody>
 	                    <tr class="trExpense">
-	                        <td colspan="5" class="title"><b>Batch Card Details</b></td>
+	                        <td colspan="5" class="title"><b>Batch Card Details</b>
+	                        <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+	                        </td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Batch Card :</b></td>
