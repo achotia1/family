@@ -15,16 +15,16 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">  
-                <option value="{{$return_material->batch_id}}">{{ $return_material->hasBatch->batch_card_no }}</option>                  
+                <select class="form-control my-select" id="plan_id" name="plan_id" required="" data-error="Batch Code field is required.">  
+                <option value="{{$return_material->plan_id}}">{{ $return_material->assignedProductionPlan->assignedBatch->batch_card_no??'' }}</option>                  
                    <!--  <option value="">Select Batch</option>
                     @foreach($batchNos as $val){
-                    <option value="{{$val['id']}}" @if($return_material->batch_id==$val['id']) selected @endif>{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
+                    <option value="{{$val['id']}}" @if($return_material->plan_id==$val['id']) selected @endif>{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
                     @endforeach -->
                 </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_batch_id"></li>
+                        <li class="err_plan_id"></li>
                     </ul>
                 </span>
             </div>
@@ -186,7 +186,7 @@
 @endsection
 @section('scripts')
     <script type="text/javascript">
-        var batch_id = "{{ $return_material->batch_id }}";
+        var plan_id = "{{ $return_material->plan_id }}";
         var index = "{{ $k }}";
         //var material_id = "{{ $return_material->material_id }}";
     </script>

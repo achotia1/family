@@ -14,7 +14,7 @@
         
         <div class="box-header align-right">           
             <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Returnrd Material</a>            
-            <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
+            <!-- <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a> -->
         </div>
         
         <div class="box-body">
@@ -22,7 +22,7 @@
                 <thead class="blue-border-bottom">
                     <tr>
                         <th style="display: none"></th>
-                        <th class="w-90-px">Select</th>
+                        <!-- <th class="w-90-px">Select</th> -->
                         <th class="w-100-px">Batch Number</th>
                         <th class="w-100-px">Returned Date</th>
                         <!-- <th class="w-100-px">Item Code</th> -->

@@ -6,25 +6,25 @@ $(document).ready(function ()
       // startDate: new Date()
     })
     var plan_options='';
-    $('#batch_id').on('change', function() {
-        var batch_id=this.value;
+    $('#plan_id').on('change', function() {
+        var plan_id=this.value;
         
-        checkBatch(batch_id);
-        getBatchMaterials(batch_id);
+        checkExistingRecord(plan_id);
+        getPlanMaterials(plan_id);
         
      });
 
 
 
-    if(batch_id!=""){
-        getBatchMaterials(batch_id);
+    if(plan_id!=""){
+        getPlanMaterials(plan_id);
     }
     
 })
 
-function getBatchMaterials(batch_id){
-    var action = ADMINURL + '/return/getBatchMaterials';
-    axios.post(action, {batch_id:batch_id})
+function getPlanMaterials(plan_id){
+    var action = ADMINURL + '/return/getPlanMaterials';
+    axios.post(action, {plan_id:plan_id})
     .then(response => 
     {       
         // $("#material_id").empty(); 
@@ -126,7 +126,7 @@ function loadLot(sel)
 {    
     var id = $(sel).attr("id");   
     var material_id = sel.value;
-    var batch_id = $("#batch_id").val();
+    var plan_id = $("#plan_id").val();
 
     var selected_val=[];
     $(".production_lot").each(function(){
@@ -137,7 +137,7 @@ function loadLot(sel)
 
     var action = ADMINURL + '/return/getMaterialLots';
 
-    axios.post(action, {batch_id:batch_id,material_id:material_id,selected_val:selected_val})
+    axios.post(action, {plan_id:plan_id,material_id:material_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#lot_"+id).html(response.data.html); 
@@ -197,12 +197,12 @@ $('#returnForm').validator().on('submit', function (e)
     }
 })
 
-function checkBatch(batch_id)
+function checkExistingRecord(plan_id)
 {    
-    //var batch_id = $(batch).val();
-    var action = ADMINURL + '/return/getExistingBatch';
+    //var plan_id = $(batch).val();
+    var action = ADMINURL + '/return/checkExistingRecord';
 
-    axios.post(action, {batch_id:batch_id})
+    axios.post(action, {plan_id:plan_id})
     .then(response => 
     {
         // console.log(response);

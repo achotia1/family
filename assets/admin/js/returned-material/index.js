@@ -18,15 +18,15 @@ $(document).ready(function()
             {
                 object.custom = {
                     "item_code" : $('#item-code').val(),
-                    "batch_id" : $('#batch-id').val(),
+                    "plan_id" : $('#plan-id').val(),
                     "product_name" : $('#product-name').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
-            { "data": "select"},
-            { "data": "batch_id"},
+           /* { "data": "select"},*/
+            { "data": "plan_id"},
             { "data": "return_date"},
             //{ "data": "item_code"},
             { "data": "product_name"},
@@ -36,7 +36,7 @@ $(document).ready(function()
             //{ "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,5] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,4] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
@@ -125,7 +125,7 @@ function removeSearch(element)
   $('#listingTable').DataTable().draw();
 }
 
-function deleteCollections(element)
+/*function deleteCollections(element)
 {
 
    var $members = $('.rowSelect:checked');
@@ -180,4 +180,40 @@ function deleteCollections(element)
             }); 
         });
    } 
+}*/
+
+function deleteCollection(element) 
+{
+  var $this = $(element);
+  var action = $this.attr('data-href');
+
+  if (action != '') {
+    swal({
+      title: "Are you sure !!",
+      text: "You want to delete ?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      confirmButtonClass: "btn-danger",
+      closeOnConfirm: false,
+      showLoaderOnConfirm: true
+    },
+      function () {
+        axios.delete(action)
+          .then(function (response) {
+            if (response.data.status === 'success') {
+              swal("Success", response.data.msg, 'success');
+              $('#listingTable').DataTable().ajax.reload();
+            }
+
+            if (response.data.status === 'error') {
+              swal("Error", response.data.msg, 'error');
+            }
+
+          })
+          .catch(function (error) {
+            // swal("Error",error.response.data.msg,'error');
+          });
+      });
+  }
 }

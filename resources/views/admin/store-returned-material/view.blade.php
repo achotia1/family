@@ -73,19 +73,19 @@
                         <tr>                            
                             <td class="w-90-px"><b>Batch Card :</b></td>
                             <td colspan="3">                            
-                            {{$object->hasBatch->batch_card_no}}
+                            {{$object->assignedProductionPlan->assignedBatch->batch_card_no??""}}
                             </td>
                         </tr>
                         <tr>                            
                             <td><b>Unit :</b></td>
                             <td colspan="3">
-                                {{$object->hasBatch->assignedProduct->name}}
+                                {{$object->assignedProductionPlan->assignedBatch->assignedProduct->name}}
                             </td>
                         </tr>
                         <tr>                            
                             <td><b>Product Code :</b></td>
                             <td colspan="3">
-                                {{$object->hasBatch->assignedProduct->code}}
+                                {{$object->assignedProductionPlan->assignedBatch->assignedProduct->code}}
                             </td>
                         </tr>
                         <tr>                            
