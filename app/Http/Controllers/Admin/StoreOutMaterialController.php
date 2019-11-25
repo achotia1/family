@@ -78,6 +78,10 @@ class StoreOutMaterialController extends Controller
             $collection = self::_storeOrUpdate($collection,$request);
 
             if($collection){
+                ## CALCULATE LOSS MATERIAL AND YEILD
+                $id = $collection->id;
+                $companyId = self::_getCompanyId();
+                $output = $this->BaseModel->updateMadeByMaterial($id, $companyId);
                 //dd($collection);
                 ## ADD Lot Quantity in material balance                
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
@@ -394,7 +398,7 @@ class StoreOutMaterialController extends Controller
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
 
-                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
+                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 
                 $data[$key]['actions'] = '';
 
