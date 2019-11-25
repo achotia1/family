@@ -310,9 +310,6 @@ class StoreReturnedMaterialController extends Controller
                     //Update lot balance for all the previous materials
                     if(!empty($previousReturnedMaterials))
                     {
-                        $updateQtyQry = DB::table('store_production_has_materials')
-                                            ->where('production_id', $request->plan_id)
-                                            ->update(['returned_quantity' => 0]);
                         foreach($previousReturnedMaterials as $previous) 
                         {
                             $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
@@ -331,10 +328,15 @@ class StoreReturnedMaterialController extends Controller
                                 if($returnData->spmid)
                                 {
                                    ##update returned quantity in production and update returned qty+actual qty in store
+                                    $updateQtyQry = DB::table('store_production_has_materials')
+                                                                ->where('id', $returnData->spmid)
+                                                                ->update(['returned_quantity' => 0]);
+
                                     $updateLotBalance = $this->StoreInMaterialModel->find($previous->lot_id);
                                     if($updateLotBalance)
                                     {
                                         $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity);
+
                                         if($updateLotBalance->save()) 
                                         {
                                            $all_transactions[] = 1;
@@ -697,9 +699,9 @@ class StoreReturnedMaterialController extends Controller
                         $returnedMaterialObject = $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->get();
                     if(!empty($returnedMaterialObject) && count($returnedMaterialObject)>0)
                     {
-                        $updateQtyQry = DB::table('store_production_has_materials')
-                                            ->where('production_id', $collection->plan_id)
-                                            ->update(['returned_quantity' => 0]);
+                        // $updateQtyQry = DB::table('store_production_has_materials')
+                        //                     ->where('production_id', $collection->plan_id)
+                        //                     ->update(['returned_quantity' => 0]);
                         foreach($returnedMaterialObject as $mkey => $mvalue) 
                         {
                            $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
@@ -715,9 +717,9 @@ class StoreReturnedMaterialController extends Controller
                                 if($returnData->spmid)
                                 {
                                    ##update returned quantity in production and update returned qty+actual qty in store
-                                    /*$updateQtyQry = DB::table('store_production_has_materials')
+                                    $updateQtyQry = DB::table('store_production_has_materials')
                                                                 ->where('id', $returnData->spmid)
-                                                                ->update(['returned_quantity' => 0]);*/
+                                                                ->update(['returned_quantity' => 0]);
 
                                     $updateLotBalance = $this->StoreInMaterialModel->find($mvalue->lot_id);
                                     if($updateLotBalance)
