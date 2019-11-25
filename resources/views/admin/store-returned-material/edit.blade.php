@@ -15,11 +15,12 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">                    
-                    <option value="">Select Batch</option>
+                <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">  
+                <option value="{{$return_material->batch_id}}">{{ $return_material->hasBatch->batch_card_no }}</option>                  
+                   <!--  <option value="">Select Batch</option>
                     @foreach($batchNos as $val){
                     <option value="{{$val['id']}}" @if($return_material->batch_id==$val['id']) selected @endif>{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
-                    @endforeach
+                    @endforeach -->
                 </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">

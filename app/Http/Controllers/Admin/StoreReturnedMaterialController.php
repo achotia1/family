@@ -76,8 +76,6 @@ class StoreReturnedMaterialController extends Controller
         $objStore = new StoreBatchCardModel;
         $batchNos = $objStore->getBatchNumbers();
 
-         // dd($batchNos);
-
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers();
         $this->ViewData['materialIds']   = $materialIds;
@@ -91,6 +89,11 @@ class StoreReturnedMaterialController extends Controller
        // dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create record, Something went wrong on server.'; 
+        if(empty($request->returned)) 
+        {
+            return response()->json($this->JsonData);
+            exit();
+        }
 
         try {     
 
@@ -103,7 +106,7 @@ class StoreReturnedMaterialController extends Controller
             {
                 $all_transactions = [];
                 ## ADD PRODUCTION RAW MATERIAL DATA
-                if (!empty($request->returned) && sizeof($request->returned) > 0) 
+                if (!empty($request->returned) && count($request->returned) > 0) 
                 {                    
                     ## ADD IN store_has_production_materials
                     foreach ($request->returned as $pkey => $return) 
@@ -225,12 +228,13 @@ class StoreReturnedMaterialController extends Controller
                                             $q1->with('hasProductionMaterial');
                                         }]
                                     );
-                            }
+                            },
+                            'hasBatch'
                         ])
                     ->where('store_returned_materials.id', base64_decode(base64_decode($encID)))
                     ->where('store_returned_materials.company_id', $companyId)
                     ->first();
-        // dd($data->toArray());
+       // dd($data->toArray());
         if(empty($data)) {            
             return redirect()->route('admin.return.index');
         }
@@ -254,13 +258,20 @@ class StoreReturnedMaterialController extends Controller
 
     public function update(StoreReturnedMaterialRequest $request, $encID)
     {
-       // dump($request->all());
+       
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Return Material, Something went wrong on server.';       
+
+        if(empty($request->returned)) 
+        {
+            return response()->json($this->JsonData);
+            exit();
+        }
 
         $id = base64_decode(base64_decode($encID));
         try {     
 
+            DB::beginTransaction();
             $companyId = self::_getCompanyId();      
 
             $collection = $this->BaseModel->find($id);   
@@ -270,9 +281,8 @@ class StoreReturnedMaterialController extends Controller
             {
                 $all_transactions = [];
                 ## ADD PRODUCTION RAW MATERIAL DATA
-                if (!empty($request->returned) && sizeof($request->returned) > 0) 
+                if (!empty($request->returned) && count($request->returned) > 0) 
                 {   
-
                     $previousReturnedMaterials=$this->StoreReturnedHasMaterialModel
                                                     ->where('returned_id', $collection->id)
                                                     ->get();
@@ -315,10 +325,7 @@ class StoreReturnedMaterialController extends Controller
 
                             }
                         }
-
                     }
-
-                    //dd($request->returned);
 
                     //Delete records
                     $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->delete();
@@ -388,13 +395,8 @@ class StoreReturnedMaterialController extends Controller
                             }
 
                         } 
-
-                        
-                        
                     }
-
                 }//ifclose
-               
             }
 
             if (!in_array(0,$all_transactions)) 
@@ -417,7 +419,6 @@ class StoreReturnedMaterialController extends Controller
         }
 
         return response()->json($this->JsonData);
-
     }
 
     public function show($encId)
@@ -804,15 +805,29 @@ class StoreReturnedMaterialController extends Controller
                                         ->where('batch_id',$batch_id)
                                         ->where('material_id',$material_id)
                                         ->where('company_id',$companyId)
-                                        ->get(['lot_id']);
-            // dd($get_lot_ids->toArray());      
+                                        ->get(['lot_id','production_id']);
             $lot_ids = array_column($get_lot_ids->toArray(), "lot_id");
-                                  
+            $production_ids = array_column($get_lot_ids->toArray(), "production_id");
+            
+            $production_id=0;
+            if(count($production_ids)>0){
+                $production_id=$production_ids[0];
+            }
+
+           // dump($get_lot_ids->toArray(),$lot_ids,$production_ids[0]);      
             $get_material_lots = $this->StoreInMaterialModel
-                                        ->join('store_production_has_materials','lot_id','store_in_materials.id')
+                                      ->join('store_production_has_materials','lot_id','store_in_materials.id')
                                       ->whereIn("store_in_materials.id",$lot_ids)
-                                      ->get(['store_in_materials.id','store_in_materials.material_id','lot_no','lot_qty','lot_balance','store_production_has_materials.quantity as production_quantity']);
-            //dd($get_material_lots);
+                                      ->where("store_production_has_materials.production_id",$production_id)
+                                      ->get([
+                                            'store_in_materials.id',
+                                            'store_in_materials.material_id',
+                                            'lot_no',
+                                            'lot_qty',
+                                            'lot_balance',
+                                            'store_production_has_materials.quantity as production_quantity'
+                                            ]);
+           // dd($get_material_lots->toArray());
 
             $html="<option value=''>Select Lot</option>";
             foreach($get_material_lots as $lotId){        
@@ -822,12 +837,7 @@ class StoreReturnedMaterialController extends Controller
                     $html.="<option data-qty='".$lotId['production_quantity']."' value='".$lotId['id']."' $selected>".$lotId['lot_no']." (".$lotId['production_quantity'].")</option>";
                 }                        
             }
-            // $material_id   = $request->material_id;
-            // $selected_val      = $request->selected_val;      
-            // if(!empty($material_id)){
-            //     $html       = self::_getMaterialLots($material_id, $selected_val);
-            // }
- 
+           
             $this->JsonData['html'] = $html;
             //$this->JsonData['data'] = $raw_materials;
             $this->JsonData['msg']  = 'Material Lots';
