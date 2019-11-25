@@ -337,7 +337,7 @@ class StoreInMaterialController extends Controller
 
                 $data[$key]['id'] = $row->id;
 
-                $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_in_materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
+                /*$data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_in_materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';*/
 
                 $data[$key]['lot_no']  = $row->lot_no;
                 $data[$key]['material_id']  =  $row->name;
@@ -373,7 +373,7 @@ class StoreInMaterialController extends Controller
 
     ## SEARCH HTML
     $searchHTML['id']       =  '';
-    $searchHTML['select']   =  '';
+    //$searchHTML['select']   =  '';
     $searchHTML['lot_no']     =  '<input type="text" class="form-control" id="lot-no" value="'.($request->custom['lot_no']).'" placeholder="Search...">';
     $searchHTML['material_id']     =  $material_id_string;
     $searchHTML['lot_qty']   =  '<input type="text" class="form-control" id="lot-qty" value="'.($request->custom['lot_qty']).'" placeholder="Search...">';

@@ -24,13 +24,13 @@ $(document).ready(function()
         },
         "columns": [
             { "data": "id",  "visible": false, },
-            { "data": "select"},
+            /*{ "data": "select"},*/
             { "data": "batch_id"},
             { "data": "product_code"},            
             { "data": "quantity"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,5] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,4] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
        /* "language": {
