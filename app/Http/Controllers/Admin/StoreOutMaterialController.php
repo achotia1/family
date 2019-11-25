@@ -132,7 +132,8 @@ class StoreOutMaterialController extends Controller
             }
         ])->where('company_id', $companyId)
         ->find($id);
-        //dd($data);
+        
+        // END ASHVINI
         if(empty($data)) {            
             return redirect()->route('admin.materials-out.index');
         }
@@ -150,11 +151,13 @@ class StoreOutMaterialController extends Controller
         $id = base64_decode(base64_decode($encID));
         //dd($id);
         try {
-            $collection = $this->BaseModel->find($id);
-            //$preLotQty =  $collection->lot_qty;                
+            $collection = $this->BaseModel->find($id);                 
             $collection = self::_storeOrUpdate($collection,$request);
             if($collection){
-                ## UPDATE Lot Quantity in material balance
+                ## CALCULATE LOSS MATERIAL AND YEILD
+                $companyId = self::_getCompanyId();
+                $this->BaseModel->updateMadeByMaterial($id, $companyId); 
+
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-out.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
@@ -191,6 +194,44 @@ class StoreOutMaterialController extends Controller
         return $collection;
     }
 
+    public function show($encId)
+    {
+        $id = base64_decode(base64_decode($encId));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['modulePath']   = $this->ModulePath;
+        $companyId = self::_getCompanyId();
+        $outputDetails = $this->BaseModel->with([
+            'assignedPlan' => function($q)
+            {  
+                $q->with(['hasProductionMaterials' => function($q){
+                    $q->with('mateialName');    
+                }]);
+                $q->with(['assignedBatch'=> function($q){
+                    $q->with('assignedProduct');
+                }]);                
+            }
+        ])->where('company_id', $companyId)
+        ->find($id);
+        $this->ViewData['object'] = $outputDetails;
+        //dd($outputDetails);
+        /*$this->ViewData['object'] = $this->BaseModel
+        ->with([   
+            'hasProductionMaterials' => function($q)
+            {  
+                $q->with('mateialName');
+                $q->with('hasLot');
+            }
+        ])->with(['assignedBatch' => function($q){
+                $q->with('assignedProduct');
+        }
+        ])
+        ->find($id);*/         
+        //->find($id)->toArray(); //
+        //dd($this->ViewData['object']);
+        return view($this->ModuleView.'view', $this->ViewData);
+    }
     public function getRecords(Request $request)
     {
 
@@ -339,8 +380,8 @@ class StoreOutMaterialController extends Controller
                 $data[$key]['batch_id']  = $row->batch_card_no;
                 $data[$key]['product_code']  =  $row->name;
                 $data[$key]['sellable_qty']  =  $row->sellable_qty;
-                $data[$key]['loss_material']  =  $row->loss_material;
-                $data[$key]['yield']  =  $row->yield;              
+                $data[$key]['loss_material']  =  number_format($row->loss_material, 2, '.', '');
+                $data[$key]['yield']  =  number_format($row->yield, 2, '.', '');          
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
@@ -350,11 +391,13 @@ class StoreOutMaterialController extends Controller
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
 
+                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
+
                 $data[$key]['actions'] = '';
 
                 /*if(auth()->user()->can('material-add'))
                 {*/
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.'</div>';
                 /*}*/
 
         }

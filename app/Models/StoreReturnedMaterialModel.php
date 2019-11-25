@@ -12,7 +12,8 @@ class StoreReturnedMaterialModel extends Model
     protected $table = 'store_returned_materials';
 
     protected $fillable = [
-		'batch_id',
+		'plan_id',
+        'batch_id',
         'company_id',
         'return_date',
         'quantity',
@@ -37,6 +38,10 @@ class StoreReturnedMaterialModel extends Model
             $arrReturnData[$data->material_id] = $data->quantity;
         }
         return  $arrReturnData;
+    }
+    public function assignedProductionPlan()
+    {
+        return $this->belongsTo(StoreProductionModel::class, 'plan_id', 'id');
     }
 
     public function hasReturnedMaterials()

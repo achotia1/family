@@ -13,6 +13,7 @@ use App\Models\StoreRawMaterialModel;
 use App\Models\StoreInMaterialModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\ProductsModel;
+use App\Models\StoreOutMaterialModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
@@ -66,52 +67,16 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        
-
-        /*$objStore = new StoreBatchCardModel();
-        $batcDetails = $objStore->with(['assignedProduct'])->find(1)->toArray();
-        dd($batcDetails);
-        die;*/
         $companyId = self::_getCompanyId();
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
-
-        /*$objMaterial = new StoreRawMaterialModel();
-        $materialIds = $objMaterial->getMaterialNumbers();*/        
         
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
-        
-        /*$d = $objMaterial->find(6)->delete();
-        if($d){
-            echo "innn";
-        } else {
-            echo "else";
-        }
-        dd($d);*/
-        /*$objLots = new StoreInMaterialModel;
-        $lotIds = $objLots->getBalanceLots(1,$companyId);*/
-        
-        /*$lotmaterialIds = $objMaterial1->where('status', 1)->with(['hasInMaterials'=> function($q){
-                $q->where('status', 1);
-                $q->where('lot_qty', '>', 0);                 
-            }])
-        ->get(['id','name'])->toArray();
-        foreach($lotmaterialIds as $mval){
-            if(!empty($mval['has_in_materials'])){
-                $balanceMaterials[$mval['id']] = $mval['name'];    
-            }                      
-        }*/
-        //dd($lotmaterialIds->toSql());
-
-        //$lotmaterialIds1 = $lotmaterialIds->has('hasInMaterials');
-        //dd();
-        //dd($materialIds);
-        /*$this->BaseModel->where('status', 1)->where('is_reviewed', 'no')->orderBy('id', 'DESC')->with(['assignedProduct'])->get();*/
 
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
-        //dd($arrBatchNos);
+        
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
@@ -319,7 +284,11 @@ class StoreProductionController extends Controller
                             } else {
                                 $all_transactions[] = 0;
                             }
-                        }                     
+                        }
+                        ## UPDATE LOSS MATERIAL AND YIELD
+                        $materialOutObj = new StoreOutMaterialModel;
+                        $companyId = self::_getCompanyId();
+                        $materialOutObj->updateMadeByMaterial($productionId, $companyId);                    
                     } else {
                         $all_transactions[] = 0;
                     }
