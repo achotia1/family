@@ -86,7 +86,7 @@ $('#productionForm').validator().on('submit', function (e)
 
 function addPlan() 
 {
-	var items = parseInt($("#total_items").val()) + 1;
+	var items = parseInt($("#total_items").val()) + 1;	
 	$("#total_items").val(items);
 	var counter = items;	
 	//var counter = $(".plan").length;	
@@ -148,7 +148,13 @@ function addPlan()
                     <td>
                     <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
                     </tr>`;
-    $(plan_area).insertAfter($(".add_plan_area:last"));    
+    
+    if($("#plan-table tr").length > 1){		
+		$(plan_area).insertAfter($(".add_plan_area:last"));	
+	} else {		
+		$(plan_area).insertAfter($(".heading-tr:last"));	
+	}
+        
 }
 function deletePlan(element)
 {

@@ -312,7 +312,9 @@ class StoreInMaterialController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_in_materials.id', 
+        ->get();  
+
+       /* ['store_in_materials.id', 
             'store_in_materials.material_id', 
             'store_in_materials.lot_no',            
             'store_in_materials.lot_qty',
@@ -320,9 +322,7 @@ class StoreInMaterialController extends Controller
             'store_in_materials.lot_balance',
             'store_in_materials.status',
             'store_raw_materials.name',            
-        ]);  
-
-
+        ]*/
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/

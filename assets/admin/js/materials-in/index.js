@@ -118,6 +118,7 @@ function removeSearch(element)
 	$('#material-id').val(''),
 	$('#lot-qty').val(''),
 	$('#lot-balance').val(''),
+	$('#search-status').val(''),
 	$('#listingTable').DataTable().draw();
 }
 
