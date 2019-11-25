@@ -83,7 +83,7 @@
                             onchange="loadLot(this);"
                             data-error="Material Number field is required." 
                         >
-                            <option value="">Select Material</option>
+                            <!-- <option value="">Select Material</option> -->
                              <option value="{{ $material->material->id }}"  selected >{{ $material->material->name }}</option>
                         </select>
                         <span class="help-block with-errors">
@@ -120,7 +120,7 @@
                             
                             data-error="Material Lot field is required." 
                         >
-                            <option value="">Select Lot</option>
+                            <!-- <option value="">Select Lot</option> -->
                              <option data-qty="{{ $production_qty }}" value="{{ $material->lot->id }}"  selected >{{ $material->lot->lot_no }} ({{ $production_qty }})</option>
                         </select>
                         <span class="help-block with-errors">

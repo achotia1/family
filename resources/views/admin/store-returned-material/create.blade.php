@@ -14,7 +14,11 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="batch_id" name="batch_id" required="" data-error="Batch Code field is required.">                    
+                <select class="form-control my-select" 
+                id="batch_id"
+                 name="batch_id" 
+                 required="" 
+                 data-error="Batch Code field is required.">                    
                     <option value="">Select Batch</option>
                     @foreach($batchNos as $val)
                     <option value="{{$val['id']}}">{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
@@ -139,6 +143,7 @@
                     </td>
                     <td></td>
                     </tr>
+                     <input type="hidden" name="total_items" id="total_items" value="1">
                     </tbody>
                 </table>
                 <div class="col-md-8">
@@ -167,6 +172,7 @@
         var material_id = "";
         var batch_id = "";
         var index = 0;
+        
         // PLAN OPTIONS
         var plan_options = '';
         @if(!empty($materialIds) && sizeof($materialIds) > 0)
