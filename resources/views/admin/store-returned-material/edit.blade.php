@@ -59,9 +59,9 @@
                 <h4 class="">Plan Material</h4>
             </div>
             <div class="col-md-12">
-                <table class="table mb-0 border-none ">
+                <table class="table mb-0 border-none" id="plan-table">
                     <thead class="theme-bg-blue-light-opacity-15">
-                        <tr>                            
+                        <tr class="heading-tr">                          
                             <th class="w-160-px">Material Name</th>                            
                             <th class="w-160-px">Material Lot Number</th>
                             <th class="w-160-px">Quantity</th>

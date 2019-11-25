@@ -101,7 +101,12 @@ function addPlan()
                     <td>
                     <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
                     </tr>`;
-    $(plan_area).insertAfter($(".add_plan_area:last"));    
+    // $(plan_area).insertAfter($(".add_plan_area:last"));    
+    if($("#plan-table tr").length > 1){     
+        $(plan_area).insertAfter($(".add_plan_area:last")); 
+    } else {        
+        $(plan_area).insertAfter($(".heading-tr:last"));    
+    }
     $(".add_plan_area").validator();
 }
 
