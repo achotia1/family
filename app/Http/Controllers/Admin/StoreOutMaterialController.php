@@ -275,8 +275,8 @@ class StoreOutMaterialController extends Controller
         ->leftjoin('store_productions', 'store_productions.id' , '=', 'store_out_materials.plan_id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
-        ->where('store_out_materials.company_id', $companyId);
-
+        ->where('store_out_materials.company_id', $companyId)
+        ->where('store_productions.deleted_at', null);
         //dd($modelQuery->toSql());
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            

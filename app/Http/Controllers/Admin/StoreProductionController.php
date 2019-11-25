@@ -287,8 +287,19 @@ class StoreProductionController extends Controller
                         }
                         ## UPDATE LOSS MATERIAL AND YIELD
                         $materialOutObj = new StoreOutMaterialModel;
-                        $companyId = self::_getCompanyId();
-                        $materialOutObj->updateMadeByMaterial($productionId, $companyId);                    
+                        $outputRec = $materialOutObj->getOutputRec($productionId);
+                        if($outputRec){                            
+                            $outPutId =  $outputRec->id;
+                            $companyId = self::_getCompanyId();
+                            $updateOutput = $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                            if($updateOutput) 
+                            {                            
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }
+                                        
                     } else {
                         $all_transactions[] = 0;
                     }
@@ -311,9 +322,49 @@ class StoreProductionController extends Controller
         return response()->json($this->JsonData);
     }
 
-    public function destroy($id)
+    public function destroy($encID)
     {
-        //
+        DB::beginTransaction();
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to delete user, Something went wrong on server.';
+        $id = base64_decode(base64_decode($encID));
+        $BaseModel = $this->BaseModel->find($id);
+        $prodRawMaterialModel = new ProductionHasMaterialModel;
+        $prevRecords = $prodRawMaterialModel->where('production_id',$id)->get(['lot_id','quantity'])->toArray();
+        $all_transactions = [];
+        try {
+            if($BaseModel->delete())
+            {
+                $prodRawMaterialModel->where('production_id', $id)->delete();
+                $inObj = new StoreInMaterialModel;
+                foreach($prevRecords as $pKey=>$pVal){                
+                    $inMaterialcollection = $inObj->find($pVal['lot_id']);
+                    $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true);
+                    if($updateBal) 
+                    {                            
+                        $all_transactions[] = 1;
+                    } else {
+                        $all_transactions[] = 0;
+                    }
+                }           
+            } else {
+                $all_transactions[] = 0;
+            }
+            if (!in_array(0,$all_transactions)) 
+            {
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route($this->ModulePath.'index');
+                $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
+                DB::commit();
+            } else {
+                DB::rollback();
+            }
+
+        } catch(\Exception $e) {
+            $this->JsonData['error_msg'] = $e->getMessage();
+            DB::rollback();
+        }
+        return response()->json($this->JsonData);
     }
 
     public function _storeOrUpdate($collection, $request)
@@ -486,12 +537,13 @@ class StoreProductionController extends Controller
                 $data[$key]['quantity']  =  $row->total_qty;                
                                
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'"><img src="'.url('/assets/admin/images').'/icons/eye.svg" alt=" view"></a>';
+                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
                 $data[$key]['actions'] = '';
-
+                $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';
+                
                 //if(auth()->user()->can('batch-add'))
                 //{
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.' '.$delete.'</div>';
                 //}
 
          }
