@@ -327,62 +327,69 @@ class StoreReturnedMaterialController extends Controller
                     ## ADD IN store_has_production_materials
                     foreach ($request->returned as $pkey => $return) 
                     {
-                        $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
-                        $returnRawMaterialObj->returned_id   = $collection->id;
-                        $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
-                        $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
-                        $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
-                        if ($returnRawMaterialObj->save()) 
-                        {                            
-                            ## UPDATE Production Planned QUANTITY                            
-                            if($return['lot_id'] > 0)
-                            {
+                        if(!empty($return['material_id']) && !empty($return['lot_id']))
+                        {
 
-                                $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity FROM store_production_has_materials
-                                    join store_productions ON store_production_has_materials.production_id=store_productions.id 
-                                            WHERE store_productions.batch_id = '".$request->batch_id."'
-                                            AND store_productions.company_id = '".$companyId."'
-                                            AND store_production_has_materials.material_id = '".$return['material_id']."'
-                                            AND store_production_has_materials.lot_id = '".$return['lot_id']."'
-                                            ";
-                                $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
-
-                                if(!empty($collectionReturn) && count($collectionReturn)>0)
+                            $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
+                            $returnRawMaterialObj->returned_id   = $collection->id;
+                            $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
+                            $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
+                            $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
+                            if ($returnRawMaterialObj->save()) 
+                            {                            
+                                ## UPDATE Production Planned QUANTITY                            
+                                if($return['lot_id'] > 0)
                                 {
 
-                                    $returnData = $collectionReturn->first();
+                                    $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity FROM store_production_has_materials
+                                        join store_productions ON store_production_has_materials.production_id=store_productions.id 
+                                                WHERE store_productions.batch_id = '".$request->batch_id."'
+                                                AND store_productions.company_id = '".$companyId."'
+                                                AND store_production_has_materials.material_id = '".$return['material_id']."'
+                                                AND store_production_has_materials.lot_id = '".$return['lot_id']."'
+                                                ";
+                                    $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
 
-                                    if($returnData->spmid){
-                                        ##update returned quantity in production and update returned qty+actual qty in store
-                                        $updateQtyQry = DB::table('store_production_has_materials')
-                                                            ->where('id', $returnData->spmid)
-                                                            ->update(['returned_quantity' => $return['quantity']]);
+                                    if(!empty($collectionReturn) && count($collectionReturn)>0)
+                                    {
 
-                                        $updateLotBalance = $this->StoreInMaterialModel->find($return['lot_id']);
-                                        if($updateLotBalance){
-                                            $updateLotBalance->lot_balance=$updateLotBalance->lot_balance+$return['quantity'];
-                                            if ($updateLotBalance->save()) 
-                                            {
-                                               $all_transactions[] = 1;
-                                            }else{
-                                               $all_transactions[] = 0;
+                                        $returnData = $collectionReturn->first();
+
+                                        if($returnData->spmid){
+                                            ##update returned quantity in production and update returned qty+actual qty in store
+                                            $updateQtyQry = DB::table('store_production_has_materials')
+                                                                ->where('id', $returnData->spmid)
+                                                                ->update(['returned_quantity' => $return['quantity']]);
+
+                                            $updateLotBalance = $this->StoreInMaterialModel->find($return['lot_id']);
+                                            if($updateLotBalance){
+                                                $updateLotBalance->lot_balance=$updateLotBalance->lot_balance+$return['quantity'];
+                                                if ($updateLotBalance->save()) 
+                                                {
+                                                   $all_transactions[] = 1;
+                                                }else{
+                                                   $all_transactions[] = 0;
+                                                }
+
                                             }
+
 
                                         }
 
-
                                     }
-
                                 }
+                                
+                                $all_transactions[] = 1;
+                               
                             }
-                            
-                            $all_transactions[] = 1;
-                           
-                        }
-                        else
-                        {
-                            $all_transactions[] = 0;
-                        }
+                            else
+                            {
+                                $all_transactions[] = 0;
+                            }
+
+                        } 
+
+                        
                         
                     }
 
@@ -782,7 +789,7 @@ class StoreReturnedMaterialController extends Controller
 
     public function getMaterialLots(Request $request)
     {
-        // dd($request->all());
+         // dd($request->all());
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
         try 
