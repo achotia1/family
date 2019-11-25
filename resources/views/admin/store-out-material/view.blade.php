@@ -106,19 +106,23 @@
 	                    $finalTotal = $plannedTotal = $returnedTotal = 0;
 	                    @endphp
 	                    @foreach($object->assignedPlan->hasProductionMaterials as $material)
-	                    @php
-	                    
+	                    @php	                    
 	                    if($material->mateialName->material_type == 'Raw'){
 	                    	$key = $key + 1;
-	                    	$finalWeight = $material->quantity - $material->returned_quantity;	                    	
+	                    	$returned = 0;
+	                    	foreach($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+								if( $material->lot_id == $returnedMaterial->lot_id)
+									$returned = $returnedMaterial->quantity;								}
+	                    	$finalWeight = $material->quantity - $returned;	                    	
 	                    	$finalTotal = $finalTotal + $finalWeight;
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
-	                    	$returnedTotal = $returnedTotal + $material->returned_quantity;
+	                    	$returnedTotal = $returnedTotal + $returned;
 	                    	
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
-	                    	$planned = number_format($material->quantity, 2, '.', '')." ".$material->mateialName->unit;;
-	                    	$returned = number_format($material->returned_quantity, 2, '.', '')." ".$material->mateialName->unit;;
+	                    	$planned = number_format($material->quantity, 2, '.', '')." ".$material->mateialName->unit;
+	                    	
+							
 	                    	
 	                    @endphp
 	                    <tr>
