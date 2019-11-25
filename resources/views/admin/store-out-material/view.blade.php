@@ -110,9 +110,14 @@
 	                    if($material->mateialName->material_type == 'Raw'){
 	                    	$key = $key + 1;
 	                    	$returned = 0;
-	                    	foreach($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
-								if( $material->lot_id == $returnedMaterial->lot_id)
-									$returned = $returnedMaterial->quantity;								}
+	                    	if(isset($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials))
+	                    	{
+								
+							
+		                    	foreach($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+									if( $material->lot_id == $returnedMaterial->lot_id)
+										$returned = $returnedMaterial->quantity;								}
+							}
 	                    	$finalWeight = $material->quantity - $returned;	                    	
 	                    	$finalTotal = $finalTotal + $finalWeight;
 	                    	

@@ -201,8 +201,31 @@
            
           </ul>
         </li>
-        <!-- end sales -->
+        <!-- return sales -->
         
+        <!-- output material -->
+        <li class="treeview {{ active(['admin/materials-out', 'admin/materials-out/*']) }}">
+          <a href="#">
+            <i class="fa fa-user-secret"></i>
+            <span>Manage Material Output</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+           
+            <li class="{{ active('admin/materials-out') }}">
+              <a href="{{ route('admin.materials-out.index') }}"><i class="fa fa-hand-o-right"></i> View Material Output</a>
+            </li>
+           
+           
+            <li class="{{ active('admin/materials-out/create') }}">
+              <a href="{{ route('admin.materials-out.create') }}"><i class="fa fa-hand-o-right"></i> Add Material Output</a>
+            </li>
+           
+          </ul>
+        </li>
+        <!-- end production -->
         <!-- Review Batch card -->
         
         <li class="{{ active(['admin/review-batch-card','admin/review-batch-card/*']) }}">
