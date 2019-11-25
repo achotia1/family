@@ -44,6 +44,9 @@ class StoreOutMaterialModel extends Model
                 }]);
                 $q->with(['assignedBatch'=> function($q){
                     $q->with('assignedProduct');
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
                 }]);                
             }
         ])->where('company_id', $companyId)
@@ -52,8 +55,14 @@ class StoreOutMaterialModel extends Model
         if($outputDetails){
             $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->course_powder + $outputDetails->rejection + $outputDetails->dust_product;
             foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
-                if($detail->mateialName->material_type == 'Raw')
-                    $finalWeight = $finalWeight + ($detail->quantity - $detail->returned_quantity);
+                if($detail->mateialName->material_type == 'Raw'){
+                    $returned = 0;
+                    foreach($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+                        if( $detail->lot_id == $returnedMaterial->lot_id)
+                            $returned = $returnedMaterial->quantity;                     
+                    }
+                    $finalWeight = $finalWeight + ($detail->quantity - $returned);
+                }
             }
             //$wasteageWeight." >> ". $finalWeight;
             $loss_material = $finalWeight - $wasteageWeight;

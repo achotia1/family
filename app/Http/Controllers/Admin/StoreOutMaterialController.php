@@ -210,7 +210,10 @@ class StoreOutMaterialController extends Controller
                 }]);
                 $q->with(['assignedBatch'=> function($q){
                     $q->with('assignedProduct');
-                }]);                
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);               
             }
         ])->where('company_id', $companyId)
         ->find($id);
