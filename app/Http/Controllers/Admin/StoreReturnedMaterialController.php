@@ -12,6 +12,7 @@ use App\Models\StoreBatchCardModel;
 use App\Models\StoreProductionModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\StoreReturnedHasMaterialModel;
+use App\Models\StoreOutMaterialModel;
 
 use App\Models\StoreInMaterialModel;
 
@@ -175,6 +176,13 @@ class StoreReturnedMaterialController extends Controller
                             $all_transactions[] = 0;
                         }
                         
+                    }
+
+                    $materialOutObj = new StoreOutMaterialModel;
+                    $outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                    if($outputRec){                            
+                        $outPutId =  $outputRec->id;
+                        $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
                     }
                
                 }
@@ -407,6 +415,13 @@ class StoreReturnedMaterialController extends Controller
                             else
                             {
                                 $all_transactions[] = 0;
+                            }
+
+                            $materialOutObj = new StoreOutMaterialModel;
+                            $outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                            if($outputRec){                            
+                                $outPutId =  $outputRec->id;
+                                $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
                             }
 
                         } 
@@ -729,6 +744,13 @@ class StoreReturnedMaterialController extends Controller
                     }
                     
                     $this->BaseModel->where('id', $collection->id)->delete();
+
+                    $materialOutObj = new StoreOutMaterialModel;
+                    $outputRec = $materialOutObj->getOutputRec($collection->plan_id);
+                    if($outputRec){                            
+                        $outPutId =  $outputRec->id;
+                        $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                    }
                 }
 
                 DB::commit();
