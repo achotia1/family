@@ -126,7 +126,7 @@ $isCurrent = auth()->user()->id === (int)base64_decode(base64_decode(request()->
 
             <div class="box-footer">
                 <!-- <button type="submit" class="btn btn-danger">Cancel</button> -->
-                <button type="submit" class="btn btn-success pull-right">Save</button>
+                <button type="submit" class="btn btn-success">Save</button>
             </div>
         </form>
         </div>

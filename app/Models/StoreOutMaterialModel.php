@@ -68,13 +68,15 @@ class StoreOutMaterialModel extends Model
                     }
                 }
             }
-            //$wasteageWeight." >> ". $finalWeight;
-            $loss_material = $finalWeight - $wasteageWeight;
-            $yield = ($outputDetails->sellable_qty/$finalWeight) * 100;
-            //$loss_material. " >> ".$yeild;
-            $outputDetails->loss_material = $loss_material;
-            $outputDetails->yield = $yield;
-            $outputDetails->save();
+            if($finalWeight>0){
+                //$wasteageWeight." >> ". $finalWeight;
+                $loss_material = $finalWeight - $wasteageWeight;
+                $yield = ($outputDetails->sellable_qty/$finalWeight) * 100;
+                //$loss_material. " >> ".$yeild;
+                $outputDetails->loss_material = $loss_material;
+                $outputDetails->yield = $yield;
+                $outputDetails->save();
+            }
         }
         return $outputDetails;
     }
