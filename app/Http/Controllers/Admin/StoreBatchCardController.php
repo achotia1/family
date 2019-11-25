@@ -198,7 +198,7 @@ class StoreBatchCardController extends Controller
         $filter = array(
             0 => 'store_batch_cards.id',
             1 => 'store_batch_cards.id',
-            2 => 'store_batch_cards.product_code',
+            2 => 'products.code',
             3 => 'store_batch_cards.batch_card_no',
             4 => 'store_batch_cards.batch_qty',
             5 => 'store_batch_cards.status',            
@@ -241,7 +241,13 @@ class StoreBatchCardController extends Controller
                 //dd($key);
                 $modelQuery = $modelQuery
                 ->where('store_batch_cards.batch_card_no', 'LIKE', '%'.$key.'%');
-
+            }
+            if (isset($request->custom['status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['status'];
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.status', $key);
             }
         }
 
@@ -278,15 +284,15 @@ class StoreBatchCardController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_batch_cards.id', 
+        ->get();  
+        /*['store_batch_cards.id', 
             'store_batch_cards.product_code', 
             'store_batch_cards.batch_card_no', 
             'store_batch_cards.batch_qty',
             'store_batch_cards.status', 
             'products.name',
             'products.code',          
-        ]);  
-
+        ]*/
 
         /*--------------------------------------
         |  DATA BINDING
@@ -339,9 +345,23 @@ class StoreBatchCardController extends Controller
     $searchHTML['select']   =  '';    
     $searchHTML['batch_card_no']     =  '<input type="text" class="form-control" id="batch-card-no" value="'.($request->custom['batch_card_no']).'" placeholder="Search...">';
     $searchHTML['batch_qty']   =  '';     
-    $searchHTML['status']   =  '';
+    //$searchHTML['status']   =  '';
 
-    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';    
+    $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
+            <option class="theme-black blue-select" value="">Status</option>
+            <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>
+            <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Inactive</option>            
+            </select>';
+
+    /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';*/
+    if ($custom_search) 
+    {
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
+    }
+    else
+    {
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    }    
 
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);

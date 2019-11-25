@@ -13,8 +13,8 @@
     <div class="box">
         
         <div class="box-header align-right">           
-            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add</a>            
-            <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
+            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Plan</a>            
+            <!--<a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>-->
         </div>
         
         <div class="box-body">

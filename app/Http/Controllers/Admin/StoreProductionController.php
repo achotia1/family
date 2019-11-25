@@ -423,7 +423,7 @@ class StoreProductionController extends Controller
             0 => 'store_productions.id',
             1 => 'store_productions.id',
             2 => 'store_productions.batch_id',
-            3 => 'store_batch_cards.product_code', 
+            3 => 'products.code', 
             4 => 'total_qty',                   
         );       
 

@@ -54,20 +54,24 @@ class StoreOutMaterialModel extends Model
         $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
         if($outputDetails){
             $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->course_powder + $outputDetails->rejection + $outputDetails->dust_product;
-            foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
-                if($detail->mateialName->material_type == 'Raw'){
-                    $returned = 0;
-                    foreach($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
-                        if( $detail->lot_id == $returnedMaterial->lot_id)
-                            $returned = $returnedMaterial->quantity;                     
+            if(isset($outputDetails->assignedPlan->hasProductionMaterials)){
+                foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
+                    if($detail->mateialName->material_type == 'Raw'){
+                        $returned = 0;
+                        if(isset($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials)){
+                            foreach($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+                                if( $detail->lot_id == $returnedMaterial->lot_id)
+                                    $returned = $returnedMaterial->quantity;                     
+                            }
+                        }                    
+                        $finalWeight = $finalWeight + ($detail->quantity - $returned);
                     }
-                    $finalWeight = $finalWeight + ($detail->quantity - $returned);
                 }
             }
             //$wasteageWeight." >> ". $finalWeight;
             $loss_material = $finalWeight - $wasteageWeight;
             $yield = ($outputDetails->sellable_qty/$finalWeight) * 100;
-            $loss_material. " >> ".$yeild;
+            //$loss_material. " >> ".$yeild;
             $outputDetails->loss_material = $loss_material;
             $outputDetails->yield = $yield;
             $outputDetails->save();

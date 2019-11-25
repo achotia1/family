@@ -18,6 +18,7 @@ $(document).ready(function()
                 object.custom = {
                     "product_code" :  $('#product-code').val(),
                     "batch_card_no" : $('#batch-card-no').val(),
+                    "status" : $('#search-status').val()
                 }
             }
         },
@@ -113,6 +114,7 @@ function removeSearch(element)
 
   $('#product-code').val(''),
   $('#batch-card-no').val(''),
+  $('#search-status').val(''),
   $('#listingTable').DataTable().draw();
 }
 

@@ -156,8 +156,8 @@ class StoreOutMaterialController extends Controller
             if($collection){
                 ## CALCULATE LOSS MATERIAL AND YEILD
                 $companyId = self::_getCompanyId();
-                $this->BaseModel->updateMadeByMaterial($id, $companyId); 
-
+                $output = $this->BaseModel->updateMadeByMaterial($id, $companyId); 
+                //dd($output);
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-out.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
