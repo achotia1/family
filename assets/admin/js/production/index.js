@@ -116,9 +116,8 @@ function removeSearch(element)
   $('#listingTable').DataTable().draw();
 }
 
-function deleteCollections(element)
+/*function deleteCollections(element)
 {
-
    var $members = $('.rowSelect:checked');
 
    if ($members.length == 0) 
@@ -128,7 +127,6 @@ function deleteCollections(element)
    }
    else
    {
-
       var arrEncId = [];
       $members.each(function()
       {
@@ -171,4 +169,40 @@ function deleteCollections(element)
             }); 
         });
    } 
+}*/
+function deleteCollection(element) 
+{
+  var $this = $(element);
+  var action = $this.attr('data-href');
+
+  if (action != '') {
+    swal({
+      title: "Are you sure !!",
+      text: "You want to delete ?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      confirmButtonClass: "btn-danger",
+      closeOnConfirm: false,
+      showLoaderOnConfirm: true
+    },
+      function () {
+        axios.delete(action)
+          .then(function (response) {
+            if (response.data.status === 'success') {
+              swal("Success", response.data.msg, 'success');
+              $('#userListingTable').DataTable().ajax.reload();
+
+            }
+
+            if (response.data.status === 'error') {
+              swal("Error", response.data.msg, 'error');
+            }
+
+          })
+          .catch(function (error) {
+            // swal("Error",error.response.data.msg,'error');
+          });
+      });
+  }
 }
