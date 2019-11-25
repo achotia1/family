@@ -21,7 +21,7 @@ class StoreReturnedMaterialRequest extends FormRequest
         if ($id == null) 
         {
            return [                
-                'batch_id'     => 'required',
+                'plan_id'     => 'required',
                 'return_date'     => 'required',
                // 'material_id'     => 'required',
                 //'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
@@ -29,7 +29,7 @@ class StoreReturnedMaterialRequest extends FormRequest
             ];
         }else{
              return [                
-                'batch_id'     => 'required',
+                'plan_id'     => 'required',
                 'return_date'     => 'required',
                 // 'material_id'     => 'required',
                 // 'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
@@ -46,7 +46,7 @@ class StoreReturnedMaterialRequest extends FormRequest
 
             // 'name.required'    => 'Name field is required.',            
             // 'name.regex'       => 'Name field should be in latter\'s and number\'s only.', 
-            'batch_id.required'    => 'Batch Card Number field is required.',           
+            'plan_id.required'    => 'Batch Card Number field is required.',           
             'return_date.required'    => 'Return Date field is required.',            
             // 'material_id.required'    => 'Raw Material field is required.',            
             // 'quantity.required'    => 'Quantity field is required.',            

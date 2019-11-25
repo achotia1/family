@@ -144,8 +144,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
 					Route::post('/return/getMaterialLots',  'StoreReturnedMaterialController@getMaterialLots');
-					Route::post('/return/getExistingBatch',  'StoreReturnedMaterialController@getExistingBatch');
-					Route::post('/return/getBatchMaterials',  'StoreReturnedMaterialController@getBatchMaterials');
+					Route::post('/return/checkExistingRecord',  'StoreReturnedMaterialController@checkExistingRecord');
+					Route::post('/return/getPlanMaterials',  'StoreReturnedMaterialController@getPlanMaterials');
 					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
 					Route::post('/return/bulkDelete',  'StoreReturnedMaterialController@bulkDelete');
 					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);

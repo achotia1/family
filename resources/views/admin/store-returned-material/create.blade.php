@@ -15,18 +15,19 @@
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
                 <select class="form-control my-select" 
-                id="batch_id"
-                 name="batch_id" 
+                 id="plan_id"
+                 name="plan_id" 
                  required="" 
                  data-error="Batch Code field is required.">                    
                     <option value="">Select Batch</option>
-                    @foreach($batchNos as $val)
-                    <option value="{{$val['id']}}">{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
+                    @foreach($planBatch as $plan)
+                        <option value="{{$plan->id}}">{{$plan->assignedBatch->batch_card_no}} ({{$plan->assignedBatch->assignedProduct->code}} - {{$plan->assignedBatch->assignedProduct->name}})</option>
+                    <!-- value="{{$plan->assignedBatch->id}}" plan-id="{{$plan->id}}"-->
                     @endforeach
                 </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_batch_id"></li>
+                        <li class="err_plan_id"></li>
                     </ul>
                 </span>
             </div>
@@ -170,16 +171,16 @@
 @section('scripts')
     <script type="text/javascript">
         var material_id = "";
-        var batch_id = "";
+        var plan_id = "";
         var index = 0;
         
         // PLAN OPTIONS
         var plan_options = '';
-        @if(!empty($materialIds) && sizeof($materialIds) > 0)
+       /* @if(!empty($materialIds) && sizeof($materialIds) > 0)
         @foreach($materialIds as $val)
         plan_options += `<option value='{{ $val["id"] }}'> {{$val["name"]}} </option>`;
         @endforeach
-        @endif
+        @endif*/
     </script>
     <script type="text/javascript" src="{{ url('assets/admin/js/returned-material/create-edit.js') }}"></script>
         
