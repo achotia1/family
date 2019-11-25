@@ -37,6 +37,10 @@ class StoreProductionModel extends Model
         return $this->hasOne(StoreOutMaterialModel::class, 'plan_id', 'id');
     }
 
+    public function hasReturnMaterial()
+    {       
+        return $this->hasOne(StoreReturnedMaterialModel::class, 'plan_id', 'id');
+    }
     public function getProductionPlans($companyId) {      
         return self::with([
             'assignedBatch' => function($q){
