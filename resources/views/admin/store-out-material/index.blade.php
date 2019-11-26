@@ -22,13 +22,13 @@
                 <thead class="blue-border-bottom">
                     <tr>
                         <th style="display: none"></th>
-                        <th class="w-90-px">Select</th>
-                        <th class="w-100-px">Batch Code</th>
-                        <th class="w-60-px">Product</th>                        
-                        <th class="w-60-px">Sellable Quantity</th>
-                        <th class="w-100-px">Loss Material</th>
-                        <th class="w-100-px">Yield</th>                        
-                        <th class="w-180-px">Actions</th>
+                        <th class="w-10">Select</th>
+                        <th class="w-10">Batch Code</th>
+                        <th class="w-20">Product</th>                        
+                        <th class="w-5">Sellable Quantity</th>
+                        <th class="w-10">Loss Material</th>
+                        <th class="w-10">Yield</th>                        
+                        <th class="w-20">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
