@@ -499,6 +499,7 @@ class StoreReturnedMaterialController extends Controller
     {
         
         $collection->company_id  = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
         // $collection->batch_id    = $request->batch_id;
         $collection->plan_id    = $request->plan_id;
         $collection->return_date = date('Y-m-d',strtotime($request->return_date));   
@@ -662,7 +663,7 @@ class StoreReturnedMaterialController extends Controller
 
 
     $objProduct = new ProductsModel;
-    $products = $objProduct->getProducts();
+    $products = $objProduct->getProducts($companyId);
     $product_code_string = '<select name="product_name" id="product-name" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
             $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_name'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';

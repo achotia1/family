@@ -184,6 +184,7 @@ class StoreOutMaterialController extends Controller
     public function _storeOrUpdate($collection, $request)
     { 
         $collection->company_id     = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
         $collection->plan_id        = $request->plan_id;
         $collection->sellable_qty   = $request->sellable_qty;
         $collection->course_powder  = $request->course_powder;
@@ -418,7 +419,7 @@ class StoreOutMaterialController extends Controller
         }
     $batch_no_string .='</select>';
     $objProduct = new ProductsModel;
-    $products = $objProduct->getProducts();
+    $products = $objProduct->getProducts($companyId);
     $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
             $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';

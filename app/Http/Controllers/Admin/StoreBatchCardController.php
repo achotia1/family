@@ -69,8 +69,10 @@ class StoreBatchCardController extends Controller
         $objStore = new StoreBatchCardModel;
         $batchNo = $objStore->getBatchCardNo();
 
+        $companyId = self::_getCompanyId();
+
         $objProduct = new ProductsModel;
-        $products = $objProduct->getProducts();
+        $products = $objProduct->getProducts($companyId);
         
         $this->ViewData['batchNo']   = $batchNo;
         $this->ViewData['products']   = $products;
@@ -111,12 +113,12 @@ class StoreBatchCardController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        $companyId = self::_getCompanyId();
         $objProduct = new ProductsModel;
-        $products = $objProduct->getProducts();        
+        $products = $objProduct->getProducts($companyId);;        
         
         $this->ViewData['products']   = $products;
 
-        $companyId = self::_getCompanyId();
         $data = $this->BaseModel->where('store_batch_cards.id', base64_decode(base64_decode($encID)))->where('store_batch_cards.company_id', $companyId)->first();
         if(empty($data)) {            
             return redirect()->route('admin.rms-store.index');
@@ -165,6 +167,7 @@ class StoreBatchCardController extends Controller
     public function _storeOrUpdate($collection, $request)
     {
         $collection->company_id        = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
         $collection->product_code        = $request->product_code;
         $collection->batch_card_no   = $request->batch_card_no;
         $collection->batch_qty             = $request->batch_qty;         
@@ -347,7 +350,7 @@ class StoreBatchCardController extends Controller
          }
      }
     $objProduct = new ProductsModel;
-    $products = $objProduct->getProducts();
+    $products = $objProduct->getProducts($companyId);;
     $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
             $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';

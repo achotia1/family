@@ -154,13 +154,14 @@ class StoreRawMaterialController extends Controller
 
     public function _storeOrUpdate($collection, $request)
     {        
-        $collection->company_id        = self::_getCompanyId();
-        $collection->name        = $request->name;
-        $collection->moq   = $request->moq;
-        $collection->unit             = $request->unit;        
-        $collection->balance_stock             = $request->balance_stock; 
-        $collection->material_type              = $request->material_type;       
-        $collection->status             = !empty($request->status) ? 1 : 0;
+        $collection->company_id     = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
+        $collection->name           = $request->name;
+        $collection->moq            = $request->moq;
+        $collection->unit           = $request->unit;        
+        $collection->balance_stock  = $request->balance_stock; 
+        $collection->material_type  = $request->material_type;       
+        $collection->status         = !empty($request->status) ? 1 : 0;
         ## SAVE DATA
         $collection->save();
         

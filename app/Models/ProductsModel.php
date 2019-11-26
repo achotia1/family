@@ -20,7 +20,11 @@ class ProductsModel extends Model
     	return $this->hasMany(UserHasProductsModel::class, 'product_id', 'id');
     }
     
-    public function getProducts() {
-        return ProductsModel::select('id','name','code')->where('status','1')->get();
+    public function getProducts($companyId=false) {
+        
+        return ProductsModel::select('id','name','code')
+                            ->where('status','1')
+                            ->where('company_id',$companyId)
+                            ->get();
     }
 }

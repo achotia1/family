@@ -178,6 +178,7 @@ class StoreInMaterialController extends Controller
             $collection->lot_balance     = $request->lot_qty;
         }
         $collection->company_id        = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
         $collection->material_id        = $request->material_id;
         $collection->lot_no   = $request->lot_no;
         $collection->lot_qty             = $request->lot_qty;        
