@@ -12,7 +12,7 @@
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
         <form id="productionForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-8">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
                 <select class="form-control my-select" 
@@ -24,7 +24,7 @@
                         >                    
                     <option value="">Select Batch</option>
                     @foreach($batchNos as $val)
-                    <option value="{{$val['id']}}">{{$val['batch_card_no']}}</option>
+                    <option value="{{$val['id']}}">{{$val['batch_card_no']}} ({{$val->assignedProduct->code}} - {{$val->assignedProduct->name}})</option>
                     @endforeach
                 </select>                
                 <span class="help-block with-errors">
@@ -33,7 +33,7 @@
                     </ul>
                 </span>
             </div>
-            <div class="form-group col-md-6">
+            <!-- <div class="form-group col-md-6">
                 <label class="theme-blue"> Product </label>
                 <input 
                     type="text" 
@@ -43,7 +43,7 @@
                     class="form-control" 
                     readonly
                 >               
-            </div>
+            </div> -->
         	<div class="with-border col-md-12">
           		<h4 class="">Plan Material</h4>
         	</div>
