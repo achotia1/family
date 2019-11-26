@@ -192,7 +192,7 @@ class StoreOutMaterialController extends Controller
         $collection->dust_product          = $request->dust_product;
         /*$collection->loss_material             = $request->loss_material;
         $collection->yield             = $request->yield;*/
-        $collection->status         = 1;      
+        $collection->status         = 0;      
         ## SAVE DATA
         $collection->save();
         
