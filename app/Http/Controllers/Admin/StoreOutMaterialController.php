@@ -405,7 +405,7 @@ class StoreOutMaterialController extends Controller
 
                 /*if(auth()->user()->can('material-add'))
                 {*/
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.'</div>';
                 /*}*/
 
         }

@@ -552,7 +552,7 @@ class StoreProductionController extends Controller
                 
                 //if(auth()->user()->can('batch-add'))
                 //{
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.' '.$delete.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.' '.$delete.'</div>';
                 //}
 
          }
