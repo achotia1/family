@@ -5,6 +5,7 @@
 @endsection
 
 @section('styles')
+
 @endsection
 
 @section('content')
@@ -24,9 +25,9 @@
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
                         <th>Product Code</th>
-                        <th class="w-100-px">Batch Card Number</th>
+                        <th class="w-100-px">Batch Code</th>
                         <th class="w-100-px">Batch Quantity</th>
-                        <th class="w-100-px">Status</th>                        
+                        <th class="w-100-px">Is Plan Added?</th>                        						<th class="w-100-px">Status</th>
                         <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>

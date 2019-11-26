@@ -17,7 +17,8 @@ class StoreBatchCardModel extends Model
         'batch_card_no',
         'batch_qty',
         'status',
-        'is_reviewed'
+        'review_status',
+        'plan_added'
     ];
 
     /**
