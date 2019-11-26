@@ -49,4 +49,22 @@ $('#materialOutForm').validator().on('submit', function (e)
 
         return false;
     }
-})
+});
+
+function checkPlan(plan)
+{    
+    var plan_id = $(plan).val();
+    var action = ADMINURL + '/materials-out/getExistingPlan';
+    axios.post(action, {plan_id:plan_id})
+    .then(response => 
+    {               
+        var url = response.data.url;
+        if(url != '')
+        	window.location.href = url;
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}

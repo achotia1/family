@@ -463,6 +463,29 @@ class StoreOutMaterialController extends Controller
 
     return response()->json($this->JsonData);
 }
+public function getExistingPlan(Request $request)
+{
+    $this->JsonData['status'] = 'error';
+    $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
+    try 
+    {
+        $plan_id   = $request->plan_id;
+        $collection = $this->BaseModel->where('plan_id',$plan_id)->first();        
+        $url = '';
+        if($collection){               
+            $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
+        }
+        $this->JsonData['url']  = $url;        
+        $this->JsonData['msg']  = 'Raw Materials';
+        $this->JsonData['status']  = 'Success';
+
+    } catch (Exception $e) 
+    {
+        $this->JsonData['exception'] = $e->getMessage();
+    }
+
+    return response()->json($this->JsonData);   
+}
 
 public function bulkDelete(Request $request)
 {
