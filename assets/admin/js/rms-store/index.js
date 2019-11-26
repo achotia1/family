@@ -18,7 +18,9 @@ $(document).ready(function()
                 object.custom = {
                     "product_code" :  $('#product-code').val(),
                     "batch_card_no" : $('#batch-card-no').val(),
-                    "status" : $('#search-status').val()
+                    "batch_qty" : $('#batch-qty').val(),
+                    "plan_added" : $('#plan-added').val(),
+                    "review_status" : $('#review-status').val()
                 }
             }
         },
@@ -28,12 +30,14 @@ $(document).ready(function()
             { "data": "product_code"},
             { "data": "batch_card_no"},
             { "data": "batch_qty"},            
-            { "data": "status"},
+            { "data": "plan_added"},
+            { "data": "review_status"},            
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,7] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        
        /* "language": {
           "processing": "Loading ...",
           "paginate": 
@@ -114,7 +118,9 @@ function removeSearch(element)
 
   $('#product-code').val(''),
   $('#batch-card-no').val(''),
-  $('#search-status').val(''),
+  $('#batch-qty').val(''),
+  $('#plan-added').val(''),
+  $('#review-status').val(''),
   $('#listingTable').DataTable().draw();
 }
 

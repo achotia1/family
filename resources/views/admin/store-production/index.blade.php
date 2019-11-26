@@ -21,8 +21,7 @@
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >
                 <thead class="blue-border-bottom">
                     <tr>
-                        <th style="display: none"></th>
-                        <th class="w-90-px">Select</th>
+                        <th style="display: none"></th>                        
                         <th class="w-160-px">Batch Code</th>
                         <th class="w-160-px">Product</th>
                         <th class="w-100-px">Total Raw Material</th>

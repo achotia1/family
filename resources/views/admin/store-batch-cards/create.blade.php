@@ -7,12 +7,11 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="batchForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
-            <div class="box-header with-border">
+        	<div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
-            
+        <form id="batchForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Product Code <span class="required">*</span></label>
@@ -31,7 +30,7 @@
             </div>
 
             <div class="form-group col-md-6">
-                <label class="theme-blue">Batch Card Number
+                <label class="theme-blue">Batch Code
                     <span class="required">*</span></label>
                 <input 
                     type="text" 
@@ -39,7 +38,7 @@
                     value="{{$batchNo}}" 
                     class="form-control" 
                     required                                       
-                    data-error="Batch Card Number field is required." 
+                    data-error="Batch Code field is required." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -66,7 +65,7 @@
                     </ul>
                 </span>
             </div>                  
-            <div class="form-group col-md-6">
+            <!--<div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
@@ -74,7 +73,7 @@
                       Active
                     </label>
                 </div>  
-            </div>
+            </div>-->
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="submit" class="btn btn-success">Save</button>

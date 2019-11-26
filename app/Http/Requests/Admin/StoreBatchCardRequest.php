@@ -37,7 +37,8 @@ class StoreBatchCardRequest extends FormRequest
     {
         return [           
             'product_code.required'    => 'Product Code field is required.',
-            'batch_card_no.required'    => 'Batch Card Number field is required.', 
+            'batch_card_no.required'    => 'Batch Code field is required.',
+            'batch_card_no.unique'    =>'This Batch Code has already been taken.',
             'batch_qty.required'    => 'Batch Quantity field is required.',
             'batch_qty.regex'    => 'Batch Quantity should be correct.',
         ];
