@@ -13,7 +13,7 @@
             </div>           
         <form id="productionForm" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($production->id))]) }}" method="post">
             <input type="hidden" name="_method" value="PUT">                     
-            <div class="form-group col-md-6">
+            <div class="form-group col-md-8">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
                 <select class="form-control my-select" 
@@ -22,7 +22,7 @@
                         required="" 
                         data-error="Batch Code field is required." 
                         >                    
-                    <option value="{{$production->batch_id}}">{{$production->assignedBatch->batch_card_no}}</option>
+                    <option value="{{$production->batch_id}}">{{$production->assignedBatch->batch_card_no}} ({{$production->assignedBatch->assignedProduct->code}} - {{$production->assignedBatch->assignedProduct->name}})</option>
                     
                 </select>                
                 <span class="help-block with-errors">
@@ -31,19 +31,7 @@
                     </ul>
                 </span>
             </div>
-            @php
-            $product = $production->assignedBatch->assignedProduct->code ." (" .$production->assignedBatch->assignedProduct->name.")"
-            @endphp
-            <div class="form-group col-md-6">
-                <label class="theme-blue"> Product </label>
-                <input 
-                    type="text" 
-                    name="product"
-                    value="{{$product}}"
-                    class="form-control" 
-                    readonly
-                >               
-            </div>
+            
            <div class="with-border col-md-12">
           		<h4 class="">Plan Material</h4>
         	</div>

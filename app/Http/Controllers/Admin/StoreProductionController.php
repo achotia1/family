@@ -70,6 +70,7 @@ class StoreProductionController extends Controller
         $companyId = self::_getCompanyId();
         $objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers();
+        // dd($batchNos);
         
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
@@ -551,7 +552,7 @@ class StoreProductionController extends Controller
                 
                 //if(auth()->user()->can('batch-add'))
                 //{
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.' '.$delete.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.' '.$delete.'</div>';
                 //}
 
          }
@@ -718,16 +719,16 @@ class StoreProductionController extends Controller
         {
             $batch_id   = $request->batch_id;
             $collection = $this->BaseModel->where('batch_id',$batch_id)->first();
-            $objStore = new StoreBatchCardModel;
-            $batcDetails = $objStore->getBatchDetails($batch_id);
-            $product = $batcDetails->assignedProduct->code." (".$batcDetails->assignedProduct->name.")";      
+           // $objStore = new StoreBatchCardModel;
+            //$batcDetails = $objStore->getBatchDetails($batch_id);
+           // $product = $batcDetails->assignedProduct->code." (".$batcDetails->assignedProduct->name.")";      
             //dd($collection->toArray());
             $url = '';
             if($collection){               
                 $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
             }
             $this->JsonData['url']  = $url;
-            $this->JsonData['product']  = $product;
+            //$this->JsonData['product']  = $product;
             $this->JsonData['msg']  = 'Raw Materials';
             $this->JsonData['status']  = 'Success';
 
