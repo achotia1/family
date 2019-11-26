@@ -6,14 +6,13 @@
 @section('content')
 <section class="content">
     <div class="box box-primary">
-        <div class="box-body">        
-        <form id="productionForm" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($production->id))]) }}" method="post">
-            
-            <input type="hidden" name="_method" value="PUT">
-            <div class="box-header with-border">
+        <div class="box-body">
+        	<div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
-            </div>            
+            </div>           
+        <form id="productionForm" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($production->id))]) }}" method="post">
+            <input type="hidden" name="_method" value="PUT">                     
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>

@@ -141,8 +141,11 @@ class StoreProductionController extends Controller
                         }
                     } else {
                         $all_transactions[] = 0;
-                    }                    
-                    
+                    }
+                    ## MARK BATCH AS PLAN ADDED BATCH                    
+                    $batchId = $collection->batch_id;
+                    $objBatch = new StoreBatchCardModel();
+                    $objBatch->updatePlanAdded($batchId);
                 }
                 if (!in_array(0,$all_transactions)) 
                 {
@@ -329,6 +332,7 @@ class StoreProductionController extends Controller
         $this->JsonData['msg'] = 'Failed to delete user, Something went wrong on server.';
         $id = base64_decode(base64_decode($encID));
         $BaseModel = $this->BaseModel->find($id);
+        $batchId = $BaseModel->batch_id;
         $prodRawMaterialModel = new ProductionHasMaterialModel;
         $prevRecords = $prodRawMaterialModel->where('production_id',$id)->get(['lot_id','quantity'])->toArray();
         $all_transactions = [];
@@ -346,7 +350,10 @@ class StoreProductionController extends Controller
                     } else {
                         $all_transactions[] = 0;
                     }
-                }           
+                }
+                ## MARK BATCH AS PLAN ADDED BATCH
+                $objBatch = new StoreBatchCardModel();
+                $objBatch->updatePlanAdded($batchId, 'no');           
             } else {
                 $all_transactions[] = 0;
             }

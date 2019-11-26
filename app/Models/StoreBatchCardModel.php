@@ -71,6 +71,13 @@ class StoreBatchCardModel extends Model
         return self::with(['assignedProduct'])->find($id);
     }
 
+    public function updatePlanAdded($id, $plan_added = 'yes') {      
+        $collection = self::find($id);
+        $collection->plan_added  = $plan_added;
+        $collection->save();
+        return $collection;
+    }
+
    /* public function getPendingBatches() {
         return self::where('status', 1)->orderBy('id', 'DESC')->get();
         

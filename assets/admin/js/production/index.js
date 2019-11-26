@@ -191,10 +191,8 @@ function deleteCollection(element)
           .then(function (response) {
             if (response.data.status === 'success') {
               swal("Success", response.data.msg, 'success');
-              $('#userListingTable').DataTable().ajax.reload();
-
+              $('#listingTable').DataTable().ajax.reload();
             }
-
             if (response.data.status === 'error') {
               swal("Error", response.data.msg, 'error');
             }
