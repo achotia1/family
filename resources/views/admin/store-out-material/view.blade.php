@@ -105,6 +105,8 @@
 	                    </tr>
 	                    @php 
 	                    $key = $rawTotal = 0;
+	                    $otherMaterial = array();  
+	                    $i = 1;
 	                    $finalTotal = $plannedTotal = $returnedTotal = 0;
 	                    @endphp
 	                    @foreach($object->assignedPlan->hasProductionMaterials as $material)
@@ -140,7 +142,13 @@
 	                    	<td>{{$returned}}</td>
 	                    </tr>
 	                    @php
-	                    }
+	                    } else {
+							$otherMaterial[$i]['name'] = $material->mateialName->name;
+							$otherMaterial[$i]['lot_no'] = $material->hasLot->lot_no;
+							$otherMaterial[$i]['quantity'] = $material->quantity;
+							$otherMaterial[$i]['returned_quantity'] = $material->returned_quantity;
+							$i++;
+						}
 	                    @endphp
 	                    @endforeach
 	                    @php	                    
@@ -154,6 +162,47 @@
 	                    	<td><b>{{$plannedTotal}}</b></td>
 	                    	<td><b>{{$returnedTotal}}</b></td>
 	                    </tr>
+
+	                    @php                        
+                        if(!empty($otherMaterial)){
+                        @endphp
+	                    <tr>
+                            <td colspan="5"></td>
+                        </tr>
+                        
+                        <tr class="trExpense">
+                            <td colspan="5" class="title"><b>Planned Packaging Material</b></td>             </tr>
+                        @php 
+	                    $packTotal = 0;
+	                    $returnedTotal = 0;
+	                    @endphp
+                        @foreach($otherMaterial as $oKey=>$oMaterial)
+                        @php
+                        $packTotal = $packTotal + $oMaterial['quantity'];
+                        $returnedTotal = $returnedTotal + $oMaterial['returned_quantity'];
+                        @endphp
+                        <tr>
+	                    	<td>{{$oKey}}</td>
+	                    	<td>{{$oMaterial['name']}}</td>
+	                    	<td>{{$oMaterial['lot_no']}}</td>      	
+	                    	<td>{{$oMaterial['quantity']}}</td>
+	                    	<td>{{$oMaterial['returned_quantity']}}</td>
+	                    </tr>
+                        @endforeach
+                        <tr>	                    	
+	                    	<td colspan="3"></td>
+	                    	<td><b><span id="planned-pweight">{{$packTotal}}</span></b></td>	                    	
+	                    	<td><b><span id="planned-pweight">{{$returnedTotal}}</span></b></td>	                    	
+	                    </tr>
+	                    @php
+	                    }
+	                    @endphp  
+
+
+
+
+
+
 	                    <tr>
                             <td colspan="5"></td>
                         </tr>
