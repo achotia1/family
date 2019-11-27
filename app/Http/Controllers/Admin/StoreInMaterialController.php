@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 ## MODELS
 use App\Models\StoreInMaterialModel;
 use App\Models\StoreRawMaterialModel;
-
+use App\Models\ProductionHasMaterialModel;
 
 use App\Http\Requests\Admin\StoreInMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -21,10 +21,12 @@ class StoreInMaterialController extends Controller
 
     public function __construct(
 
-        StoreInMaterialModel $StoreInMaterialModel
+        StoreInMaterialModel $StoreInMaterialModel,
+        ProductionHasMaterialModel $ProductionHasMaterialModel
     )
     {
         $this->BaseModel  = $StoreInMaterialModel;
+        $this->ProductionHasMaterialModel  = $ProductionHasMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -424,6 +426,15 @@ public function bulkDelete(Request $request)
             return base64_decode(base64_decode($item));
 
         }, $request->arrEncId);
+
+        $store_lot_count = $this->ProductionHasMaterialModel->whereIn('lot_id',$arrID)->count();
+        if($store_lot_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Lot which is assigned in Production Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
 
         try 
         {

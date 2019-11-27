@@ -193,7 +193,7 @@ class ReportController extends Controller
 
                // $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_in_materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['batch_id']     = "<a href=".route('admin.materials-out.show',[ base64_encode(base64_encode($row->id))]).">".$row->batch_card_no.'</a>';
+                $data[$key]['batch_id']     = "<a href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->id))]).">".$row->batch_card_no.'</a>';
                 $data[$key]['product_code'] =  $row->name;
                 $data[$key]['sellable_qty'] =  $row->sellable_qty;
                 $data[$key]['loss_material']=  number_format($row->loss_material, 2, '.', '');

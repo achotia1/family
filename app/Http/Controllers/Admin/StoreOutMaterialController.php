@@ -241,6 +241,32 @@ class StoreOutMaterialController extends Controller
         //dd($this->ViewData['object']);
         return view($this->ModuleView.'view', $this->ViewData);
     }
+    public function showBatchViewReport($encId)
+    {
+        $id = base64_decode(base64_decode($encId));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['modulePath']   = $this->ModulePath;
+        $companyId = self::_getCompanyId();
+        $outputDetails = $this->BaseModel->with([
+            'assignedPlan' => function($q)
+            {  
+                $q->with(['hasProductionMaterials' => function($q){
+                    $q->with('mateialName');    
+                }]);
+                $q->with(['assignedBatch'=> function($q){
+                    $q->with('assignedProduct');
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);               
+            }
+        ])->where('company_id', $companyId)
+        ->find($id);
+        $this->ViewData['object'] = $outputDetails;
+        return view($this->ModuleView.'showBatchReport', $this->ViewData);
+    }
     public function getRecords(Request $request)
     {
 
