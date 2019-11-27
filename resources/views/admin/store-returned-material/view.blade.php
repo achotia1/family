@@ -92,7 +92,7 @@
                             </td>
                         </tr>
                         <tr>                            
-                            <td><b>Total Raw Material :</b></td>
+                            <td><b>Total Returned Raw Material :</b></td>
                             <td colspan="3"><span id="planned-material"></span></td>
                         </tr>
                         <tr class="cls-pmaterial">                          

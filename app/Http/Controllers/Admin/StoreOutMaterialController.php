@@ -193,7 +193,7 @@ class StoreOutMaterialController extends Controller
         $collection->dust_product          = $request->dust_product;
         /*$collection->loss_material             = $request->loss_material;
         $collection->yield             = $request->yield;*/
-        $collection->status         = 1;      
+        $collection->status         = 0;      
         ## SAVE DATA
         $collection->save();
         
@@ -518,5 +518,42 @@ public function bulkDelete(Request $request)
 
    return response()->json($this->JsonData);   
 }
+
+public function sendToBilling(Request $request, $encId)
+    {        
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';       
+        $id = base64_decode(base64_decode($encId));        
+        try
+        {
+            $batchId = $request->batch_id;
+            ## MARK OUTPUT MATERIAL STATUS TO 1 THAT MEANS REVIEWED
+            $collection = $this->BaseModel->find($id);
+            $collection->status   = !empty($request->status) ? 1 : 0;            
+            ## SAVE DATA
+            $collection->save();
+            if($collection){
+                $msg = "Batch is saved successfully.";
+                ## MARK BATCH AS CLOSED
+                if($batchId > 0){
+                   $objBatch = new StoreBatchCardModel;
+                    $batchCollection = $objBatch->find($batchId);
+                    $batchCollection->review_status = !empty($request->review_status) ? "closed" : "open";
+                    $batchCollection->save();                    
+                }
+                
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = url('admin/materials-out');
+                $this->JsonData['msg'] = $msg; 
+            }           
+        }
+        catch(\Exception $e) {
+
+            $this->JsonData['msg'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);
+        //dd($request->all());
+    }
 
 }

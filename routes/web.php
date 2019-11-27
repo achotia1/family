@@ -158,6 +158,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::post('/materials-out/bulkDelete',  'StoreOutMaterialController@bulkDelete');
 					Route::post('/materials-out/getExistingPlan',  'StoreOutMaterialController@getExistingPlan');
 					Route::get('/materials-out/show/{id}',  'StoreOutMaterialController@show')->name($PREFIX.'.materials-out.show');
+					Route::post('/materials-out/send-to-billing/{id}','StoreOutMaterialController@sendToBilling')->name($PREFIX.'.materials-out.send-to-billing');
 					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
 				});
 

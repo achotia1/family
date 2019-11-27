@@ -167,50 +167,112 @@
 	                    $dustProduct = number_format($object->dust_product, 2, '.', '');	                    
 	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product;
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
+            			$lossPer = ($lossMaterial/$finalTotal) * 100;
+						$lossPer = number_format($lossPer, 2, '.', '');
+						
             			$yield = ($object->sellable_qty/$finalTotal) * 100;
             			$lossMaterial = number_format($lossMaterial, 2, '.', '');
 						$yield = number_format($yield, 2, '.', '');
+						
+						$coursePer = ($object->course_powder/$finalTotal) * 100;
+						$coursePer = number_format($coursePer, 2, '.', '');
+						$rejectionPer = ($object->rejection/$finalTotal) * 100;
+						$rejectionPer = number_format($rejectionPer, 2, '.', '');
+						$dustPer = ($object->dust_product/$finalTotal) * 100;
+						$dustPer = number_format($dustPer, 2, '.', '');
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td>	                    	
 	                    	{{$sellableQty}}
 	                    	</td>
+	                    	<td>	                    	
+	                    	<b>Yield :</b>
+	                    	</td>
+	                    	<td colspan="2">
+	                    	{{$yield}}%
+	                    	</td>
+	                    	
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Corse Powder :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td>	                    	
 	                    	{{$coursePowder}}
+	                    	</td>
+	                    	<td>	                    	
+	                    	<b>Course  powder Percentage:</b>
+	                    	</td>
+	                    	<td colspan="2">
+	                    	{{$coursePer}}%
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Rejection :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td>	                    	
 	                    	{{$rejection}}
+	                    	</td>
+	                    	<td>	                    	
+	                    	<b>Rejection Percentage:</b>
+	                    	</td>
+	                    	<td colspan="2">
+	                    	{{$rejectionPer}}%
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Dust Product :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td>	                    	
 	                    	{{$dustProduct}}
+	                    	</td>
+	                    	<td>	                    	
+	                    	<b>Dust Product Percentage:</b>
+	                    	</td>
+	                    	<td colspan="2">
+	                    	{{$dustPer}}%
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Loss Material :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td>	                    	
 	                    	{{$lossMaterial}}
 	                    	</td>
-	                    </tr>
-	                    <tr>	                    	
-	                    	<td class="w-90-px"><b>Yield :</b></td>
-	                    	<td colspan="4">	                    	
-	                    	<b>{{$yield}}%</b>
+	                    	<td>	                    	
+	                    	<b>Loss Material Percentage:</b>
 	                    	</td>
-	                    </tr>
+	                    	<td colspan="2">
+	                    	{{$lossPer}}%
+	                    	</td>
+	                    </tr>	                    
                     </tbody>
                 </table>
-            </div>           
+            </div>
+            <form id="reviewBatchForm" action="{{ route($modulePath.'send-to-billing', [base64_encode(base64_encode($object->id))]) }}" method="POST">
+            <input type="hidden" name="batch_id" value="{{$object->assignedPlan->batch_id}}">
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Is Reviewed?</label>
+                <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="status" value="1" @if($object->status==1) checked @endif>
+                      Yes
+                    </label>
+                </div>  
+            </div>
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Do you want to close this Batch?</label>
+                <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="review_status" value="closed" @if($object->assignedPlan->assignedBatch->review_status=="closed") checked @endif>
+                      Yes
+                    </label>
+                </div>  
+            </div>
+            <div class="form-group col-md-12">            
+            	<button type="submit" class="btn btn-success pull-right">Save</button>
+            </div>
+            </form>           
         </div>
     </div>
 </section>
+@endsection
+@section('scripts')    
+    <script type="text/javascript" src="{{ url('assets/admin/js/materials-out/view.js') }}"></script>
 @endsection
