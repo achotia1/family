@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 ## MODELS
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
+use App\Models\StoreProductionModel;
 
 use App\Http\Requests\Admin\StoreBatchCardRequest;
 use App\Traits\GeneralTrait;
@@ -21,10 +22,12 @@ class StoreBatchCardController extends Controller
 
     public function __construct(
 
-        StoreBatchCardModel $StoreBatchCardModel
+        StoreBatchCardModel $StoreBatchCardModel,
+        StoreProductionModel $StoreProductionModel
     )
     {
-        $this->BaseModel  = $StoreBatchCardModel;
+        $this->BaseModel            = $StoreBatchCardModel;
+        $this->StoreProductionModel = $StoreProductionModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -412,6 +415,15 @@ public function bulkDelete(Request $request)
             return base64_decode(base64_decode($item));
 
         }, $request->arrEncId);
+
+        $available_count = $this->StoreProductionModel->whereIn('batch_id',$arrID)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Batch which is assigned in Production Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
 
         try 
         {

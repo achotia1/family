@@ -14,6 +14,7 @@ use App\Models\StoreInMaterialModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\ProductsModel;
 use App\Models\StoreOutMaterialModel;
+use App\Models\StoreReturnedMaterialModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
@@ -28,12 +29,16 @@ class StoreProductionController extends Controller
     public function __construct(
 
         StoreProductionModel $StoreProductionModel,
-        StoreRawMaterialModel $StoreRawMaterialModel
+        StoreRawMaterialModel $StoreRawMaterialModel,
+        StoreOutMaterialModel $StoreOutMaterialModel,
+        StoreReturnedMaterialModel $StoreReturnedMaterialModel
     )
     {
         $this->BaseModel  = $StoreProductionModel;
         $this->StoreProductionModel  = $StoreProductionModel;
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
+        $this->StoreOutMaterialModel  = $StoreOutMaterialModel;
+        $this->StoreReturnedMaterialModel  = $StoreReturnedMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -328,10 +333,31 @@ class StoreProductionController extends Controller
 
     public function destroy($encID)
     {
-        DB::beginTransaction();
+        
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to delete user, Something went wrong on server.';
         $id = base64_decode(base64_decode($encID));
+
+        $available_count = $this->StoreOutMaterialModel->where('plan_id',$id)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Production which is assigned in Material Output Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
+
+        $available_count = $this->StoreReturnedMaterialModel->where('plan_id',$id)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Production which is assigned in Returned Material Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
+
+        DB::beginTransaction();
+
         $BaseModel = $this->BaseModel->find($id);
         $batchId = $BaseModel->batch_id;
         $prodRawMaterialModel = new ProductionHasMaterialModel;
