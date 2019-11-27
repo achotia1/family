@@ -52,7 +52,8 @@ class StoreReturnedMaterialController extends Controller
         $this->ModulePath = 'admin.return.';
 
         ## PERMISSION MIDDELWARE
-        /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
+        $this->middleware(['permission:store-returned-material-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-returned-material-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -643,8 +644,14 @@ class StoreReturnedMaterialController extends Controller
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></span></a>&nbsp';
                 $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
-                //$data[$key]['actions'] = '';               
-                $data[$key]['actions'] =  '<div class="text-center">'.$view.$edit.$delete.'</div>';
+                //$data[$key]['actions'] = '';    
+
+                $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-returned-material-add'))
+                {
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.$edit.$delete.'</div>';
+                }
+
                
 
          }
@@ -731,6 +738,7 @@ class StoreReturnedMaterialController extends Controller
                                                 AND store_production_has_materials.material_id = '".$mvalue->material_id."'
                                                 AND store_production_has_materials.lot_id = '".$mvalue->lot_id."'";
                             $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
+
                             if(!empty($collectionReturn) && count($collectionReturn)>0)
                             {
                                 $returnData = $collectionReturn->first();
@@ -742,9 +750,11 @@ class StoreReturnedMaterialController extends Controller
                                                                 ->update(['returned_quantity' => 0]);
 
                                     $updateLotBalance = $this->StoreInMaterialModel->find($mvalue->lot_id);
+
                                     if($updateLotBalance)
                                     {
                                         $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity);
+                                        //dd($collectionReturn,$mvalue->lot_id,$updateLotBalance,$returnData,$updateLotBalance);
                                         if($updateLotBalance->save()) 
                                         {
                                            $all_transactions[] = 1;

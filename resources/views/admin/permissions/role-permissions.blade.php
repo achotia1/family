@@ -32,7 +32,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="list-group-item d-flex">
-                <a href="#">Manage Raw Materials </a>
+                <a href="#">Manage Materials </a>
                 <div class="label-anchor">
                     <label class="switch ml-auto">
                         <input type="checkbox" class="checkbox-permissions" id="permission-store-manage-materials"
@@ -48,7 +48,7 @@
             <div class="panel-body border-0 py-0">
                 <ul class="list-group toggle-wrapper">
                     <li class="list-group-item d-flex">
-                        <a href="#">View Raw Materials </a>
+                        <a href="#">View Materials </a>
                         <!-- <label class="switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions" id="permission-product-listing-access" name="product-listing-access" value="product-listing-access" >
                             <span class="knob"></span>
@@ -61,7 +61,7 @@
                         </label>
                     </li>
                     <li class="list-group-item d-flex">
-                        <a href="#">Add Raw Material </a>
+                        <a href="#">Add Material </a>
                         <!-- <label class="switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions" id="permission-product-add-access" name="product-add-access" value="product-add-access" >
                             <span class="knob"></span>
@@ -78,15 +78,15 @@
         </div>
     </div>
 
-    {{-- Production --}}
+    {{-- Production Or Material In --}}
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="list-group-item d-flex">
-                <a href="#">Manage Production </a>
+                <a href="#">Manage Material In </a>
                 <div class="label-anchor">
                     <label class="switch ml-auto">
-                        <input type="checkbox" class="checkbox-permissions" id="permission-store-manage-production"
-                            name="store-manage-production" value="store-manage-production">
+                        <input type="checkbox" class="checkbox-permissions" id="permission-store-manage-material-in"
+                            name="store-manage-material-in" value="store-manage-material-in">
                         <span class="knob"></span>
                     </label>
                     <a data-toggle="collapse" href="#permission3"
@@ -98,20 +98,20 @@
             <div class="panel-body border-0 py-0">
                 <ul class="list-group toggle-wrapper">
                     <li class="list-group-item d-flex">
-                        <a href="#">View Productions </a>
+                        <a href="#">View Material In </a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
-                                id="permission-store-production-listing" name="store-production-listing"
-                                value="store-production-listing">
+                                id="permission-store-material-in-listing" name="store-material-in-listing"
+                                value="store-material-in-listing">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li>
                     <li class="list-group-item d-flex">
-                        <a href="#">Add Production </a>
+                        <a href="#">Add Material In </a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
-                                id="permission-store-production-add" name="store-production-add"
-                                value="store-production-add">
+                                id="permission-store-material-in-add" name="store-material-in-add"
+                                value="store-material-in-add">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li>
@@ -121,16 +121,16 @@
         </div>
     </div>
 
-    {{-- FG Store --}}
+    {{-- Manage Batches --}}
     <div class="panel panel-default">
         <div class="panel-heading">
             <div class="list-group-item d-flex">
-                <a href="#">Manage FG </a>
+                <a href="#">Manage Batches </a>
                 <div class="label-anchor">
                     <label class="switch ml-auto">
                         <input type="checkbox" class="checkbox-permissions"
-                            id="permission-store-manage-fg" name="store-manage-fg"
-                            value="store-manage-fg">
+                            id="permission-store-manage-batches" name="store-manage-batches"
+                            value="store-manage-batches">
                         <span class="knob"></span>
                     </label>
                     <a data-toggle="collapse" href="#permission4"
@@ -142,20 +142,152 @@
             <div class="panel-body border-0 py-0">
                 <ul class="list-group toggle-wrapper">
                     <li class="list-group-item d-flex">
-                        <a href="#">View FG </a>
+                        <a href="#">View Batches </a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
-                                id="permission-store-fg-listing" name="store-fg-listing"
-                                value="store-fg-listing">
+                                id="permission-store-batches-listing" name="store-batches-listing"
+                                value="store-batches-listing">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li>
                     <li class="list-group-item d-flex">
-                        <a href="#">Add FG </a>
+                        <a href="#">Add Batch </a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
-                                id="permission-store-fg-add" name="store-fg-add"
-                                value="store-fg-add">
+                                id="permission-store-batches-add" name="store-batches-add"
+                                value="store-batches-add">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {{-- Manage Material Plans --}}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="list-group-item d-flex">
+                <a href="#">Manage Material Plans </a>
+                <div class="label-anchor">
+                    <label class="switch ml-auto">
+                        <input type="checkbox" class="checkbox-permissions"
+                            id="permission-store-manage-material-plans" name="store-manage-material-plans"
+                            value="store-manage-material-plans">
+                        <span class="knob"></span>
+                    </label>
+                    <a data-toggle="collapse" href="#permission5"
+                        class="theme-green ml-3 text-underline">details</a>
+                </div>
+            </div>
+        </div>
+        <div id="permission5" class="panel-collapse collapse">
+            <div class="panel-body border-0 py-0">
+                <ul class="list-group toggle-wrapper">
+                    <li class="list-group-item d-flex">
+                        <a href="#">View Material Plan </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-material-plan-listing" name="store-material-plan-listing"
+                                value="store-material-plan-listing">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Add Material Plan </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-material-plan-add" name="store-material-plan-add"
+                                value="store-material-plan-add">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {{-- Manage Returned Material --}}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="list-group-item d-flex">
+                <a href="#">Manage Returned Material </a>
+                <div class="label-anchor">
+                    <label class="switch ml-auto">
+                        <input type="checkbox" class="checkbox-permissions"
+                            id="permission-store-manage-returned-material" name="store-manage-returned-material"
+                            value="store-manage-returned-material">
+                        <span class="knob"></span>
+                    </label>
+                    <a data-toggle="collapse" href="#permission6"
+                        class="theme-green ml-3 text-underline">details</a>
+                </div>
+            </div>
+        </div>
+        <div id="permission6" class="panel-collapse collapse">
+            <div class="panel-body border-0 py-0">
+                <ul class="list-group toggle-wrapper">
+                    <li class="list-group-item d-flex">
+                        <a href="#">View Returned Material </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-returned-material-listing" name="store-returned-material-listing"
+                                value="store-returned-material-listing">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Add Returned Material </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-returned-material-add" name="store-returned-material-add"
+                                value="store-returned-material-add">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {{-- Manage Material Output --}}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="list-group-item d-flex">
+                <a href="#">Manage Material Output </a>
+                <div class="label-anchor">
+                    <label class="switch ml-auto">
+                        <input type="checkbox" class="checkbox-permissions"
+                            id="permission-store-manage-material-output" name="store-manage-material-output"
+                            value="store-manage-material-output">
+                        <span class="knob"></span>
+                    </label>
+                    <a data-toggle="collapse" href="#permission7"
+                        class="theme-green ml-3 text-underline">details</a>
+                </div>
+            </div>
+        </div>
+        <div id="permission7" class="panel-collapse collapse">
+            <div class="panel-body border-0 py-0">
+                <ul class="list-group toggle-wrapper">
+                    <li class="list-group-item d-flex">
+                        <a href="#">View Material Output </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-material-output-listing" name="store-material-output-listing"
+                                value="store-material-output-listing">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Add Material Output </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-material-output-add" name="store-material-output-add"
+                                value="store-material-output-add">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li>
@@ -177,12 +309,12 @@
                             value="store-manage-users">
                         <span class="knob"></span>
                     </label>
-                    <a data-toggle="collapse" href="#permission5"
+                    <a data-toggle="collapse" href="#permission8"
                         class="theme-green ml-3 text-underline">details</a>
                 </div>
             </div>
         </div>
-        <div id="permission5" class="panel-collapse collapse">
+        <div id="permission8" class="panel-collapse collapse">
             <div class="panel-body border-0 py-0">
                 <ul class="list-group toggle-wrapper">
                     <li class="list-group-item d-flex">
@@ -243,12 +375,12 @@
                             value="store-manage-reports">
                         <span class="knob"></span>
                     </label>
-                    <a data-toggle="collapse" href="#permission6"
+                    <a data-toggle="collapse" href="#permission9"
                         class="theme-green ml-3 text-underline">details</a>
                 </div>
             </div>
         </div>
-        <div id="permission6" class="panel-collapse collapse">
+        <div id="permission9" class="panel-collapse collapse">
             <div class="panel-body border-0 py-0">
                 <ul class="list-group toggle-wrapper">
                     <!-- <li class="list-group-item d-flex">
@@ -260,8 +392,6 @@
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li> -->
-                   
-                    
                     
                 </ul>
             </div>

@@ -34,8 +34,8 @@ class StoreBatchCardController extends Controller
         $this->ModulePath = 'admin.rms-store.';
 
         ## PERMISSION MIDDELWARE
-       /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
-        $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
+        $this->middleware(['permission:store-batches-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-batches-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -342,10 +342,10 @@ class StoreBatchCardController extends Controller
 
                 $data[$key]['actions'] = '';
 
-               /* if(auth()->user()->can('batch-add'))
-                {*/
+                if(auth()->user()->can('store-batches-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
-               /* }*/
+                }
 
          }
      }

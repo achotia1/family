@@ -34,7 +34,8 @@ class StoreInMaterialController extends Controller
         $this->ModulePath = 'admin.materials-in.';
 
         ## PERMISSION MIDDELWARE
-        /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
+        $this->middleware(['permission:store-material-in-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-in-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -355,10 +356,10 @@ class StoreInMaterialController extends Controller
 
                 $data[$key]['actions'] = '';
 
-                /*if(auth()->user()->can('material-add'))
-                {*/
+                if(auth()->user()->can('store-material-in-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
-                /*}*/
+                }
 
         }
     }

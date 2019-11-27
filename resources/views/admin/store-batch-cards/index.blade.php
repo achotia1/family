@@ -13,9 +13,11 @@
 <section class="content">
     <div class="box">
         
-        <div class="box-header align-right">           
+        <div class="box-header align-right"> 
+        @can('store-batches-add')              
             <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Batch</a>            
             <a href="javascript:void(0)" class="btn btn-danger" onclick="return deleteCollections(this)">Delete Selected</a>
+        @endcan
         </div>
         
         <div class="box-body">

@@ -43,6 +43,27 @@ $arrAllPermissions[] = array('name' => 'store-manage-materials', 'module_slug'=>
 $arrAllPermissions[] = array('name' => 'store-material-listing', 'module_slug'=>'store-manage-materials', 'title' => 'Store Material Listing');
 $arrAllPermissions[] = array('name' => 'store-material-add', 'module_slug'=>'store-manage-materials', 'title' => 'Store Material Add');
 
+$arrAllPermissions[] = array('name' => 'store-manage-material-in', 'module_slug'=>'store-manage-material-in', 'title' => 'Store Manage Material In');
+$arrAllPermissions[] = array('name' => 'store-material-in-listing', 'module_slug'=>'store-manage-material-in', 'title' => 'Store Material Listing');
+$arrAllPermissions[] = array('name' => 'store-material-in-add', 'module_slug'=>'store-manage-material-in', 'title' => 'Store Material Add');
+
+$arrAllPermissions[] = array('name' => 'store-manage-batches', 'module_slug'=>'store-manage-batches', 'title' => 'Store Manage Batches');
+$arrAllPermissions[] = array('name' => 'store-batches-listing', 'module_slug'=>'store-manage-batches', 'title' => 'Store Batch Listing');
+$arrAllPermissions[] = array('name' => 'store-batches-add', 'module_slug'=>'store-manage-batches', 'title' => 'Store Batch Add');
+
+$arrAllPermissions[] = array('name' => 'store-manage-material-plans', 'module_slug'=>'store-manage-material-plans', 'title' => 'Store Manage Material Plans');
+$arrAllPermissions[] = array('name' => 'store-material-plan-listing', 'module_slug'=>'store-manage-material-plans', 'title' => 'Store Material Plan Listing');
+$arrAllPermissions[] = array('name' => 'store-material-plan-add', 'module_slug'=>'store-manage-material-plans', 'title' => 'Store Material Plan Add');
+
+$arrAllPermissions[] = array('name' => 'store-manage-returned-material', 'module_slug'=>'store-manage-returned-material', 'title' => 'Store Manage Returned Material');
+$arrAllPermissions[] = array('name' => 'store-returned-material-listing', 'module_slug'=>'store-manage-returned-material', 'title' => 'Store Material Plan Listing');
+$arrAllPermissions[] = array('name' => 'store-returned-material-add', 'module_slug'=>'store-manage-returned-material', 'title' => 'Store Material Plan Add');
+
+$arrAllPermissions[] = array('name' => 'store-manage-material-output', 'module_slug'=>'store-manage-material-output', 'title' => 'Store Manage Material Output');
+$arrAllPermissions[] = array('name' => 'store-material-output-listing', 'module_slug'=>'store-manage-material-output', 'title' => 'Store Material Output Listing');
+$arrAllPermissions[] = array('name' => 'store-material-output-add', 'module_slug'=>'store-manage-material-output', 'title' => 'Store Material Output Add');
+
+
 $arrAllPermissions[] = array('name' => 'store-manage-users', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Users');
 $arrAllPermissions[] = array('name' => 'store-users-listing', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Listing');
 $arrAllPermissions[] = array('name' => 'store-users-add', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Add');

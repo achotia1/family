@@ -43,8 +43,8 @@ class StoreProductionController extends Controller
         $this->ModulePath = 'admin.production.';
 
         ## PERMISSION MIDDELWARE
-       /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
-        $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
+        $this->middleware(['permission:store-material-plan-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-plan-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -549,11 +549,12 @@ class StoreProductionController extends Controller
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
                 $data[$key]['actions'] = '';
                 $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';
-                
-                //if(auth()->user()->can('batch-add'))
-                //{
+
+                $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-material-plan-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.' '.$delete.'</div>';
-                //}
+                }
 
          }
      }

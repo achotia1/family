@@ -35,7 +35,8 @@ class StoreOutMaterialController extends Controller
         $this->ModulePath = 'admin.materials-out.';
 
         ## PERMISSION MIDDELWARE
-        /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
+        $this->middleware(['permission:store-material-output-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-output-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -401,12 +402,11 @@ class StoreOutMaterialController extends Controller
 
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 
-                $data[$key]['actions'] = '';
-
-                /*if(auth()->user()->can('material-add'))
-                {*/
+                $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-material-output-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.'</div>';
-                /*}*/
+                }
 
         }
     }
