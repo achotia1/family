@@ -67,6 +67,9 @@
 	                        </span>
                     </div>
                         </td>
+                        @php
+                        $balance = $material->hasLot->lot_balance + $material->quantity;
+                        @endphp
                         <td>
                         	<div class="form-group"> 
 	                        <select 
@@ -75,7 +78,7 @@
 	                            name="production[{{$k}}][lot_id]"
 	                            id="l_{{$k}}"	                            
 	                        >	                            
-	                            <option data-qty="{{$material->hasLot->lot_balance}}" value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$material->hasLot->lot_balance}})</option>
+	                            <option data-qty="{{$balance}}" value="{{ $material->hasLot->id }}"  selected >{{ $material->hasLot->lot_no }} ({{$balance}})</option>
 	                        </select>
 	                        <span class="help-block with-errors">
 	                            <ul class="list-unstyled">

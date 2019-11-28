@@ -211,7 +211,8 @@ class StoreOutMaterialController extends Controller
             'assignedPlan' => function($q)
             {  
                 $q->with(['hasProductionMaterials' => function($q){
-                    $q->with('mateialName');    
+                    $q->with('mateialName');
+                    $q->with('hasLot');    
                 }]);
                 $q->with(['assignedBatch'=> function($q){
                     $q->with('assignedProduct');

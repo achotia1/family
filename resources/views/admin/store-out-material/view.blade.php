@@ -101,7 +101,9 @@
 	                    	<td><b>Raw Material Name</b></td>
 	                    	<td><b>Final Weight</b></td>
 	                    	<td><b>Planned Material</b></td>
-	                    	<td><b>Returned Material</b></td>                  	
+	                    	<td><b>Returned Material</b></td>
+	                    	<td><b>Price Per Unit</b></td>
+	                    	<td><b>Amout</b></td>                 	
 	                    </tr>
 	                    @php 
 	                    $key = $rawTotal = 0;
@@ -125,19 +127,23 @@
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
 	                    	$returnedTotal = $returnedTotal + $returned;
-	                    	
+	                    	$amount = ($finalWeight * $material->hasLot->price_per_unit);
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
 	                    	$planned = number_format($material->quantity, 2, '.', '')." ".$material->mateialName->unit;
+	                    	$pricePerUnit = number_format($material->hasLot->price_per_unit, 2, '.', '');
+	                    	$formattedAmount =  number_format($amount, 2, '.', '');
 	                    	
 							
 	                    	
 	                    @endphp
 	                    <tr>
 	                    	<td>{{$key}}</td>
-	                    	<td>{{$material->mateialName->name}}</td>
+	                    	<td>{{$material->mateialName->name}} ({{$material->hasLot->lot_no}})</td>
 	                    	<td>{{$finalWeight}}</td>      	
 	                    	<td>{{$planned}}</td>
 	                    	<td>{{$returned}}</td>
+	                    	<td>{{$pricePerUnit}}</td>
+	                    	<td>{{$formattedAmount}}</td>
 	                    </tr>
 	                    @php
 	                    }
