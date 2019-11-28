@@ -168,6 +168,12 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
 				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
 
+
+				//Sales Management
+				Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
+				Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
+
+
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/

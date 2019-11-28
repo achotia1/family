@@ -47,6 +47,7 @@
 <script src="{{ asset('assets/adminLte/bower_components/jquery-slimscroll/jquery.slimscroll.min.js') }}"></script>
 <!-- FastClick -->
 <script src="{{ asset('assets/adminLte/bower_components/fastclick/lib/fastclick.js') }}"></script>
+<script src="{{ asset('assets/adminLte/bower_components/select2/dist/js/select2.full.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ asset('assets/adminLte/dist/js/adminlte.min.js') }}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
@@ -68,6 +69,10 @@
   const BASEURL = $('meta[name="base-path"]').attr('content');
   const CSRFTOKEN = document.querySelector("meta[name=csrf-token]").content
   axios.defaults.headers.common['X-CSRF-Token'] = CSRFTOKEN;
+   $(function () {
+        //Initialize Select2 Elements
+        $('.select2').select2()
+    });
 </script>
 
 <script src="{{ asset('assets/plugins/datatable/jquery.dataTables.min.js') }}"></script>

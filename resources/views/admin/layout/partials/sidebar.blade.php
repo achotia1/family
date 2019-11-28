@@ -270,6 +270,21 @@
             </li>
           </ul>
         </li>
+
+        <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
+          <a href="#">
+            <i class="fa fa-inbox"></i>
+            <span>Sales Managemenet</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li>
+              <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add  Sale</a>
+            </li>
+          </ul>
+        </li>
       
       </ul>
     </section>

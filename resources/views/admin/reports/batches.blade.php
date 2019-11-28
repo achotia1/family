@@ -33,19 +33,7 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="box-header align-right">           
-            <div class="w-110 mr-3">
-                  <label class="theme-blue f-14">From Date</label>
-                  <input id="from-date" type="text" class="form-control">
-            </div>
-            <div class="w-110 mr-3">
-                  <label class="theme-blue f-14">To Date</label>
-                  <input id="to-date" type="text" class="form-control">
-            </div>
-            <br>
-            <a href="javascript:void(0)"  class="btn btn-primary" onclick="doSearch(this)">Search</a>
-        </div> -->
-        
+            
         <div class="box-body">
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >
                 <thead class="blue-border-bottom">
