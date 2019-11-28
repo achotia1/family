@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 ## MODELS
 use App\Models\StoreRawMaterialModel;
+use App\Models\StoreInMaterialModel;
 
 use App\Http\Requests\Admin\StoreRawMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -19,10 +20,12 @@ class StoreRawMaterialController extends Controller
 
     public function __construct(
 
-        StoreRawMaterialModel $StoreRawMaterialModel
+        StoreRawMaterialModel $StoreRawMaterialModel,
+        StoreInMaterialModel $StoreInMaterialModel
     )
     {
         $this->BaseModel  = $StoreRawMaterialModel;
+        $this->StoreInMaterialModel  = $StoreInMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -32,7 +35,8 @@ class StoreRawMaterialController extends Controller
         $this->ModulePath = 'admin.materials.';
 
         ## PERMISSION MIDDELWARE
-        /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
+        $this->middleware(['permission:store-material-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -332,10 +336,10 @@ class StoreRawMaterialController extends Controller
 
                 $data[$key]['actions'] = '';
 
-                /*if(auth()->user()->can('material-add'))
-                {*/
+                if(auth()->user()->can('store-material-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
-                /*}*/
+                }
 
          }
      }
@@ -384,7 +388,7 @@ class StoreRawMaterialController extends Controller
 
 public function bulkDelete(Request $request)
 {
-    //dd($request->all());
+   
     $this->JsonData['status'] = 'error';
     $this->JsonData['msg'] = 'Failed to delete materials, Something went wrong on server.';
 
@@ -395,7 +399,16 @@ public function bulkDelete(Request $request)
             return base64_decode(base64_decode($item));
 
         }, $request->arrEncId);
-
+        
+        // dd($arrID);
+        $store_in_count = $this->StoreInMaterialModel->whereIn('material_id',$arrID)->count();
+        if($store_in_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this material which is assigned in Material In Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
         try 
         {
 

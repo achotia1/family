@@ -14,6 +14,7 @@ use App\Models\StoreInMaterialModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\ProductsModel;
 use App\Models\StoreOutMaterialModel;
+use App\Models\StoreReturnedMaterialModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
@@ -28,12 +29,16 @@ class StoreProductionController extends Controller
     public function __construct(
 
         StoreProductionModel $StoreProductionModel,
-        StoreRawMaterialModel $StoreRawMaterialModel
+        StoreRawMaterialModel $StoreRawMaterialModel,
+        StoreOutMaterialModel $StoreOutMaterialModel,
+        StoreReturnedMaterialModel $StoreReturnedMaterialModel
     )
     {
         $this->BaseModel  = $StoreProductionModel;
         $this->StoreProductionModel  = $StoreProductionModel;
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
+        $this->StoreOutMaterialModel  = $StoreOutMaterialModel;
+        $this->StoreReturnedMaterialModel  = $StoreReturnedMaterialModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -43,8 +48,8 @@ class StoreProductionController extends Controller
         $this->ModulePath = 'admin.production.';
 
         ## PERMISSION MIDDELWARE
-       /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
-        $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
+        $this->middleware(['permission:store-material-plan-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-plan-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -328,10 +333,31 @@ class StoreProductionController extends Controller
 
     public function destroy($encID)
     {
-        DB::beginTransaction();
+        
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to delete user, Something went wrong on server.';
         $id = base64_decode(base64_decode($encID));
+
+        $available_count = $this->StoreOutMaterialModel->where('plan_id',$id)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Production which is assigned in Material Output Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
+
+        $available_count = $this->StoreReturnedMaterialModel->where('plan_id',$id)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Production which is assigned in Returned Material Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
+
+        DB::beginTransaction();
+
         $BaseModel = $this->BaseModel->find($id);
         $batchId = $BaseModel->batch_id;
         $prodRawMaterialModel = new ProductionHasMaterialModel;
@@ -549,11 +575,12 @@ class StoreProductionController extends Controller
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
                 $data[$key]['actions'] = '';
                 $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';
-                
-                //if(auth()->user()->can('batch-add'))
-                //{
+
+                $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-material-plan-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.' '.$delete.'</div>';
-                //}
+                }
 
          }
      }

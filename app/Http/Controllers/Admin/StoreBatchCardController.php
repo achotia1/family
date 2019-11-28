@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 ## MODELS
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
+use App\Models\StoreProductionModel;
 
 use App\Http\Requests\Admin\StoreBatchCardRequest;
 use App\Traits\GeneralTrait;
@@ -21,10 +22,12 @@ class StoreBatchCardController extends Controller
 
     public function __construct(
 
-        StoreBatchCardModel $StoreBatchCardModel
+        StoreBatchCardModel $StoreBatchCardModel,
+        StoreProductionModel $StoreProductionModel
     )
     {
-        $this->BaseModel  = $StoreBatchCardModel;
+        $this->BaseModel            = $StoreBatchCardModel;
+        $this->StoreProductionModel = $StoreProductionModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -34,8 +37,8 @@ class StoreBatchCardController extends Controller
         $this->ModulePath = 'admin.rms-store.';
 
         ## PERMISSION MIDDELWARE
-       /* $this->middleware(['permission:manage-batches'], ['only' => ['edit','update','getRecords','bulkDelete']]);
-        $this->middleware(['permission:batch-add'], ['only' => ['create','store']]);*/
+        $this->middleware(['permission:store-batches-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-batches-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -342,10 +345,10 @@ class StoreBatchCardController extends Controller
 
                 $data[$key]['actions'] = '';
 
-               /* if(auth()->user()->can('batch-add'))
-                {*/
+                if(auth()->user()->can('store-batches-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
-               /* }*/
+                }
 
          }
      }
@@ -412,6 +415,15 @@ public function bulkDelete(Request $request)
             return base64_decode(base64_decode($item));
 
         }, $request->arrEncId);
+
+        $available_count = $this->StoreProductionModel->whereIn('batch_id',$arrID)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Batch which is assigned in Production Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
 
         try 
         {

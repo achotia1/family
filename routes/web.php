@@ -96,32 +96,32 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				});*/
 
 				// Raw Material
-				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-materials']], function () use($PREFIX)
+				{
 					Route::get('/materials/getRecords',  'StoreRawMaterialController@getRecords');
 					Route::post('/materials/bulkDelete',  'StoreRawMaterialController@bulkDelete');
 					Route::resource('materials', 'StoreRawMaterialController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				// Material In
-				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-material-in']], function () use($PREFIX)
+				{
 					Route::get('/materials-in/getRecords',  'StoreInMaterialController@getRecords');
 					Route::post('/materials-in/bulkDelete',  'StoreInMaterialController@bulkDelete');
 					Route::resource('materials-in', 'StoreInMaterialController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				// RM Store
-				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-batches']], function () use($PREFIX)
+				{
 					Route::get('/rms-store/getRecords',  'StoreBatchCardController@getRecords');
 					Route::post('/rms-store/bulkDelete',  'StoreBatchCardController@bulkDelete');
 					Route::resource('rms-store', 'StoreBatchCardController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				// Production
-				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-material-plans']], function () use($PREFIX)
+				{
 					Route::post('/production/getBatchMaterials',  'StoreProductionController@getBatchMaterials');
 					Route::post('/production/getMaterialLots',  'StoreProductionController@getMaterialLots');
 					Route::post('/production/getExistingBatch',  'StoreProductionController@getExistingBatch');
@@ -129,7 +129,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/production/show/{id}',  'StoreProductionController@show')->name($PREFIX.'.production.show');
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				// Sales
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
@@ -141,26 +141,32 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				/*});*/
 
 				// Return
-				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-returned-material']], function () use($PREFIX)
+				{
 					Route::post('/return/getMaterialLots',  'StoreReturnedMaterialController@getMaterialLots');
 					Route::post('/return/checkExistingRecord',  'StoreReturnedMaterialController@checkExistingRecord');
 					Route::post('/return/getPlanMaterials',  'StoreReturnedMaterialController@getPlanMaterials');
 					Route::get('/return/getRecords',  'StoreReturnedMaterialController@getRecords');
 					Route::post('/return/bulkDelete',  'StoreReturnedMaterialController@bulkDelete');
 					Route::resource('return', 'StoreReturnedMaterialController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
-				// Material In
-				/*Route::group(['middleware' => ['permission:manage-materials']], function () use($PREFIX)
-				{*/
+				// Material Out
+				Route::group(['middleware' => ['permission:store-manage-material-output']], function () use($PREFIX)
+				{
 					Route::get('/materials-out/getRecords',  'StoreOutMaterialController@getRecords');
 					Route::post('/materials-out/bulkDelete',  'StoreOutMaterialController@bulkDelete');
 					Route::post('/materials-out/getExistingPlan',  'StoreOutMaterialController@getExistingPlan');
 					Route::get('/materials-out/show/{id}',  'StoreOutMaterialController@show')->name($PREFIX.'.materials-out.show');
 					Route::post('/materials-out/send-to-billing/{id}','StoreOutMaterialController@sendToBilling')->name($PREFIX.'.materials-out.send-to-billing');
 					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
-				/*});*/
+				});
+
+
+				//Batchwise Summary
+				Route::get('/materials-out/showBatchViewReport/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
+				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
+				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
 
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)

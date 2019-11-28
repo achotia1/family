@@ -101,9 +101,7 @@
 	                    	<td><b>Raw Material Name</b></td>
 	                    	<td><b>Final Weight</b></td>
 	                    	<td><b>Planned Material</b></td>
-	                    	<td><b>Returned Material</b></td>
-	                    	<td><b>Price Per Unit</b></td>
-	                    	<td><b>Amout</b></td>                 	
+	                    	<td><b>Returned Material</b></td>                  	
 	                    </tr>
 	                    @php 
 	                    $key = $rawTotal = 0;
@@ -129,23 +127,19 @@
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
 	                    	$returnedTotal = $returnedTotal + $returned;
-	                    	$amount = ($finalWeight * $material->hasLot->price_per_unit);
+	                    	
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
 	                    	$planned = number_format($material->quantity, 2, '.', '')." ".$material->mateialName->unit;
-	                    	$pricePerUnit = number_format($material->hasLot->price_per_unit, 2, '.', '');
-	                    	$formattedAmount =  number_format($amount, 2, '.', '');
 	                    	
 							
 	                    	
 	                    @endphp
 	                    <tr>
 	                    	<td>{{$key}}</td>
-	                    	<td>{{$material->mateialName->name}} ({{$material->hasLot->lot_no}})</td>
+	                    	<td>{{$material->mateialName->name}}</td>
 	                    	<td>{{$finalWeight}}</td>      	
 	                    	<td>{{$planned}}</td>
 	                    	<td>{{$returned}}</td>
-	                    	<td>{{$pricePerUnit}}</td>
-	                    	<td>{{$formattedAmount}}</td>
 	                    </tr>
 	                    @php
 	                    } else {
@@ -241,11 +235,11 @@
 	                    	<td>	                    	
 	                    	{{$sellableQty}}
 	                    	</td>
-	                    	<td>	                    	
+	                    	<td style="color: green">	                    	
 	                    	<b>Yield :</b>
 	                    	</td>
-	                    	<td colspan="2">
-	                    	{{$yield}}%
+	                    	<td colspan="2" style="color: green">
+	                    	<b>{{$yield}}%</b>
 	                    	</td>
 	                    	
 	                    </tr>
@@ -290,40 +284,16 @@
 	                    	<td>	                    	
 	                    	{{$lossMaterial}}
 	                    	</td>
-	                    	<td>	                    	
+	                    	<td style="color: red">	                    	
 	                    	<b>Loss Material Percentage:</b>
 	                    	</td>
-	                    	<td colspan="2">
-	                    	{{$lossPer}}%
+	                    	<td colspan="2" style="color: red">
+	                    	<b>{{$lossPer}}%</b>
 	                    	</td>
 	                    </tr>	                    
                     </tbody>
                 </table>
             </div>
-            <form id="reviewBatchForm" action="{{ route($modulePath.'send-to-billing', [base64_encode(base64_encode($object->id))]) }}" method="POST">
-            <input type="hidden" name="batch_id" value="{{$object->assignedPlan->batch_id}}">
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Is Reviewed?</label>
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="status" value="1" @if($object->status==1) checked @endif>
-                      Yes
-                    </label>
-                </div>  
-            </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Do you want to close this Batch?</label>
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="review_status" value="closed" @if($object->assignedPlan->assignedBatch->review_status=="closed") checked @endif>
-                      Yes
-                    </label>
-                </div>  
-            </div>
-            <div class="form-group col-md-12">            
-            	<button type="submit" class="btn btn-success pull-right">Save</button>
-            </div>
-            </form>           
         </div>
     </div>
 </section>

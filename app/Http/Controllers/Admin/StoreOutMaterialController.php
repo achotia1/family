@@ -35,7 +35,8 @@ class StoreOutMaterialController extends Controller
         $this->ModulePath = 'admin.materials-out.';
 
         ## PERMISSION MIDDELWARE
-        /*$this->middleware(['permission:manage-materials'], ['only' => ['edit','update','create','store','getRecords','bulkDelete']]);*/
+        $this->middleware(['permission:store-material-output-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-material-output-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
     }
     
 
@@ -241,6 +242,32 @@ class StoreOutMaterialController extends Controller
         //dd($this->ViewData['object']);
         return view($this->ModuleView.'view', $this->ViewData);
     }
+    public function showBatchViewReport($encId)
+    {
+        $id = base64_decode(base64_decode($encId));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['modulePath']   = $this->ModulePath;
+        $companyId = self::_getCompanyId();
+        $outputDetails = $this->BaseModel->with([
+            'assignedPlan' => function($q)
+            {  
+                $q->with(['hasProductionMaterials' => function($q){
+                    $q->with('mateialName');    
+                }]);
+                $q->with(['assignedBatch'=> function($q){
+                    $q->with('assignedProduct');
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);               
+            }
+        ])->where('company_id', $companyId)
+        ->find($id);
+        $this->ViewData['object'] = $outputDetails;
+        return view($this->ModuleView.'showBatchReport', $this->ViewData);
+    }
     public function getRecords(Request $request)
     {
 
@@ -402,12 +429,11 @@ class StoreOutMaterialController extends Controller
 
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 
-                $data[$key]['actions'] = '';
-
-                /*if(auth()->user()->can('material-add'))
-                {*/
+                $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-material-output-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.'</div>';
-                /*}*/
+                }
 
         }
     }

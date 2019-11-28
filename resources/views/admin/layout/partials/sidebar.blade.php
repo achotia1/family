@@ -69,7 +69,8 @@
         </li>
         @endcan   
 
-        <!-- Manage Material -->        
+        <!-- Manage Material -->   
+        @can('store-manage-materials')     
         <li class="treeview {{ active(['admin/materials', 'admin/materials/*']) }}">
           <a href="#">
             <i class="fa fa-list-alt"></i>
@@ -78,18 +79,24 @@
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
-          <ul class="treeview-menu">            
+          <ul class="treeview-menu">  
+            @can('store-material-listing')          
             <li class="{{ active('admin/materials') }}">
               <a href="{{ route('admin.materials.index') }}"><i class="fa fa-hand-o-right"></i> View materials</a>
-            </li>           
-            
+            </li> 
+            @endcan             
+            @can('store-material-add') 
             <li class="{{ active('admin/materials/create') }}">
               <a href="{{ route('admin.materials.create') }}"><i class="fa fa-hand-o-right"></i> Add material</a>
             </li>
+            @endcan  
            
           </ul>
-        </li>        
-        <!-- Manage Material In -->        
+        </li>   
+        @endcan   
+
+        <!-- Manage Material In -->   
+        @can('store-manage-material-in')     
         <li class="treeview {{ active(['admin/materials-in', 'admin/materials-in/*']) }}">
           <a href="#">
             <i class="fa fa-list-alt"></i>
@@ -98,18 +105,23 @@
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
-          <ul class="treeview-menu">            
+          <ul class="treeview-menu">    
+            @can('store-material-in-listing')           
             <li class="{{ active('admin/materials-in') }}">
               <a href="{{ route('admin.materials-in.index') }}"><i class="fa fa-hand-o-right"></i> View Material In</a>
-            </li>            
+            </li> 
+            @endcan 
+            @can('store-material-in-add')              
             <li class="{{ active('admin/materials-in/create') }}">
               <a href="{{ route('admin.materials-in.create') }}"><i class="fa fa-hand-o-right"></i> Add Material In</a>
-            </li>           
+            </li> 
+            @endcan           
           </ul>
         </li>
+         @endcan   
 
         <!-- Manage RMS -->
-        
+        @can('store-manage-batches') 
         <li class="treeview {{ active(['admin/rms-store', 'admin/rms-store/*']) }}">
           <a href="#">
             <i class="fa fa-user-plus"></i>
@@ -119,19 +131,21 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            
+            @can('store-batches-listing') 
             <li class="{{ active('admin/rms-store') }}">
               <a href="{{ route('admin.rms-store.index') }}"><i class="fa fa-hand-o-right"></i> View Batches</a>
             </li>
-           
-            
+           @endcan   
+            @can('store-batches-add') 
             <li class="{{ active('admin/rms-store/create') }}">
               <a href="{{ route('admin.rms-store.create') }}"><i class="fa fa-hand-o-right"></i> Add Batch</a>
             </li>
-            
+            @endcan   
           </ul>
         </li>
+        @endcan   
         <!-- production -->
+        @can('store-manage-material-plans') 
         <li class="treeview {{ active(['admin/production', 'admin/production/*']) }}">
           <a href="#">
             <i class="fa fa-user-secret"></i>
@@ -141,18 +155,19 @@
             </span>
           </a>
           <ul class="treeview-menu">
-           
+           @can('store-material-plan-listing') 
             <li class="{{ active('admin/production') }}">
               <a href="{{ route('admin.production.index') }}"><i class="fa fa-hand-o-right"></i> View Material Plan</a>
             </li>
-           
-           
+           @endcan   
+           @can('store-material-plan-add') 
             <li class="{{ active('admin/production/create') }}">
               <a href="{{ route('admin.production.create') }}"><i class="fa fa-hand-o-right"></i> Add Material Plan</a>
             </li>
-           
+           @endcan   
           </ul>
         </li>
+        @endcan   
         <!-- end production -->
 
         <!-- sales -->
@@ -180,6 +195,7 @@
         <!-- end sales -->
 		
 		<!-- return material -->
+       @can('store-manage-returned-material') 
         <li class="treeview {{ active(['admin/return', 'admin/return/*']) }}">
           <a href="#">
             <i class="fa fa-user-secret"></i>
@@ -189,21 +205,23 @@
             </span>
           </a>
           <ul class="treeview-menu">
-           
+           @can('store-returned-material-listing') 
             <li class="{{ active('admin/return') }}">
               <a href="{{ route('admin.return.index') }}"><i class="fa fa-hand-o-right"></i> View Returned Material</a>
             </li>
-           
-           
+            @endcan  
+           @can('store-returned-material-add') 
             <li class="{{ active('admin/return/create') }}">
               <a href="{{ route('admin.return.create') }}"><i class="fa fa-hand-o-right"></i> Add Returned Material</a>
             </li>
-           
+            @endcan  
           </ul>
         </li>
+         @endcan  
         <!-- return sales -->
         
         <!-- output material -->
+        @can('store-manage-material-output') 
         <li class="treeview {{ active(['admin/materials-out', 'admin/materials-out/*']) }}">
           <a href="#">
             <i class="fa fa-user-secret"></i>
@@ -213,18 +231,19 @@
             </span>
           </a>
           <ul class="treeview-menu">
-           
+            @can('store-material-output-listing') 
             <li class="{{ active('admin/materials-out') }}">
               <a href="{{ route('admin.materials-out.index') }}"><i class="fa fa-hand-o-right"></i> View Material Output</a>
             </li>
-           
-           
+            @endcan 
+           @can('store-material-output-add') 
             <li class="{{ active('admin/materials-out/create') }}">
               <a href="{{ route('admin.materials-out.create') }}"><i class="fa fa-hand-o-right"></i> Add Material Output</a>
             </li>
-           
+            @endcan 
           </ul>
         </li>
+         @endcan 
         <!-- end production -->
         <!-- Review Batch card -->
         
@@ -236,8 +255,8 @@
         </li> -->
         
         <!-- Manage Reports -->
-        @can('manage-reports')
-        <li class="treeview {{ active(['admin/report', 'admin/report/*']) }}">
+       
+        <li class="treeview {{ active(['admin/batch-summary', 'admin/batch-summary/*']) }}">
           <a href="#">
             <i class="fa fa-file"></i>
             <span>Manage Reports</span>
@@ -246,14 +265,11 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            @can('vehicle-history')
             <li>
-              <a href="#"><i class="fa fa-hand-o-right"></i> Vehicle History Report</a>
+              <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
-            @endcan
           </ul>
         </li>
-        @endcan
       
       </ul>
     </section>
