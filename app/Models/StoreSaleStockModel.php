@@ -40,5 +40,15 @@ class StoreSaleStockModel extends Model
     {
         return $this->belongsTo(ProductsModel::class, 'product_id', 'id');
     }
+    public function addSalesStock($data) {
+        $stockReturn = false;
+        if(!empty($data)){
+            $details = self::where('material_out_id', $data['material_out_id'])->first();
+            if(!$details){
+                $stockReturn = self::insert($data);              
+            }
+        }
+        return $stockReturn;
+    }
 
 }

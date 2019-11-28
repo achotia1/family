@@ -34,6 +34,10 @@ class StoreOutMaterialModel extends Model
     {
         return $this->belongsTo(StoreProductionModel::class, 'plan_id', 'id');
     }
+    public function hasStock()
+    {       
+        return $this->hasOne(StoreSaleStockModel::class, 'material_out_id', 'id');
+    }
 
     public function updateMadeByMaterial($id, $companyId) {
         $outputDetails = self::with([
