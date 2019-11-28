@@ -10,9 +10,12 @@ use App\Models\StoreOutMaterialModel;
 use App\Models\StoreProductionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
+use App\Models\StoreSaleStockModel;
 
 use App\Http\Requests\Admin\StoreOutMaterialRequest;
 use App\Traits\GeneralTrait;
+
+use DB;
 
 class StoreOutMaterialController extends Controller
 {
@@ -209,6 +212,7 @@ class StoreOutMaterialController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
         $companyId = self::_getCompanyId();
         $outputDetails = $this->BaseModel->with([
+            'hasStock',
             'assignedPlan' => function($q)
             {  
                 $q->with(['hasProductionMaterials' => function($q){
@@ -546,7 +550,77 @@ public function bulkDelete(Request $request)
    return response()->json($this->JsonData);   
 }
 
-public function sendToBilling(Request $request, $encId)
+public function sendToSale(Request $request)
+    {        
+        DB::beginTransaction();
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.'; 
+        //dd($request->   all());
+        try
+        {
+            $id = $request->id;
+            $batchId = $request->batch_id;
+            $productId = $request->product_id;
+            $quantity = $request->quantity;
+            $cost = $request->cost;
+            ## MARK OUTPUT MATERIAL STATUS TO 1 THAT MEANS REVIEWED            
+            $collection = $this->BaseModel->find($id);
+            $collection->status   = 1;            
+            ## SAVE DATA
+            $collection->save();
+            if($collection){
+                $all_transactions = [];
+                if($batchId > 0 && $productId > 0 && $quantity > 0 && $cost > 0) {
+                    ## ADD THE ENTRY IN SALES STOCK 
+                    $data['company_id'] = self::_getCompanyId();
+                    $data['user_id'] = auth()->user()->id;
+                    $data['material_out_id'] = $id;
+                    $data['product_id'] = $productId;
+                    $data['batch_id'] = $batchId;
+                    $data['manufacturing_cost'] = $cost;
+                    $data['quantity'] = $quantity;
+                    $data['balance_quantity'] = $quantity;
+                    $objStock = new StoreSaleStockModel;
+
+                    if($objStock->addSalesStock($data)){
+                        ## MARK BATCH AS CLOSED
+                        $objBatch = new StoreBatchCardModel;
+                        $batchCollection = $objBatch->find($batchId);
+                        $batchCollection->review_status = "closed";                       
+                        if($batchCollection->save()){
+                            $all_transactions[] = 1;
+                        } else {
+                            $all_transactions[] = 0;
+                        }
+                            
+                    } else {                       
+                        $all_transactions[] = 0;
+                        $this->JsonData['msg'] = 'This Batch is already sent to Sale Stock.'; 
+                    }
+                    
+                } else {
+                     $all_transactions[] = 0;
+                }
+                if (!in_array(0,$all_transactions)) 
+                {
+                    $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                    //$this->JsonData['url'] = route($this->ModulePath.'index');
+                    $this->JsonData['msg'] = 'Batch is sent to Sale Stock successfully.';
+                    DB::commit();
+                }               
+            } else {
+                DB::rollback();
+            }           
+        }
+        catch(\Exception $e) {
+            $this->JsonData['msg'] = $e->getMessage();
+            DB::rollback();
+        }
+
+        return response()->json($this->JsonData);
+        //dd($request->all());
+    }
+/*public function sendToBilling(Request $request, $encId)
     {        
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';       
@@ -581,6 +655,6 @@ public function sendToBilling(Request $request, $encId)
 
         return response()->json($this->JsonData);
         //dd($request->all());
-    }
+    }*/
 
 }

@@ -269,14 +269,14 @@
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
-	                    	<td>	                    	
-	                    	{{$sellableQty}}
+	                    	<td class="text-green">	                    	
+	                    	<h4><b>{{$sellableQty}}</b></h4>
 	                    	</td>
 	                    	<td>	                    	
 	                    	<b>Yield :</b>
 	                    	</td>
-	                    	<td colspan="4">
-	                    	{{$yield}}%
+	                    	<td colspan="4" class="text-green">
+	                    	<h4><b>{{$yield}}%</b></h4>
 	                    	</td>
 	                    	
 	                    </tr>
@@ -329,34 +329,28 @@
 	                    	</td>
 	                    </tr>
 	                    <tr>
-	                    	<td colspan="7"><b>Manufacturing Cost Per Unit : {{$cost_per_unit}}</b> </td>     </tr>	                    
+	                    	<td colspan="7" class="text-aqua"><b>Manufacturing Cost Per Unit : {{$cost_per_unit}}</b> </td>     </tr>	                    
                     </tbody>
                 </table>
             </div>
-            <form id="reviewBatchForm" action="{{ route($modulePath.'send-to-billing', [base64_encode(base64_encode($object->id))]) }}" method="POST">
-            <input type="hidden" name="batch_id" value="{{$object->assignedPlan->batch_id}}">
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Is Reviewed?</label>
+                 
+            @php
+            if(!isset($object->hasStock)){
+            @endphp
+            <div class="form-group col-md-9" id="send-chk">                
                 <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="status" value="1" @if($object->status==1) checked @endif>
-                      Yes
+                      <input type="checkbox" name="status" value="1" id="chk-status">
+                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to send to Sales Stock. After sending this to sales stock you can not edit this batch records again.</b></span>
                     </label>
                 </div>  
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Do you want to close this Batch?</label>
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="review_status" value="closed" @if($object->assignedPlan->assignedBatch->review_status=="closed") checked @endif>
-                      Yes
-                    </label>
-                </div>  
+            <div class="form-group col-md-3" id="send-section">            	
+            	<a href="javascript:void(0)" class="btn btn-primary pull-right" data-batch = "1" id = "{{$object->id}}" data-product = "{{$object->assignedPlan->assignedBatch->product_code}}" data-cost = "{{$cost_per_unit}}" data-quantity = "{{$object->sellable_qty}}"onclick="return sendToBilling(this)">Send To Sale</a>
             </div>
-            <div class="form-group col-md-12">            
-            	<button type="submit" class="btn btn-success pull-right">Save</button>
-            </div>
-            </form>           
+            @php
+            }
+            @endphp    
         </div>
     </div>
 </section>

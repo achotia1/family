@@ -49,4 +49,50 @@ $('#reviewBatchForm').validator().on('submit', function (e)
 
         return false;
     }
-})
+});
+function sendToBilling(element)
+{
+	if($('#chk-status').prop("checked") == false){
+		swal("Error",'Please check the confirmation checkbox.','error');
+      	return false; 
+	} else {	
+		var material_out_id = $(element).attr("id");
+		var batch_id = $(element).attr("data-batch");
+		var product_id = $(element).attr("data-product");
+		var cost = $(element).attr("data-cost");
+		var quantity = $(element).attr("data-quantity");
+		action = ADMINURL+'/materials-out/send-to-sale';
+		
+		swal({
+			title: "Are you sure !!",
+			text: "You want to add this batch to Sales Stock ?",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Send",
+			confirmButtonClass: "btn-info",
+			closeOnConfirm: false,
+			showLoaderOnConfirm: true
+	    }, 
+	    function () 
+	    { 
+	        axios.post(action, {id:material_out_id, batch_id:batch_id, product_id:product_id,quantity:quantity, cost:cost})
+	        .then(function (response) 
+	        {
+	          if (response.data.status == 'success') 
+	          {
+	            swal("Success",response.data.msg,'success');
+	            $('#send-section').remove();
+	            $('#send-chk').remove();            
+	          }
+	          if (response.data.status === 'error') 
+	          {
+	            swal("Error",response.data.msg,'error');                
+	          }
+	        })
+	        .catch(function (error) 
+	        {
+	           // swal("Error",error.response.data.msg,'error');
+	        }); 
+	    });
+    }
+}
