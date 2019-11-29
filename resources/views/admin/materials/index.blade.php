@@ -26,7 +26,7 @@
                         <th style="display: none"></th>
                         <th class="w-90-px">Select</th>
                         <th class="w-100-px">Material Name</th>
-                        <th class="w-60-px">Balance Stock</th>                        
+                        <th class="w-60-px">Total Balance</th>                       
                         <th class="w-60-px">Material Type</th>
                         <th class="w-100-px">MOQ</th>
                         <th class="w-100-px">Status</th>                        

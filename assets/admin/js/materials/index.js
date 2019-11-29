@@ -17,7 +17,7 @@ $(document).ready(function()
             {
                 object.custom = {
                     "name" :  $('#name').val(),
-                    "balance_stock" : $('#balance-stock').val(),
+                    "total_balance" : $('#total-balance').val(),
                     "material_type" : $('#material-type').val(),
                     "moq" : $('#moq').val(),
                     "status" : $('#search-status').val()
@@ -27,8 +27,8 @@ $(document).ready(function()
         "columns": [
             { "data": "id",  "visible": false, },
             { "data": "select"},
-            { "data": "name"},
-            { "data": "balance_stock"},            
+            { "data": "name"},             
+            { "data": "total_balance"},          
             { "data": "material_type"},
             { "data": "moq"},
             { "data": "status"},
@@ -115,7 +115,7 @@ function doSearch(element)
 function removeSearch(element)
 {
   $('#name').val(''),
-  $('#balance-stock').val(''),
+  $('#total-balance').val(''),
   $('#material-type').val(''),
   $('#moq').val(''),
   $('#search-status').val(''),
