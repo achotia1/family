@@ -19,7 +19,8 @@ class StoreInMaterialModel extends Model
         'lot_qty',        
         'price_per_unit',
         'lot_balance',
-        'status'             
+        'status',
+        'balance_corrected_at'             
     ];
 
     /**
@@ -37,6 +38,10 @@ class StoreInMaterialModel extends Model
     public function hasProductionMaterial()
     {
         return $this->hasMany(ProductionHasMaterialModel::class, 'lot_id', 'id');
+    }
+    public function hasLotCorrection()
+    {
+        return $this->hasMany(StoreLotCorrectionModel::class, 'lot_id', 'id');
     }
 
     /*public function getMaterialNumbers() {

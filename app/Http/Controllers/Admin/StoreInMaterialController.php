@@ -9,9 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreInMaterialModel;
 use App\Models\StoreRawMaterialModel;
 use App\Models\ProductionHasMaterialModel;
+use App\Models\StoreLotCorrectionModel;
 
 use App\Http\Requests\Admin\StoreInMaterialRequest;
+use App\Http\Requests\Admin\StoreCorrectMaterialRequest;
+
 use App\Traits\GeneralTrait;
+use Carbon\Carbon;
 
 class StoreInMaterialController extends Controller
 {
@@ -355,12 +359,12 @@ class StoreInMaterialController extends Controller
                 }
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-
+                $view = '<a href="'.route($this->ModulePath.'correct-balance',[ base64_encode(base64_encode($row->id))]).'" title="Correct Balance"><span class="glyphicon glyphicon-ok-circle"></a>';
+                
                 $data[$key]['actions'] = '';
-
                 if(auth()->user()->can('store-material-in-add'))
                 {
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.'</div>';
                 }
 
         }
@@ -453,5 +457,57 @@ public function bulkDelete(Request $request)
 
    return response()->json($this->JsonData);   
 }
+public function correctBalance($encID)
+{       
+        $id = base64_decode(base64_decode($encID));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Correct Balance';
+        $this->ViewData['moduleAction'] = 'Correct Balance';
+        $this->ViewData['moduleTitleInfo'] = "Balance Information";
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->with([
+            'hasMateials'            
+        ])->where('company_id', $companyId)
+        ->find($id);
+      
+        if(empty($data)) {            
+            return redirect()->route('admin.materials-in.index');
+        } 
+        $this->ViewData['material'] = $data;       
+        ## VIEW FILE WITH DATA
+        return view($this->ModuleView.'correct', $this->ViewData);
+       
+}
+public function updateBalance(StoreCorrectMaterialRequest $request)
+    {
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';
+        try 
+        {           
+            $id = $request->id;
+            $collection = $this->BaseModel->find($id);
+            $collection->lot_balance = $request->corrected_balance;
+            $collection->balance_corrected_at = Carbon::today();
+            $collection->save();
+            /*$id = $request->id;
+            $previous_balance = $request->previous_balance;
+            $corrected_balance = $request->corrected_balance;*/
+            $correctObj = new StoreLotCorrectionModel;
+            $correctObj->user_id = auth()->user()->id;
+            $correctObj->lot_id = $id;
+            $correctObj->previous_balance = $request->previous_balance;
+            $correctObj->corrected_balance = $request->corrected_balance;
+            if($correctObj->save()){
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route('admin.materials-in.index');
+                $this->JsonData['msg'] = 'Lot Balance updated successfully.';
+            }
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
 
+        return response()->json($this->JsonData);        
+    }
 }
