@@ -14,6 +14,7 @@ class StoreSaleInvoiceModel extends Model
     protected $fillable = [
         'company_id',
         'user_id',
+        'customer_id',
 		'invoice_no',
         'invoice_date',
     ];

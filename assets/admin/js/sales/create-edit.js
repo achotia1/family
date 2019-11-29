@@ -5,7 +5,7 @@ $(document).ready(function ()
       format: 'dd-mm-yyyy',
       // startDate: new Date()
     })
-    var plan_options='';
+    /*var plan_options='';
     $('#plan_id').on('change', function() {
         var plan_id=this.value;
         
@@ -13,12 +13,9 @@ $(document).ready(function ()
         getPlanMaterials(plan_id);
         
      });
-
-
-
-    if(plan_id!=""){
+     if(plan_id!=""){
         getPlanMaterials(plan_id);
-    }
+    }*/
     
 })
 
@@ -126,12 +123,12 @@ function deletePlan(element)
 
 function setQuantityLimit(index)
 {
-    // var qtyLimit = $( "#lot_material_"+index+" option:selected" ).attr('data-qty');    
+    var qtyLimit = $( "#batches_product_"+index+" option:selected" ).attr('data-qty');    
 
-    // $("#quantity_"+index).val("");
-    // $("#quantity_"+index).attr("min",1);
-    // $("#quantity_"+index).attr("max",qtyLimit);
-    // $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
+    $("#quantity_"+index).val("");
+    $("#quantity_"+index).attr("min",1);
+    $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
 }
 
 function loadBatches(sel)
@@ -158,4 +155,50 @@ function loadBatches(sel)
     })
     return false;
 }
+
+// submitting form after validation
+$('#salesForm').validator().on('submit', function (e) 
+{
+    if (!e.isDefaultPrevented()) {
+
+        const $this = $(this);
+        const action = $this.attr('action');
+        const formData = new FormData($this[0]);
+        
+        $('.box-body').LoadingOverlay("show", {
+            background: "rgba(165, 190, 100, 0.4)",
+        });
+
+        axios.post(action, formData)
+            .then(function (response) {
+                const resp = response.data;
+
+                if (resp.status == 'success') {
+                    $this[0].reset();
+                    toastr.success(resp.msg);
+                    $('.box-body').LoadingOverlay("hide");
+                    setTimeout(function () {
+                        window.location.href = resp.url;
+                    }, 2000)
+                }
+
+                if (resp.status == 'error') {
+                    $('.box-body').LoadingOverlay("hide");
+                    toastr.error(resp.msg);
+                }
+            })
+            .catch(function (error) {
+                $('.box-body').LoadingOverlay("hide");
+
+                const errorBag = error.response.data.errors;
+
+                $.each(errorBag, function (fieldName, value) {
+                    $('.err_' + fieldName).closest('.form-group').addClass('has-error has-danger');
+                    $('.err_' + fieldName).text(value[0]).closest('span').show();
+                })
+            });
+
+        return false;
+    }
+})
 
