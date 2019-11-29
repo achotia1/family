@@ -68,46 +68,48 @@
                 <table class="table" border="1px;">
                     <tbody>
 	                    <tr class="trExpense">
-	                        <td colspan="5" class="title"><b>Batch Card Details</b>
+	                        <td colspan="7" class="title"><b>Batch Card Details</b>
 	                        <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
 	                        </td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Batch Card :</b></td>
-	                    	<td colspan="4">	                    	
+	                    	<td colspan="6">	                    	
 	                    	{{$object->assignedPlan->assignedBatch->batch_card_no}}
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td><b>Unit :</b></td>
-	                    	<td colspan="4">
+	                    	<td colspan="6">
 	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->name}}	
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td><b>Product Code :</b></td>
-	                    	<td colspan="4">
+	                    	<td colspan="6">
 	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->code}}	
 	                    	</td>
 	                    </tr>	                    
 	                    <tr>
-                            <td colspan="5"></td>
+                            <td colspan="7"></td>
                         </tr>
                         <tr class="trExpense">
-                            <td colspan="5" class="title"><b>Raw Material</b></td>
+                            <td colspan="7" class="title"><b>Raw Material</b></td>
                         </tr>
                         <tr>
 	                    	<td><b>Sr.No</b></td>
 	                    	<td><b>Raw Material Name</b></td>
+	                    	<td><b>Price Per Unit (INR)</b></td>
 	                    	<td><b>Final Weight</b></td>
 	                    	<td><b>Planned Material</b></td>
-	                    	<td><b>Returned Material</b></td>                  	
+	                    	<td><b>Returned Material</b></td>
+	                    	<td><b>Amount (INR)</b></td>                 	
 	                    </tr>
 	                    @php 
 	                    $key = $rawTotal = 0;
 	                    $otherMaterial = array();  
 	                    $i = 1;
-	                    $finalTotal = $plannedTotal = $returnedTotal = 0;
+	                    $finalTotal = $plannedTotal = $returnedTotal = $amountTotal = 0;
 	                    @endphp
 	                    @foreach($object->assignedPlan->hasProductionMaterials as $material)
 	                    @php	                    
@@ -127,26 +129,49 @@
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
 	                    	$returnedTotal = $returnedTotal + $returned;
-	                    	
+	                    	$returned =  number_format($returned, 2, '.', '');
+	                    	$amount = ($finalWeight * $material->hasLot->price_per_unit);
+	                    	$amountTotal = $amountTotal + $amount;
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
 	                    	$planned = number_format($material->quantity, 2, '.', '')." ".$material->mateialName->unit;
+	                    	$pricePerUnit = number_format($material->hasLot->price_per_unit, 2, '.', '');
+	                    	$formattedAmount =  number_format($amount, 2, '.', '');
 	                    	
 							
 	                    	
 	                    @endphp
 	                    <tr>
 	                    	<td>{{$key}}</td>
-	                    	<td>{{$material->mateialName->name}}</td>
+	                    	<td>{{$material->mateialName->name}} ({{$material->hasLot->lot_no}})</td>
+	                    	<td>{{$pricePerUnit}}</td>
 	                    	<td>{{$finalWeight}}</td>      	
 	                    	<td>{{$planned}}</td>
-	                    	<td>{{$returned}}</td>
+	                    	<td>{{$returned}}</td>	                    	
+	                    	<td>{{$formattedAmount}}</td>
 	                    </tr>
 	                    @php
 	                    } else {
+							$preturned = 0;
+	                    	if(isset($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials))
+	                    	{
+								
+							
+		                    	foreach($object->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+									if( $material->lot_id == $returnedMaterial->lot_id)
+										$preturned = $returnedMaterial->quantity;									}
+							}
+							
+							$pfinalWeight = $material->quantity - $preturned;
+							
+							$pamount = ($pfinalWeight * $material->hasLot->price_per_unit);							
 							$otherMaterial[$i]['name'] = $material->mateialName->name;
 							$otherMaterial[$i]['lot_no'] = $material->hasLot->lot_no;
-							$otherMaterial[$i]['quantity'] = $material->quantity;
-							$otherMaterial[$i]['returned_quantity'] = $material->returned_quantity;
+							$otherMaterial[$i]['quantity'] = number_format($material->quantity, 2, '.', '');
+							$otherMaterial[$i]['returned_quantity'] = number_format($preturned, 2, '.', '');
+							$otherMaterial[$i]['final_weight'] = number_format($pfinalWeight, 2, '.', '');
+							$otherMaterial[$i]['pamount'] = number_format($pamount, 2, '.', '');
+							$otherMaterial[$i]['price_per_unit'] = number_format($material->hasLot->price_per_unit, 2, '.', '');							
+							
 							$i++;
 						}
 	                    @endphp
@@ -155,62 +180,74 @@
 	                    $finalTotal = number_format($finalTotal, 2, '.', '');
 	                    $plannedTotal = number_format($plannedTotal, 2, '.', '');
 	                    $returnedTotal = number_format($returnedTotal, 2, '.', '');
+	                    $amountTotal = number_format($amountTotal, 2, '.', '');
 	                    @endphp
                         <tr>	                    	
-	                    	<td colspan="2"></td>
+	                    	<td colspan="3"></td>
 	                    	<td><b>{{$finalTotal}}</b></td>
 	                    	<td><b>{{$plannedTotal}}</b></td>
 	                    	<td><b>{{$returnedTotal}}</b></td>
+	                    	<td><b>{{$amountTotal}}</b></td>
 	                    </tr>
 
-	                    @php                        
+	                    @php 
+	                    $pamountTotal = 0;                       
                         if(!empty($otherMaterial)){
                         @endphp
 	                    <tr>
-                            <td colspan="5"></td>
+                            <td colspan="7"></td>
                         </tr>
                         
                         <tr class="trExpense">
-                            <td colspan="5" class="title"><b>Planned Packaging Material</b></td>             </tr>
+                            <td colspan="7" class="title"><b>Planned Packaging Material</b></td>             </tr>
                         @php 
-	                    $packTotal = 0;
-	                    $returnedTotal = 0;
+	                    $packTotal = $packFinalTotal = $returnedTotal = 0;
+	                    
 	                    @endphp
                         @foreach($otherMaterial as $oKey=>$oMaterial)
                         @php
                         $packTotal = $packTotal + $oMaterial['quantity'];
                         $returnedTotal = $returnedTotal + $oMaterial['returned_quantity'];
+                        $packFinalTotal = $packFinalTotal + $oMaterial['final_weight'];
+                        $pamountTotal = $pamountTotal + $oMaterial['pamount'];
                         @endphp
                         <tr>
 	                    	<td>{{$oKey}}</td>
-	                    	<td>{{$oMaterial['name']}}</td>
-	                    	<td>{{$oMaterial['lot_no']}}</td>      	
+	                    	<td>{{$oMaterial['name']}} ({{$oMaterial['lot_no']}})</td>
+	                    	<td>{{$oMaterial['price_per_unit']}}</td>
+	                    	<td>{{$oMaterial['final_weight']}}</td>     	
 	                    	<td>{{$oMaterial['quantity']}}</td>
 	                    	<td>{{$oMaterial['returned_quantity']}}</td>
+	                    	<td>{{$oMaterial['pamount']}}</td>
 	                    </tr>
                         @endforeach
+                        @php
+                        $packFinalTotal = number_format($packFinalTotal, 2, '.', '');
+                        $packTotal = number_format($packTotal, 2, '.', '');
+                        $returnedTotal = number_format($returnedTotal, 2, '.', '');
+                        $pamountTotal = number_format($pamountTotal, 2, '.', '');
+                        @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td><b><span id="planned-pweight">{{$packTotal}}</span></b></td>	                    	
-	                    	<td><b><span id="planned-pweight">{{$returnedTotal}}</span></b></td>	                    	
+	                    	<td><b>{{$packFinalTotal}}</b></td>
+	                    	<td><b>{{$packTotal}}</b></td>
+	                    	<td><b>{{$returnedTotal}}</b></td>                    	
+	                    	<td><b>{{$pamountTotal}}</b></td>
 	                    </tr>
 	                    @php
 	                    }
-	                    @endphp  
-
-
-
-
-
-
+	                    @endphp
 	                    <tr>
-                            <td colspan="5"></td>
+                            <td colspan="7"></td>
                         </tr>
                         <tr>
-                            <td colspan="5" class="title"><b>Made By Material</b></td>
+                            <td colspan="7" class="title"><b>Made By Material</b></td>
                         </tr>
                         @php
+                        
                         $sellableQty = number_format($object->sellable_qty, 2, '.', '');
+                        $cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+                        $cost_per_unit = number_format($cost_per_unit, 2, '.', '');
                         $coursePowder = number_format($object->course_powder, 2, '.', '');
 	                    $rejection = number_format($object->rejection, 2, '.', '');
 	                    $dustProduct = number_format($object->dust_product, 2, '.', '');	                    
@@ -232,14 +269,14 @@
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
-	                    	<td>	                    	
-	                    	{{$sellableQty}}
+	                    	<td class="text-green">	                    	
+	                    	<h4><b>{{$sellableQty}}</b></h4>
 	                    	</td>
-	                    	<td style="color: green">	                    	
+	                    	<td>	                    	
 	                    	<b>Yield :</b>
 	                    	</td>
-	                    	<td colspan="2" style="color: green">
-	                    	<b>{{$yield}}%</b>
+	                    	<td colspan="4" class="text-green">
+	                    	<h4><b>{{$yield}}%</b></h4>
 	                    	</td>
 	                    	
 	                    </tr>
@@ -251,7 +288,7 @@
 	                    	<td>	                    	
 	                    	<b>Course  powder Percentage:</b>
 	                    	</td>
-	                    	<td colspan="2">
+	                    	<td colspan="4">
 	                    	{{$coursePer}}%
 	                    	</td>
 	                    </tr>
@@ -263,7 +300,7 @@
 	                    	<td>	                    	
 	                    	<b>Rejection Percentage:</b>
 	                    	</td>
-	                    	<td colspan="2">
+	                    	<td colspan="4">
 	                    	{{$rejectionPer}}%
 	                    	</td>
 	                    </tr>
@@ -275,7 +312,7 @@
 	                    	<td>	                    	
 	                    	<b>Dust Product Percentage:</b>
 	                    	</td>
-	                    	<td colspan="2">
+	                    	<td colspan="4">
 	                    	{{$dustPer}}%
 	                    	</td>
 	                    </tr>
@@ -284,13 +321,15 @@
 	                    	<td>	                    	
 	                    	{{$lossMaterial}}
 	                    	</td>
-	                    	<td style="color: red">	                    	
+	                    	<td>	                    	
 	                    	<b>Loss Material Percentage:</b>
 	                    	</td>
-	                    	<td colspan="2" style="color: red">
-	                    	<b>{{$lossPer}}%</b>
+	                    	<td colspan="4">
+	                    	{{$lossPer}}%
 	                    	</td>
-	                    </tr>	                    
+	                    </tr>
+	                    <tr>
+	                    	<td colspan="7" class="text-aqua"><b>Manufacturing Cost Per Unit : {{$cost_per_unit}}</b> </td>     </tr>	                    
                     </tbody>
                 </table>
             </div>
