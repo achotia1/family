@@ -173,9 +173,12 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 
 
 				//Sales Management
+				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
+				{*/
 				Route::get('/sales/getRecords',  'StoreSalesController@getRecords');
 				Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
 				Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
+				/*});*/
 
 
 				// Review Batch card
@@ -185,9 +188,6 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/review-batch-card/getRecords',  'StoreReviewBatchCardController@getRecords');
 					Route::get('/review-batch-card/show/{id}',  'StoreReviewBatchCardController@show')->name($PREFIX.'.review-batch-card.show');
 					Route::post('/review-batch-card/send-to-billing/{id}','StoreReviewBatchCardController@sendToBilling')->name($PREFIX.'.review-batch-card.send-to-billing');*/
-					
-				
-
 				/*});*/
 
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');

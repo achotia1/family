@@ -46,8 +46,8 @@ class StoreSalesController extends Controller
         $this->ModulePath = 'admin.sales.';
 
         ## PERMISSION MIDDELWARE
-        // $this->middleware(['permission:store-returned-material-listing'], ['only' => ['getRecords']]);
-        // $this->middleware(['permission:store-returned-material-add'], ['only' => ['edit','update','create','store','destroy']]);
+        // $this->middleware(['permission:store-sale-listing'], ['only' => ['getRecords']]);
+        // $this->middleware(['permission:store-sale-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -477,155 +477,169 @@ class StoreSalesController extends Controller
             5 => 'store_sale_invoice.id',
         );
 
-        /*--------------------------------------
-        |  MODEL QUERY AND FILTER
-        ------------------------------*/
-        $companyId = self::_getCompanyId();
-        ## START MODEL QUERY    
-        //$modelQuery =  $this->BaseModel;
-        $modelQuery =  $this->BaseModel        
-                            ->join('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
-                            ->where('store_sale_invoice.company_id', $companyId);
-        ## GET TOTAL COUNT
-        $countQuery = clone($modelQuery);            
-        $totalData  = $countQuery->count();
+            /*--------------------------------------
+            |  MODEL QUERY AND FILTER
+            ------------------------------*/
+            $companyId = self::_getCompanyId();
+            ## START MODEL QUERY    
+            //$modelQuery =  $this->BaseModel;
+            $modelQuery =  $this->BaseModel        
+                                ->join('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
+                                ->where('store_sale_invoice.company_id', $companyId);
+            ## GET TOTAL COUNT
+            $countQuery = clone($modelQuery);            
+            $totalData  = $countQuery->count();
 
-        ## FILTER OPTIONS
-        $custom_search = false;
-        if (!empty($request->custom))
-        {   
-            
-            if (!empty($request->custom['invoice_no'])) 
-            {
-                $custom_search = true;
-
-                $key = $request->custom['invoice_no'];
-                $modelQuery = $modelQuery
-                ->where('store_sale_invoice.invoice_no',  'LIKE', '%'.$key.'%');
-            }
-
-            if (!empty($request->custom['invoice_date'])) 
-            {
-                $custom_search = true;
-
-                $dateObject = date_create_from_format("d-m-Y",$request->custom['invoice_date']);
-                $invoice_date   = date_format($dateObject, 'Y-m-d'); 
-
-                //$key = $request->custom['invoice_date'];
-                $modelQuery = $modelQuery
-                ->whereDate('store_sale_invoice.invoice_date', $invoice_date);
-            }
-
-            if (!empty($request->custom['customer_id'])) 
-            {
-                $custom_search = true;
-                $key = $request->custom['customer_id'];               
-                $modelQuery = $modelQuery
-                ->where('users.id',  $key);               
-            }
+            ## FILTER OPTIONS
+            $custom_search = false;
+            if (!empty($request->custom))
+            {   
                 
-        }
+                if (!empty($request->custom['invoice_no'])) 
+                {
+                    $custom_search = true;
 
-        ## GET TOTAL FILTER
-        $filteredQuery = clone($modelQuery);            
-        $totalFiltered  = $filteredQuery->count();
+                    $key = $request->custom['invoice_no'];
+                    $modelQuery = $modelQuery
+                    ->where('store_sale_invoice.invoice_no',  'LIKE', '%'.$key.'%');
+                }
 
-        ## OFFSET AND LIMIT
-        if(empty($column))
-        {   
-            $modelQuery = $modelQuery->orderBy('store_sale_invoice.id', 'DESC');
-            //$modelQuery = $modelQuery->orderBy('vehicles.chassis_number', 'ASC');           
-        }
-        else
-        {
-            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
-        }
-        //dd($modelQuery->toSql());
-        $object = $modelQuery->skip($start)
-        ->take($length)
-        ->get([
-                'store_sale_invoice.id', 
-                'store_sale_invoice.invoice_no',
-                'store_sale_invoice.invoice_date',
-                'users.contact_name',
-                'users.company_name',
-            ]);    
+                if (!empty($request->custom['invoice_date'])) 
+                {
+                    $custom_search = true;
 
-         // dd($object->toArray());
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['invoice_date']);
+                    $invoice_date   = date_format($dateObject, 'Y-m-d'); 
 
+                    //$key = $request->custom['invoice_date'];
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_sale_invoice.invoice_date', $invoice_date);
+                }
 
-        /*--------------------------------------
-        |  DATA BINDING
-        ------------------------------*/
+                if (!empty($request->custom['customer_id'])) 
+                {
+                    $custom_search = true;
+                    $key = $request->custom['customer_id'];               
+                    $modelQuery = $modelQuery
+                    ->where('users.id',  $key);               
+                }
+                    
+            }
 
-        $data = [];
-
-        if (!empty($object) && sizeof($object) > 0)
-        {
-            $count =1;
-            foreach ($object as $key => $row)
+            if (!empty($request->search))
             {
+                if (!empty($request->search['value'])) 
+                {
+                    $search = $request->search['value'];
+                    
+                    $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('store_sale_invoice.invoice_no', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('users.contact_name', 'LIKE', '%'.$search.'%');
+                    });
+                }
+            }
 
-                $data[$key]['id'] = $row->id;
+            ## GET TOTAL FILTER
+            $filteredQuery = clone($modelQuery);            
+            $totalFiltered  = $filteredQuery->count();
 
-                $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
-                $data[$key]['invoice_no']   = $row->invoice_no;
+            ## OFFSET AND LIMIT
+            if(empty($column))
+            {   
+                $modelQuery = $modelQuery->orderBy('store_sale_invoice.id', 'DESC');
+                //$modelQuery = $modelQuery->orderBy('vehicles.chassis_number', 'ASC');           
+            }
+            else
+            {
+                $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+            }
+            //dd($modelQuery->toSql());
+            $object = $modelQuery->skip($start)
+            ->take($length)
+            ->get([
+                    'store_sale_invoice.id', 
+                    'store_sale_invoice.invoice_no',
+                    'store_sale_invoice.invoice_date',
+                    'users.contact_name',
+                    'users.company_name',
+                ]);    
 
-                $data[$key]['invoice_date'] = date('d M Y',strtotime($row->invoice_date));
-                $data[$key]['customer_name'] = $row->contact_name." ( ".$row->company_name." )";
-                        
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
-                $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></span></a>&nbsp';
-                $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
+             // dd($object->toArray());
 
-                //$data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
-                //if(auth()->user()->can('store-returned-material-add'))
-                //{
-                    $data[$key]['actions'] =  '<div class="text-center">'.$view.$edit.$delete.'</div>';
-                //}
 
-               
+            /*--------------------------------------
+            |  DATA BINDING
+            ------------------------------*/
 
+            $data = [];
+
+            if (!empty($object) && sizeof($object) > 0)
+            {
+                $count =1;
+                foreach ($object as $key => $row)
+                {
+
+                    $data[$key]['id'] = $row->id;
+
+                    $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
+                    $data[$key]['invoice_no']   = $row->invoice_no;
+
+                    $data[$key]['invoice_date'] = date('d M Y',strtotime($row->invoice_date));
+                    $data[$key]['customer_name'] = $row->contact_name." ( ".$row->company_name." )";
+                            
+                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
+                    $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></span></a>&nbsp';
+                    $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
+
+                    //$data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                    //if(auth()->user()->can('store-returned-material-add'))
+                    //{
+                        $data[$key]['actions'] =  '<div class="text-center">'.$view.$edit.$delete.'</div>';
+                    //}
+
+                   
+
+             }
          }
-     }
 
-    $customers =  $this->AdminUserModel
-                        ->whereHas('roles', function($query) {
-                            $query->where('name', '=','customer');
-                        })
-                        ->where('users.status',1)
-                        ->get();
+        $customers =  $this->AdminUserModel
+                            ->whereHas('roles', function($query) {
+                                $query->where('name', '=','customer');
+                            })
+                            ->where('users.status',1)
+                            ->get();
 
-    $customer_string = '<select class="form-control select2" 
-                     id="customer-id"
-                     name="customer-id"><option value="">Select Customer</option> ';
-    foreach ($customers as $customer) {
-        $customer_string .='<option value="'.$customer->id.'" '.( $request->custom['customer_id'] == $customer->id ? 'selected' : '').'>'.$customer->contact_name .' ('.$customer->company_name.')</option>';
+        $customer_string = '<select class="form-control select2" 
+                         id="customer-id"
+                         name="customer-id"><option value="">Select Customer</option> ';
+        foreach ($customers as $customer) {
+            $customer_string .='<option value="'.$customer->id.'" '.( $request->custom['customer_id'] == $customer->id ? 'selected' : '').'>'.$customer->contact_name .' ('.$customer->company_name.')</option>';
+        }
+        $customer_string .='</select>';
+        
+        ## SEARCH HTML
+        $searchHTML['id']       =  '';
+        $searchHTML['select']   =  '';
+        $searchHTML['invoice_no']  =    '<input type="text" class="form-control" id="invoice-no" value="'.($request->custom['invoice_no']).'" placeholder="Search...">';
+        $searchHTML['invoice_date']   =  '<input type="text" autocomplete="off" class="form-control datepicker" id="invoice-date" value="'.($request->custom['invoice_date']).'" placeholder="Search...">';   
+        $searchHTML['customer_name'] = $customer_string;
+       
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+
+        $searchHTML['actions'] = $seachAction;
+
+
+        array_unshift($data, $searchHTML);
+
+        ## WRAPPING UP
+        $this->JsonData['draw']             = intval($request->draw);
+        $this->JsonData['recordsTotal']     = intval($totalData);
+        $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+        $this->JsonData['data']             = $data;
+
+        return response()->json($this->JsonData);
     }
-    $customer_string .='</select>';
-    
-    ## SEARCH HTML
-    $searchHTML['id']       =  '';
-    $searchHTML['select']   =  '';
-    $searchHTML['invoice_no']  =    '<input type="text" class="form-control" id="invoice-no" value="'.($request->custom['invoice_no']).'" placeholder="Search...">';
-    $searchHTML['invoice_date']   =  '<input type="text" autocomplete="off" class="form-control datepicker" id="invoice-date" value="'.($request->custom['invoice_date']).'" placeholder="Search...">';   
-    $searchHTML['customer_name'] = $customer_string;
-   
-    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-
-    $searchHTML['actions'] = $seachAction;
-
-
-    array_unshift($data, $searchHTML);
-
-    ## WRAPPING UP
-    $this->JsonData['draw']             = intval($request->draw);
-    $this->JsonData['recordsTotal']     = intval($totalData);
-    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
-    $this->JsonData['data']             = $data;
-
-    return response()->json($this->JsonData);
-}
 
     public function destroy($encID)
     {
@@ -695,7 +709,85 @@ class StoreSalesController extends Controller
         return response()->json($this->JsonData);
     }
 
-    public function bulkDelete(Request $request)
+
+    public function getProductBatches(Request $request)
+    {
+        // dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get product batches, Something went wrong on server.';
+        try 
+        {
+            $company_id  = self::_getCompanyId();
+            $product_id = $request->product_id;
+            $selected_val = $request->selected_val;
+            $editFlag = $request->editFlag;
+
+           $getBatches = $this->StoreSaleStockModel->with(['assignedBatch'])
+                                ->where("store_sales_stock.product_id",$product_id)
+                                ->where("store_sales_stock.company_id",$company_id)
+                                ->get();                            
+            $html="<option value=''>Select Batch</option>";
+            foreach($getBatches as $batch){        
+                if (!in_array($batch->batch_id, $selected_val))
+                {
+                    $balance_quantity=$batch->balance_quantity;
+                    if($editFlag==1){
+                        $getqty = $this->StoreSaleInvoiceHasProductsModel
+                                ->where("store_sale_invoice_has_products.batch_id",$batch->batch_id)
+                                ->where("store_sale_invoice_has_products.product_id",$product_id)
+                                ->first(['quantity']);   
+                        if(!empty($getqty)){
+                            #To add the quantity for proper validations
+                            $balance_quantity=$batch->balance_quantity+$getqty->quantity;
+                        }
+                    }
+                    if(!empty($balance_quantity) && $balance_quantity>0)
+                    {
+                        $html.="<option data-qty='".$balance_quantity."' value='".$batch->batch_id."'>".$batch->assignedBatch->batch_card_no." (".$balance_quantity.")</option>";
+                    }
+                }                        
+            }
+
+           
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Product Batches';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function checkExistingRecord(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
+        try 
+        {
+            $plan_id   = $request->plan_id;
+            $collection = $this->BaseModel->where('plan_id',$plan_id)->first();
+            $url = '';
+            if(!empty($collection)){               
+                $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
+            }
+            $this->JsonData['url']  = $url;
+            // $this->JsonData['product']  = $product;
+            $this->JsonData['msg']  = 'Raw Materials';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    /*public function bulkDelete(Request $request)
     {
         $companyId = self::_getCompanyId();
 
@@ -784,152 +876,5 @@ class StoreSalesController extends Controller
        }
 
        return response()->json($this->JsonData);   
-    }
-
-    public function getPlanMaterials(Request $request)
-    {
-        // dd($request->all());
-        $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to get batch materials, Something went wrong on server.';
-        try 
-        {
-            // $material_id   = $request->material_id;
-            $plan_id   = $request->plan_id;
-            $companyId = self::_getCompanyId();
-            // dd($companyId);
-            // echo "string:".$batch_id;
-
-            /*$raw_materials = $this->StoreRawMaterialModel
-                                   ->join('store_production_has_materials','material_id','store_raw_materials.id')
-                                   ->join('store_productions','store_production_has_materials.production_id','store_production_has_materials.id')
-                                  ->where("store_productions.id",$plan_id)
-                                  ->get([
-                                        'store_raw_materials.id',
-                                        'store_raw_materials.name']);*/
-
-            $get_production_batches = $this->StoreProductionModel
-                                        ->join('store_production_has_materials','production_id','store_productions.id')
-                                        ->where('store_productions.id',$plan_id)
-                                        ->where('company_id',$companyId)
-                                        ->get(['material_id']);
-                                       // ->with(['hasProductionMaterials'])
-           // dd($get_production_batches->toArray());
-            $material_ids = array_column($get_production_batches->toArray(), "material_id");
-
-            $raw_materials = $this->StoreRawMaterialModel
-                                  ->whereIn("id",$material_ids)
-                                  ->get(['id','name']);
-          
-            // dd($raw_materials->toArray());
-            $html="<option value=''>Select Material</option>";
-            foreach($raw_materials as $material){
-                $selected="";
-                /*if($material_id==$material->id){
-                    $selected="selected";
-                } */
-                
-                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
-
-            }
-            // dd($get_production_batches,$raw_materials);
-            /*$module = "non_material_module";
-            if(!empty($material_id)){
-                $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
-            }else{
-                $html       = self::_getBatchMaterials($batch_id,false,$module);
-            }*/
- 
-            $this->JsonData['html'] = $html;
-            //$this->JsonData['data'] = $raw_materials;
-            $this->JsonData['msg']  = 'Raw Materials';
-            $this->JsonData['status']  = 'Success';
-
-        } catch (Exception $e) 
-        {
-            $this->JsonData['exception'] = $e->getMessage();
-        }
-
-        return response()->json($this->JsonData);   
-    }
-
-    public function getProductBatches(Request $request)
-    {
-        // dd($request->all());
-        $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to get product batches, Something went wrong on server.';
-        try 
-        {
-            $company_id  = self::_getCompanyId();
-            $product_id = $request->product_id;
-            $selected_val = $request->selected_val;
-            $editFlag = $request->editFlag;
-
-           $getBatches = $this->StoreSaleStockModel->with(['assignedBatch'])
-                                ->where("store_sales_stock.product_id",$product_id)
-                                ->where("store_sales_stock.company_id",$company_id)
-                                ->get();                            
-            $html="<option value=''>Select Batch</option>";
-            foreach($getBatches as $batch){        
-                if (!in_array($batch->batch_id, $selected_val))
-                {
-                    $balance_quantity=$batch->balance_quantity;
-                    if($editFlag==1){
-                        $getqty = $this->StoreSaleInvoiceHasProductsModel
-                                ->where("store_sale_invoice_has_products.batch_id",$batch->batch_id)
-                                ->where("store_sale_invoice_has_products.product_id",$product_id)
-                                ->first(['quantity']);   
-                        if(!empty($getqty)){
-                            #To add the quantity for proper validations
-                            $balance_quantity=$batch->balance_quantity+$getqty->quantity;
-                        }
-                    }
-                    $html.="<option data-qty='".$balance_quantity."' value='".$batch->batch_id."'>".$batch->assignedBatch->batch_card_no." (".$balance_quantity.")</option>";
-                }                        
-            }
-
-           
-            $this->JsonData['html'] = $html;
-            //$this->JsonData['data'] = $raw_materials;
-            $this->JsonData['msg']  = 'Product Batches';
-            $this->JsonData['status']  = 'Success';
-
-        } catch (Exception $e) 
-        {
-            $this->JsonData['exception'] = $e->getMessage();
-        }
-
-        return response()->json($this->JsonData);   
-    }
-
-    public function checkExistingRecord(Request $request)
-    {
-         // dd($request->all());
-        $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to get material Lots, Something went wrong on server.';
-        try 
-        {
-            $plan_id   = $request->plan_id;
-            $collection = $this->BaseModel->where('plan_id',$plan_id)->first();
-            // dd($collection);
-            // $objStore = new StoreBatchCardModel;
-            // $batcDetails = $objStore->getBatchDetails($batch_id);
-            // $product = $batcDetails->assignedProduct->code." (".$batcDetails->assignedProduct->name.")";      
-            //dd($collection->toArray());
-            $url = '';
-            if(!empty($collection)){               
-                $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
-            }
-            $this->JsonData['url']  = $url;
-            // $this->JsonData['product']  = $product;
-            $this->JsonData['msg']  = 'Raw Materials';
-            $this->JsonData['status']  = 'Success';
-
-        } catch (Exception $e) 
-        {
-            $this->JsonData['exception'] = $e->getMessage();
-        }
-
-        return response()->json($this->JsonData);   
-    }
-
+    }*/
 }
