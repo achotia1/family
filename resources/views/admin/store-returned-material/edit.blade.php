@@ -153,7 +153,7 @@
                     </div>
                     </td>
                     <td>
-                        <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${{$k}}" style="cursor:pointer">Remove</p>
+                        <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="{{$k}}" style="cursor:pointer">Remove</p>
                     </td>
                     </tr>
                     @php

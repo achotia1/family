@@ -281,7 +281,10 @@
           </a>
           <ul class="treeview-menu">
             <li>
-              <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add  Sale</a>
+              <a href="{{ route('admin.sales.index') }}"><i class="fa fa-hand-o-right"></i> View Sales</a>
+            </li>
+            <li>
+              <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add Sale</a>
             </li>
           </ul>
         </li>

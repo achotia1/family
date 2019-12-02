@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use App\Models\StoreSaleStockModel;
 
 class StoreBatchCardModel extends Model
 {
@@ -41,6 +42,11 @@ class StoreBatchCardModel extends Model
     public function hasProduction()
     {       
         return $this->hasOne(StoreProductionModel::class, 'batch_id', 'id');
+    }
+
+    public function hasStockProducts()
+    {
+        return $this->hasMany(StoreSaleStockModel::class, 'batch_id', 'id');
     }
 
     public function getBatchCardNo() {

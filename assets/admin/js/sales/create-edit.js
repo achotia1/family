@@ -52,7 +52,7 @@ function addPlan()
                             class="form-control my-select batch_id" 
                             placeholder="All Batches"
                             name="sales[${counter}][batch_id]"
-                            onchange="setQuantityLimit(0);"
+                            onchange="setQuantityLimit(${counter});"
                             id="batches_product_${counter}"
                             required
                             data-error="Batch field is required." 
@@ -144,7 +144,7 @@ function loadBatches(sel)
     });  
 
     var action = ADMINURL + '/sales/getProductBatches';
-    axios.post(action, {product_id:product_id,selected_val:selected_val})
+    axios.post(action, {editFlag:editFlag,product_id:product_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#batches_"+id).html(response.data.html); 
