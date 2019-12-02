@@ -7,7 +7,8 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
+        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($object->id))]) }}">
+            <input type="hidden" name="_method" value="PUT">
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
@@ -21,7 +22,7 @@
                         type="text" 
                         name="invoice_no"
                         class="form-control" 
-                        required                                       
+                        value="{{$object->invoice_no??''}}" 
                         data-error="Invoice Number field is required." 
                     >
                     <span class="help-block with-errors">
@@ -39,7 +40,7 @@
                         type="text" 
                         name="invoice_date"                    
                         class="form-control acc_depreciation" 
-                        required                                                        
+                        value="{{ date('d-m-Y',strtotime($object->invoice_date)) }}" 
                         data-error="Invoice Date field is required." 
                     >
                     <span class="input-group-addon">
@@ -59,11 +60,10 @@
                     <select class="form-control select2" 
                      id="customer_id"
                      name="customer_id" 
-                     required="" 
                      data-error="Customer field is required.">                    
                         <option value="">Select Customer</option>
                         @foreach($customers as $customer)
-                            <option value="{{ $customer->id }}">{{ $customer->contact_name }} ({{ $customer->company_name }})</option>
+                            <option value="{{ $customer->id }}" @if($customer->id==$object->customer_id) selected @endif >{{ $customer->contact_name }} ({{ $customer->company_name }})</option>
                         @endforeach
                     </select>  
                     <span class="help-block with-errors">
@@ -80,16 +80,22 @@
                 <h4 class="">Store Stock</h4>
             </div>
             <div class="col-md-12">
+           
                 <table class="table mb-0 border-none" id="plan-table">
                     <thead class="theme-bg-blue-light-opacity-15">
                         <tr class="heading-tr">                                  
-                            <th class="w-160-px">Product Name</th>                            
+                            <th class="w-160-px">Product Name</th>
                             <th class="w-160-px">Batch Code</th>
                             <th class="w-160-px">Quantity</th>
                             <th class="w-160-px">Rate</th>
                             <th class="w-50-px"></th>
                         </tr>
                     </thead>
+                    @php
+                     $k = 0;
+                    @endphp
+                    @if(!empty($object->hasSaleInvoiceProducts))
+                    @foreach($object->hasSaleInvoiceProducts as $hasSaleInvoiceProducts)
                     <tbody class="no-border">
                     <tr class="inner-td add_plan_area plan">                    
                     <td>
@@ -97,42 +103,54 @@
                         <select 
                             class="form-control my-select products" 
                             placeholder="All Products"
-                            name="sales[0][product_id]"
-                            id="product_0"
-                            required
+                            name="sales[{{$k}}][product_id]"
+                            id="product_{{$k}}"
                             onchange="loadBatches(this);"
                             data-error="Product field is required." 
                         >
-                            <option value="">Select Product</option>
-                            @if(!empty($getStockProducts) && sizeof($getStockProducts) > 0)
-                            @foreach($getStockProducts as $stock)
-                             plan_options += `<option value="{{ $stock->assignedProduct->id }}">{{ $stock->assignedProduct->code }} ({{ $stock->assignedProduct->name }})</option>`;
-                            @endforeach
-                            @endif
+                           <option value="{{ $hasSaleInvoiceProducts->product_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedProduct->name }} ({{ $hasSaleInvoiceProducts->assignedProduct->code }})</option>
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_sales[0][product_id][] err_production_product"></li>
+                                <li class="err_sales[{{$k}}][product_id][] err_production_product"></li>
                             </ul>
                         </span>
                     </div>
                     </td>
                     <td>
+                        @php
+                            $stock_qty = 0;
+                            if(!empty($hasSaleInvoiceProducts->assignedBatch->hasStockProducts))
+                            {
+                                foreach($hasSaleInvoiceProducts->assignedBatch->hasStockProducts as $sale_stock)
+                                {
+                                    if($hasSaleInvoiceProducts->product_id==$sale_stock->product_id && $hasSaleInvoiceProducts->batch_id==$sale_stock->batch_id)
+                                    {
+                                        if($sale_stock->balance_quantity<$sale_stock->quantity){
+                                            $stock_qty=$sale_stock->balance_quantity+$hasSaleInvoiceProducts->quantity;
+                                        }else{
+                                            $stock_qty=$sale_stock->balance_quantity;
+                                        }
+                                        
+                                    }
+                                }
+                            }
+
+                        @endphp
                         <div class="form-group"> 
                         <select 
                             class="form-control my-select batch_id" 
                             placeholder="All Batches"
-                            name="sales[0][batch_id]"
-                            onchange="setQuantityLimit(0);"
-                            id="batches_product_0"
-                            required
+                            name="sales[{{$k}}][batch_id]"
+                            onchange="setQuantityLimit({{$k}});"
+                            id="batches_product_{{$k}}"
                             data-error="Batch field is required." 
                         >
-                            <option value="">Select Batch</option>
+                             <option data-qty="{{ $stock_qty }}" value="{{ $hasSaleInvoiceProducts->batch_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedBatch->batch_card_no }} ({{ $stock_qty }})</option>
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_sales[0][batch_id][] err_batch_id"></li>
+                                <li class="err_sales[{{$k}}][batch_id][] err_batch_id"></li>
                             </ul>
                         </span>
                         </div>
@@ -142,15 +160,17 @@
                         <input 
                             type="number" 
                             class="form-control quantity"
-                            name="sales[0][quantity]" 
-                            id="quantity_0"
-                            required
+                            name="sales[{{$k}}][quantity]" 
+                            id="quantity_{{$k}}"
+                            value="{{ $hasSaleInvoiceProducts->quantity }}" 
+                            min="1"
+                            max="{{$stock_qty}}"
                             step="any" 
-                            data-error="Quantity should be number."
+                            data-error="You can not select more than available quantity: {{$stock_qty}}"
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_sales[0][quantity][] err_quantity"></li>
+                                <li class="err_sales[{{$k}}][quantity][] err_quantity"></li>
                             </ul>
                         </span>
                     </div>
@@ -160,24 +180,32 @@
                         <input 
                             type="number" 
                             class="form-control rate"
-                            name="sales[0][rate]" 
-                            id="rate_0"
-                            required
+                            name="sales[{{$k}}][rate]" 
+                            id="rate_{{$k}}"
+                            value="{{ $hasSaleInvoiceProducts->rate }}" 
                             step="any" 
                             data-error="Rate should be number."
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
-                                <li class="err_sales[0][rate][] err_rate"></li>
+                                <li class="err_sales[{{$k}}][rate][] err_rate"></li>
                             </ul>
                         </span>
                     </div>
                     </td>
-                    <td></td>
+                    <td>
+                        <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="{{$k}}" style="cursor:pointer">Remove</p>
+                    </td>
                     </tr>
-                     <input type="hidden" name="total_items" id="total_items" value="1">
+                    @php
+                        $k++;
+                    @endphp
+                    @endforeach
+                    @endif
+                     <input type="hidden" name="total_items" id="total_items" value="{{$k}}">
                     </tbody>
                 </table>
+                
                 <div class="col-md-8">
                 <a href="javascript:void(0)" class="theme-green bold f-16 text-underline"
                                 onclick="return addPlan()" style="cursor: pointer;">
@@ -203,7 +231,7 @@
     <script type="text/javascript">
         var material_id = "";
         var plan_id = "";
-        var editFlag = 0;
+        var editFlag = 1;
 
         // PLAN OPTIONS
         var plan_options = '<option value="">Select Product</option>';
