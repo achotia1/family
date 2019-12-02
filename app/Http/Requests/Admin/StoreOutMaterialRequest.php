@@ -25,6 +25,7 @@ class StoreOutMaterialRequest extends FormRequest
                 'course_powder'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'rejection'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'dust_product'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+                'loose_material'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                                 
             ];
         }else{
@@ -34,6 +35,7 @@ class StoreOutMaterialRequest extends FormRequest
                 'course_powder'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'rejection'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'dust_product'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+                'loose_material'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 
             ];
         }     
@@ -49,7 +51,9 @@ class StoreOutMaterialRequest extends FormRequest
             'rejection.required'    => 'Rejection field is required.',
             'rejection.regex'    => 'Rejection should be correct.',
             'dust_product.required'    => 'Dust Product field is required.',
-            'dust_product.regex'    => 'Dust Product should be correct.',            
+            'dust_product.regex'    => 'Dust Product should be correct.',
+            'loose_material.required'    => 'Loose Material field is required.',
+            'loose_material.regex'    => 'Loose Material should be correct.',
         ];
     }
 }

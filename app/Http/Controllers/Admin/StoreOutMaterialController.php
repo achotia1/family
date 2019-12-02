@@ -11,6 +11,7 @@ use App\Models\StoreProductionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 use App\Models\StoreSaleStockModel;
+use App\Models\StoreWasteStockModel;
 
 use App\Http\Requests\Admin\StoreOutMaterialRequest;
 use App\Traits\GeneralTrait;
@@ -194,8 +195,8 @@ class StoreOutMaterialController extends Controller
         $collection->course_powder  = $request->course_powder;
         $collection->rejection       = $request->rejection;
         $collection->dust_product          = $request->dust_product;
-        /*$collection->loss_material             = $request->loss_material;
-        $collection->yield             = $request->yield;*/
+        $collection->loose_material             = $request->loose_material;
+        /*$collection->yield             = $request->yield;*/
         $collection->status         = 0;      
         ## SAVE DATA
         $collection->save();
@@ -560,26 +561,40 @@ public function sendToSale(Request $request)
                 $all_transactions = [];
                 if($batchId > 0 && $productId > 0 && $quantity > 0 && $cost > 0) {
                     ## ADD THE ENTRY IN SALES STOCK 
-                    $data['company_id'] = self::_getCompanyId();
-                    $data['user_id'] = auth()->user()->id;
-                    $data['material_out_id'] = $id;
-                    $data['product_id'] = $productId;
-                    $data['batch_id'] = $batchId;
+                    $data['company_id'] = $wasteData['company_id'] = self::_getCompanyId();
+                    $data['user_id'] = $wasteData['user_id'] = auth()->user()->id;
+                    $data['material_out_id'] = $wasteData['material_out_id'] = $id;
+                    $data['product_id'] = $wasteData['product_id'] = $productId;
+                    $data['batch_id'] = $wasteData['batch_id'] = $batchId;
                     $data['manufacturing_cost'] = $cost;
                     $data['quantity'] = $quantity;
                     $data['balance_quantity'] = $quantity;
                     $objStock = new StoreSaleStockModel;
 
                     if($objStock->addSalesStock($data)){
-                        ## MARK BATCH AS CLOSED
-                        $objBatch = new StoreBatchCardModel;
-                        $batchCollection = $objBatch->find($batchId);
-                        $batchCollection->review_status = "closed";                       
-                        if($batchCollection->save()){
-                            $all_transactions[] = 1;
-                        } else {
+                        ## ADD WASTAGE STOCK
+                        $wasteData['course'] = $request->course;
+                        $wasteData['balance_course'] = $request->course;
+                        $wasteData['rejection'] = $request->rejection;
+                        $wasteData['balance_rejection'] = $request->rejection;
+                        $wasteData['dust'] = $request->dust;
+                        $wasteData['balance_dust'] = $request->dust;
+                        $wasteData['loose'] = $request->loose;
+                        $wasteData['balance_loose'] = $request->loose;
+                        $objWasteStock = new StoreWasteStockModel;
+                        if($objWasteStock->addWasteStock($wasteData)){
+                            ## MARK BATCH AS CLOSED
+                            $objBatch = new StoreBatchCardModel;
+                            $batchCollection = $objBatch->find($batchId);
+                            $batchCollection->review_status = "closed";                       
+                            if($batchCollection->save()){
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            } 
+                        } else{
                             $all_transactions[] = 0;
-                        }
+                        }                       
                             
                     } else {                       
                         $all_transactions[] = 0;

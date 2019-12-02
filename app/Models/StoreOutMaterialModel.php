@@ -18,6 +18,7 @@ class StoreOutMaterialModel extends Model
         'course_powder',        
         'rejection',
         'dust_product',
+        'loose_material',
         'loss_material',
         'yield',
         'status'             

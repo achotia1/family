@@ -59,25 +59,6 @@
                         <li class="err_unit"></li>
                     </ul>
                 </span>
-            </div>           
-
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Balance Stock
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="balance_stock" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Balance Stock should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_balance_stock"></li>
-                    </ul>
-                </span>
             </div>
 
             <div class="form-group col-md-6">
@@ -98,7 +79,7 @@
                     </ul>
                 </span>
             </div>
-            <div class="form-group col-md-12">
+            <div class="form-group col-md-6">
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>

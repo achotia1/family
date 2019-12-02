@@ -111,11 +111,18 @@ class StoreRawMaterialController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
 
         $companyId = self::_getCompanyId();
-        $data = $this->BaseModel->where('store_raw_materials.id', base64_decode(base64_decode($encID)))->where('store_raw_materials.company_id', $companyId)->first();
+        /*$data = $this->BaseModel->where('store_raw_materials.id', base64_decode(base64_decode($encID)))->where('store_raw_materials.company_id', $companyId)->first();
+        */
+        
+        $data = $this->BaseModel
+        ->with([   
+            'hasInMaterials' 
+        ])->where('company_id', $companyId)
+        ->find(base64_decode(base64_decode($encID)));
         if(empty($data)) {            
             return redirect()->route('admin.materials.index');
         }
-        
+        //dd($data);
         ## ALL DATA
         //$this->ViewData['material'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
         $this->ViewData['material'] = $data;
@@ -163,7 +170,7 @@ class StoreRawMaterialController extends Controller
         $collection->name           = $request->name;
         $collection->moq            = $request->moq;
         $collection->unit           = $request->unit;        
-        $collection->balance_stock  = $request->balance_stock; 
+        /*$collection->balance_stock  = $request->balance_stock; */
         $collection->material_type  = $request->material_type;       
         $collection->status         = !empty($request->status) ? 1 : 0;
         ## SAVE DATA
@@ -338,10 +345,12 @@ class StoreRawMaterialController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';                
-                $data[$key]['total_balance']  =  $row->total_balance. ' '.$row->unit;
+                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';
+                
+                $data[$key]['total_balance']  =  !empty($row->total_balance) ? number_format($row->total_balance, 2, '.', '').' '.$row->unit : '0.00'. ' '.$row->unit;
+
                 $data[$key]['material_type']  =  $row->material_type. " Material";
-                $data[$key]['moq']  =  $row->moq;              
+                $data[$key]['moq']  =  number_format($row->moq, 2, '.', '');              
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';

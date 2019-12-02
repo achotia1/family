@@ -105,44 +105,24 @@
                     </ul>
                 </span>
             </div>
-            <!--<div class="form-group col-md-6">
-                <label class="theme-blue">Loss Material
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Loose Material
                     <span class="required">*</span></label>
                 <input 
                     type="number" 
-                    name="loss_material"
-                    id="loss_material" 
+                    name="loose_material"                    
                     class="form-control" 
-                    required                    
+                    required
                     maxlength="20"
                     step="any"                  
-                    data-error="Loss Material should be number." 
+                    data-error="Loose Material should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
-                        <li class="err_loss_material"></li>
+                        <li class="err_loose_material"></li>
                     </ul>
                 </span>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Yield
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="yield"
-                    id="yield" 
-                    class="form-control" 
-                    required                    
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Yield should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_yield"></li>
-                    </ul>
-                </span>
-            </div>-->
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="submit" class="btn btn-success">Save</button>

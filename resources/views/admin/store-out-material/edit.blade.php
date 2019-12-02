@@ -105,6 +105,25 @@
                     </ul>
                 </span>
             </div>
+            <div class="form-group col-md-6">
+                <label class="theme-blue">Loose Material
+                    <span class="required">*</span></label>
+                <input 
+                    type="number" 
+                    name="loose_material"
+                    value="{{$material->loose_material}}"
+                    class="form-control" 
+                    required
+                    maxlength="20"
+                    step="any"                  
+                    data-error="Loose Material should be number." 
+                >
+                <span class="help-block with-errors">
+                    <ul class="list-unstyled">
+                        <li class="err_loose_material"></li>
+                    </ul>
+                </span>
+            </div>
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                     <button type="submit" class="btn btn-success">Save</button>

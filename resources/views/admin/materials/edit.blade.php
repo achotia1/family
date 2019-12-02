@@ -13,7 +13,14 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
-            
+            @php
+            $balanceStock = 0;
+            if(isset($material->hasInMaterials)){
+				foreach($material->hasInMaterials as $lot){
+					$balanceStock = $balanceStock + $lot->lot_balance;		
+				}	
+			}
+            @endphp
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Material Name <span class="required">*</span></label>
@@ -63,23 +70,16 @@
                 </span>
             </div>
             <div class="form-group col-md-6">
-                <label class="theme-blue">Balance Stock
-                    <span class="required">*</span></label>
+                <label class="theme-blue">Balance Stock</label>
                 <input 
                     type="number" 
                     name="balance_stock"
-                    value="{{ $material->balance_stock }}"
+                    value="{{ $balanceStock }}"
                     class="form-control" 
-                    required
+                    disabled
                     maxlength="20"
-                    step="any"                  
-                    data-error="Balance Stock should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_balance_stock"></li>
-                    </ul>
-                </span>
+                    step="any"                     
+                >               
             </div>
 
             <div class="form-group col-md-6">
