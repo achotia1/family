@@ -81,7 +81,7 @@
 
                             <td><b>Invoice Date:</b></td>
                             <td colspan="2">
-                                {{$object->invoice_date}}
+                                {{ date('d-m-Y', strtotime($object->invoice_date))}}
                             </td>
                         </tr>
                         <tr>                            
@@ -102,7 +102,7 @@
                             <td colspan="6"></td>
                         </tr>
                         <tr class="trExpense">
-                            <td colspan="6" class="title"><b>Invoice Product Details</b></td>
+                            <td colspan="6" class="title"><b>Product Details</b></td>
                         </tr>
                         <tr>
                             <td><b>Sr.No</b></td>
@@ -112,17 +112,45 @@
                             <td><b>Rate</b></td>                            
                             <td><b>Amount</b></td>                            
                         </tr>
-                        @foreach($object->hasSaleInvoiceProducts as $key=>$product)
-                       
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td>{{ $product->assignedProduct->name }} ({{ $product->assignedProduct->code }})</td>
-                            <td>{{ $product->assignedBatch->batch_card_no }}</td>          
-                            <td>{{ $product->quantity }} kg</td>          
-                            <td>{{ number_format($product->rate,2) }}</td>
-                            <td>{{ number_format($product->total_basic,2) }}</td>
-                        </tr>
+                        @php
+                            $index=1;
+                            $pId=[];
+                            $total_qty=0;
+                            $total_amount=0;
+                        @endphp
+                        @foreach($productBatch_data as $key=>$products)
+                            @foreach($products as $product)
+                                @php
+                                    $total_qty=$total_qty+$product->quantity;
+                                    $total_amount=$total_amount+$product->total_basic;
+                                @endphp 
+                            <tr>
+                                @if(!in_array($product->product_id,$pId))
+                                    @php
+                                        $pId[]=$product->product_id;
+                                    @endphp 
+                                <td>{{ $index }}</td>
+                                <td>{{ $product->assignedProduct->name }} ({{ $product->assignedProduct->code }})</td>
+                                @else
+                                <td></td>
+                                <td></td>
+                                @endif
+                                <td>{{ $product->assignedBatch->batch_card_no }}</td>          
+                                <td>{{ number_format($product->quantity,2) }} kg</td>          
+                                <td>{{ number_format($product->rate,2) }}</td>
+                                <td>{{ number_format($product->total_basic,2) }}</td>
+                            </tr>
+                            @endforeach 
+                        @php
+                            $index++;
+                        @endphp
                         @endforeach 
+                        <tr>
+                             <td colspan="3" align="right"><strong>Total</strong></td>
+                             <td colspan="2"><strong> {{ number_format($total_qty,2) }} kg </strong></td>
+                             
+                             <td><strong> {{ number_format($total_amount,2) }} </strong></td>
+                        </tr>
                        
                     </tbody>
                 </table>

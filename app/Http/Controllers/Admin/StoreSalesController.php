@@ -81,6 +81,7 @@ class StoreSalesController extends Controller
         $getStockProducts = $this->StoreSaleStockModel
                                 ->with(['assignedProduct'])
                                 ->where('company_id',$company_id)
+                                ->groupBy('product_id')
                                 ->get();
         //dd($getStockProducts->toArray());
 
@@ -239,6 +240,7 @@ class StoreSalesController extends Controller
         $getStockProducts = $this->StoreSaleStockModel
                                 ->with(['assignedProduct'])
                                 ->where('company_id',$company_id)
+                                ->groupBy('product_id')
                                 ->get();
 
         ## ALL DATA
@@ -417,8 +419,17 @@ class StoreSalesController extends Controller
                                 }]);
                             },'hasCustomer'])
                     ->find($id);
-        // dd($data->toArray());
+                    // ->where('id',$id)
+                    // ->get();
+        //dump($data->toArray());
+        $productBatch_data=[];
+        foreach($data->hasSaleInvoiceProducts as $key => $product) {
+            $productBatch_data[$product->product_id][$product->batch_id] = $product;
+        }
+        // dd($productBatch_data);
+
         $this->ViewData['object'] = $data;         
+        $this->ViewData['productBatch_data'] = $productBatch_data;         
         //->find($id)->toArray(); //
         //dd($this->ViewData['object']);
         return view($this->ModuleView.'view', $this->ViewData);
