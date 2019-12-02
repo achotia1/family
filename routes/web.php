@@ -108,6 +108,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				{
 					Route::get('/materials-in/getRecords',  'StoreInMaterialController@getRecords');
 					Route::post('/materials-in/bulkDelete',  'StoreInMaterialController@bulkDelete');
+					Route::get('/materials-in/correct-balance/{id}',  'StoreInMaterialController@correctBalance')->name($PREFIX.'.materials-in.correct-balance');
+					Route::post('/materials-in/updateBalance',  'StoreInMaterialController@updateBalance')->name($PREFIX.'.materials-in.updateBalance');
 					Route::resource('materials-in', 'StoreInMaterialController', ['as' => $PREFIX]);
 				});
 

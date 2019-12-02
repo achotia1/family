@@ -195,7 +195,7 @@ class StoreRawMaterialController extends Controller
             0 => 'store_raw_materials.id',
             1 => 'store_raw_materials.id',
             2 => 'store_raw_materials.name',
-            3 => 'store_raw_materials.balance_stock',            
+            3 => 'total_balance',            
             4 => 'store_raw_materials.material_type',
             5 => 'store_raw_materials.moq',
             6 => 'store_raw_materials.status',           
@@ -210,8 +210,13 @@ class StoreRawMaterialController extends Controller
        ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit,store_raw_materials.price_per_unit, store_raw_materials.total_price, store_raw_materials.opening_stock, store_raw_materials.balance_stock,store_raw_materials.trigger_qty,store_raw_materials.status,  store_issued_materials.quantity as issued_quantity')        
         ->leftjoin('store_issued_materials', 'store_issued_materials.material_id' , '=', 'store_raw_materials.id');*/
         $companyId = self::_getCompanyId();
+        /*$modelQuery =  $this->BaseModel
+        ->where('store_raw_materials.company_id', $companyId);*/
         $modelQuery =  $this->BaseModel
-        ->where('store_raw_materials.company_id', $companyId);
+       ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit, store_raw_materials.material_type,store_raw_materials.status, SUM(store_in_materials.lot_balance) as total_balance')
+        ->leftjoin('store_in_materials', 'store_in_materials.material_id' , '=', 'store_raw_materials.id')
+        ->where('store_raw_materials.company_id', $companyId)
+        ->where('store_in_materials.deleted_at', null);
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
@@ -229,14 +234,14 @@ class StoreRawMaterialController extends Controller
 
             }
 
-            if (!empty($request->custom['balance_stock'])) 
+            /*if (!empty($request->custom['balance_stock'])) 
             {
                 $custom_search = true;
                 $key = $request->custom['balance_stock'];               
                 $modelQuery = $modelQuery
                 ->where('store_raw_materials.balance_stock', 'LIKE', '%'.$key.'%');
 
-            }            
+            }*/            
             if (isset($request->custom['material_type'])) 
             {
                 $custom_search = true;
@@ -270,8 +275,7 @@ class StoreRawMaterialController extends Controller
                 {
                     $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');   
                     $query->orwhere('store_raw_materials.moq', 'LIKE', '%'.$search.'%');
-
-                    $query->orwhere('store_raw_materials.balance_stock', 'LIKE', '%'.$search.'%');   
+                    
                     $query->orwhere('store_raw_materials.unit', 'LIKE', '%'.$search.'%');   
                 });              
 
@@ -293,17 +297,30 @@ class StoreRawMaterialController extends Controller
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
         //dd($modelQuery->toSql());
-        $object = $modelQuery->skip($start)
+        $modelQuery =  $modelQuery->skip($start)
         ->take($length)
-        ->get(['store_raw_materials.id', 
+        ->groupBy('store_in_materials.material_id');
+        if (!empty($request->custom['total_balance'])) 
+        {
+            $custom_search = true;
+            $key = $request->custom['total_balance'];                
+            $modelQuery = $modelQuery
+            ->havingRaw('sum(store_in_materials.lot_balance) > '.$key );
+        }
+        /*$object = $modelQuery->skip($start)
+        ->take($length)
+        ->get();*/ 
+        $object = $modelQuery
+         ->get(); 
+
+        /*['store_raw_materials.id', 
             'store_raw_materials.name', 
             'store_raw_materials.moq',            
             'store_raw_materials.unit',
             'store_raw_materials.material_type',             
             'store_raw_materials.balance_stock', 
             'store_raw_materials.status',            
-        ]);  
-
+        ]*/
 
         /*--------------------------------------
         |  DATA BINDING
@@ -321,8 +338,8 @@ class StoreRawMaterialController extends Controller
 
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
-                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';
-                $data[$key]['balance_stock']  =  $row->balance_stock. ' '.$row->unit;
+                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';                
+                $data[$key]['total_balance']  =  $row->total_balance. ' '.$row->unit;
                 $data[$key]['material_type']  =  $row->material_type. " Material";
                 $data[$key]['moq']  =  $row->moq;              
 
@@ -347,8 +364,9 @@ class StoreRawMaterialController extends Controller
     ## SEARCH HTML
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';
-    $searchHTML['name']     =  '<input type="text" class="form-control" id="name" value="'.($request->custom['name']).'" placeholder="Search...">';
-    $searchHTML['balance_stock']     =  '<input type="text" class="form-control" id="balance-stock" value="'.($request->custom['balance_stock']).'" placeholder="Search...">'; 
+    $searchHTML['name']     =  '<input type="text" class="form-control" id="name" value="'.($request->custom['name']).'" placeholder="Search...">';   
+    $searchHTML['total_balance']   =  '<input type="text" class="form-control" id="total-balance" value="'.($request->custom['total_balance']).'" placeholder="More than...">';
+    
     $searchHTML['material_type']   =  '<select name="material_type" id="material-type" class="form-control my-select">
             <option class="theme-black blue-select" value="">Material Type</option>
             <option class="theme-black blue-select" value="Raw" '.( $request->custom['material_type'] == "Raw" ? 'selected' : '').' >Raw Material</option>
@@ -361,20 +379,17 @@ class StoreRawMaterialController extends Controller
             <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>
             <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Inactive</option>            
             </select>';
-    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-
-    /*if ($custom_search) 
+   
+    if ($custom_search) 
     {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger">Remove Filter</a></div>';
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
     }
     else
     {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary">Search</a></div>';
-    }*/
+        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    }
 
     $searchHTML['actions'] = $seachAction;
-
-
     array_unshift($data, $searchHTML);
 
     ## WRAPPING UP

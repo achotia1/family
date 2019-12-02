@@ -229,21 +229,7 @@ class StoreOutMaterialController extends Controller
         ])->where('company_id', $companyId)
         ->find($id);
         $this->ViewData['object'] = $outputDetails;
-        //dd($outputDetails);
-        /*$this->ViewData['object'] = $this->BaseModel
-        ->with([   
-            'hasProductionMaterials' => function($q)
-            {  
-                $q->with('mateialName');
-                $q->with('hasLot');
-            }
-        ])->with(['assignedBatch' => function($q){
-                $q->with('assignedProduct');
-        }
-        ])
-        ->find($id);*/         
-        //->find($id)->toArray(); //
-        //dd($this->ViewData['object']);
+        //dd($outputDetails);        
         return view($this->ModuleView.'view', $this->ViewData);
     }
     public function showBatchViewReport($encId)

@@ -6,7 +6,7 @@ $(document).ready(function ()
 })
 
 // submitting form after validation
-$('#materialInForm').validator().on('submit', function (e) 
+$('#correctBalForm').validator().on('submit', function (e) 
 {
     if (!e.isDefaultPrevented()) {
 
@@ -17,7 +17,7 @@ $('#materialInForm').validator().on('submit', function (e)
         $('.box-body').LoadingOverlay("show", {
             background: "rgba(165, 190, 100, 0.4)",
         });
-		
+		console.log(action);
         axios.post(action, formData)
             .then(function (response) {
                 const resp = response.data;
