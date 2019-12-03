@@ -265,7 +265,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li>
+            <li class="{{ active('admin/batch-summary') }}">
               <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
           </ul>
@@ -280,10 +280,10 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li>
+            <li class="{{ active('admin/sales') }}">
               <a href="{{ route('admin.sales.index') }}"><i class="fa fa-hand-o-right"></i> View Sales</a>
             </li>
-            <li>
+            <li class="{{ active('admin/sales/create') }}">
               <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add Sale</a>
             </li>
           </ul>
