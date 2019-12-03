@@ -142,7 +142,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);
 				/*});*/
 
-				// Return
+				// Return Material
 				Route::group(['middleware' => ['permission:store-manage-returned-material']], function () use($PREFIX)
 				{
 					Route::post('/return/getMaterialLots',  'StoreReturnedMaterialController@getMaterialLots');
@@ -178,6 +178,17 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('/sales/getRecords',  'StoreSalesController@getRecords');
 				Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
 				Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
+				/*});*/
+
+
+				// Return Sale
+				/*Route::group(['prefix' => 'sale', function () use($PREFIX)
+				{*/
+					//,'middleware' => ['permission:store-manage-returned-sale']]
+					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
+					Route::post('/return-sale/getSaleProducts',  'StoreReturnedSaleController@getSaleProducts');
+					Route::get('/return-sale/getRecords',  'StoreReturnedSaleController@getRecords');
+					Route::resource('return-sale', 'StoreReturnedSaleController', ['as' => $PREFIX]);
 				/*});*/
 
 
