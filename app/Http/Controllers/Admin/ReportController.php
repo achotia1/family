@@ -312,6 +312,7 @@ public function getAgedMaterialRecords(Request $request)
         $modelQuery = $model       
         ->selectRaw('store_in_materials.id, store_in_materials.material_id, store_in_materials.lot_no,store_in_materials.lot_balance,store_in_materials.last_used_at,store_in_materials.created_at, store_raw_materials.name')       
         ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
+        ->where('store_in_materials.lot_balance', '>', 0)
         ->where('store_in_materials.company_id', $companyId)
         ->where('store_raw_materials.deleted_at', null);
         ## GET TOTAL COUNT
