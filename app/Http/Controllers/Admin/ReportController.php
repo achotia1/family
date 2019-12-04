@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\StoreOutMaterialModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
-
+use App\Models\StoreInMaterialModel;
+use App\Models\StoreRawMaterialModel;
 use App\Traits\GeneralTrait;
+use Carbon\Carbon;
 
 class ReportController extends Controller
 {   
@@ -254,6 +256,155 @@ class ReportController extends Controller
 
 
     array_unshift($data, $searchHTML);*/
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+}
+public function agedMaterialIndex()
+{
+    ## DEFAULT SITE SETTINGS
+    $this->ViewData['moduleTitle']  = 'Aged Material Report';
+    $this->ViewData['moduleAction'] = 'Aged Material Report';
+    $this->ViewData['modulePath']   = $this->ModulePath;        
+    //dd('aged report');
+    // view file with data
+    return view($this->ModuleView.'agedMaterial',$this->ViewData);
+}
+public function getAgedMaterialRecords(Request $request)
+{
+    /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_in_materials.id',            
+            1 => 'store_in_materials.lot_no',
+            2 => 'store_in_materials.material_id',            
+            3 => 'store_in_materials.lot_balance',
+            4 => 'store_in_materials.last_used_at',
+            5 => 'store_in_materials.created_at',                    
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY        
+        $companyId = self::_getCompanyId();        
+        $model = new StoreInMaterialModel;
+        $modelQuery = $model       
+        ->selectRaw('store_in_materials.id, store_in_materials.material_id, store_in_materials.lot_no,store_in_materials.lot_balance,store_in_materials.last_used_at,store_in_materials.created_at, store_raw_materials.name')       
+        ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
+        ->where('store_in_materials.company_id', $companyId)
+        ->where('store_raw_materials.deleted_at', null);
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['interval-time'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['interval-time'];
+                
+                /*$modelQuery = $modelQuery
+                ->where('store_in_materials.created_at', '<=', 'now() - INTERVAL '.$key.' DAY');                
+                $modelQuery = $modelQuery->where(function($query)use($key) {
+                $query->where('last_used_at', null)
+                    ->orWhere('last_used_at', '<=', 'NOW() - INTERVAL '.$key.' DAY'); 
+                    });*/
+                //$keyDate = '2019-11-30';
+                $modelQuery = $modelQuery
+                ->where('store_in_materials.created_at', '<=', Carbon::now()->subDays($key));                
+                $modelQuery = $modelQuery->where(function($query)use($key) {
+                    $query->where('last_used_at', null)
+                    ->orWhere('last_used_at', '<=', Carbon::now()->subDays($key)); 
+                });
+            }
+            
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                 $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('store_in_materials.lot_no', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');
+                    
+                    $query->orwhere('store_in_materials.lot_balance', 'LIKE', '%'.$search.'%');   
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_in_materials.last_used_at', 'ASC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+        //dd($object);
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {
+            $count =1;
+            foreach ($object as $key => $row)
+            {
+                $last_used_at = 'Never';
+                if($row->last_used_at != null)
+                    $last_used_at = date('d M Y',strtotime($row->last_used_at));
+
+                        
+                $data[$key]['id'] = $row->id;
+                $data[$key]['lot_no']  = $row->lot_no;
+                $data[$key]['material_id']  =  $row->name;
+                $data[$key]['lot_balance']  =  number_format($row->lot_balance, 2, '.', '');
+                $data[$key]['last_used_at']  =  $last_used_at;
+                $data[$key]['created_at']  =  date('d M Y',strtotime($row->created_at));
+
+            }
+        }    
 
     ## WRAPPING UP
     $this->JsonData['draw']             = intval($request->draw);

@@ -76,12 +76,19 @@ class StoreInMaterialModel extends Model
 
         return $balanceMaterials;
     }
-    public function updateBalance($inMaterialcollection, $quantity, $add=false) {
-        $return = false;
-        $inLotBal = ($inMaterialcollection->lot_balance) - $quantity;
-        if($add)
-            $inLotBal = ($inMaterialcollection->lot_balance) + $quantity;        
+    public function updateBalance($inMaterialcollection, $quantity, $add=false, $prevDate=null) {
+        $return = false;        
+        $lastUsedAt = $prevDate;                    
         
+        if($add)
+            $inLotBal = ($inMaterialcollection->lot_balance) + $quantity;
+        else{
+            $inLotBal = ($inMaterialcollection->lot_balance) - $quantity;
+            $lastUsedAt = Carbon::today();            
+        }
+       
+        ## UPDATE LAST USED DATE
+        $inMaterialcollection->last_used_at = $lastUsedAt;        
         $inMaterialcollection->lot_balance = $inLotBal;        
         if($inMaterialcollection->save())
             $return = true;
