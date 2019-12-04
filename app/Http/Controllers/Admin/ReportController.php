@@ -307,6 +307,7 @@ public function getAgedMaterialRecords(Request $request)
         ------------------------------*/
 
         ## START MODEL QUERY        
+        //$companyId = self::_getCompanyId();
         $companyId = self::_getCompanyId();        
         $model = new StoreInMaterialModel;
         $modelQuery = $model       
