@@ -9,7 +9,7 @@ $(document).ready(function ()
     $('#sale_invoice_id').on('change', function() {
         var sale_invoice_id=this.value;
         
-        //checkExistingRecord(plan_id);
+        checkExistingRecord(sale_invoice_id);
         getSaleProducts(sale_invoice_id);
         
      });
@@ -19,6 +19,30 @@ $(document).ready(function ()
     
 })
 
+function checkExistingRecord(sale_invoice_id)
+{    
+    //var plan_id = $(batch).val();
+    var action = ADMINURL + '/return-sale/checkExistingRecord';
+
+    axios.post(action, {sale_invoice_id:sale_invoice_id})
+    .then(response => 
+    {
+        // console.log(response);
+        // return false;
+        //var product = response.data.product;
+       // $("#product_id").val(product);
+        var url = response.data.url;
+        if(url != ''){
+            window.location.href = url;
+        }
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}
+
 function getSaleProducts(sale_invoice_id){
     var action = ADMINURL + '/return-sale/getSaleProducts';
     axios.post(action, {sale_invoice_id:sale_invoice_id})
@@ -27,6 +51,9 @@ function getSaleProducts(sale_invoice_id){
         // $("#material_id").empty(); 
         plan_options=response.data.html;
         $("#product_0").html(response.data.html); 
+        if(response.data.customerHtml){
+            $("#customer_id").html(response.data.customerHtml); 
+        }
     })
     .catch(error =>
     {
