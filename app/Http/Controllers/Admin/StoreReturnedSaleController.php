@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 ## MODELS
+use App\Models\StoreReturnedSaleModel;
+use App\Models\StoreReturnedSalesHasProductsModel;
 use App\Models\StoreSaleInvoiceModel;
 use App\Models\StoreSaleInvoiceHasProductsModel;
 use App\Models\AdminUserModel;
@@ -13,18 +15,19 @@ use App\Models\ProductsModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreSaleStockModel;
 
-use App\Http\Requests\Admin\StoreSaleRequest;
+use App\Http\Requests\Admin\StoreReturnedSaleRequest;
 use App\Traits\GeneralTrait;
 use DB;
 
-class StoreSalesController extends Controller
+class StoreReturnedSaleController extends Controller
 {
 
     private $BaseModel;
     use GeneralTrait;
 
     public function __construct(
-
+        StoreReturnedSaleModel $StoreReturnedSaleModel,
+        StoreReturnedSalesHasProductsModel $StoreReturnedSalesHasProductsModel,
         StoreSaleInvoiceModel $StoreSaleInvoiceModel,
         StoreSaleInvoiceHasProductsModel $StoreSaleInvoiceHasProductsModel,
         AdminUserModel $AdminUserModel,
@@ -32,18 +35,20 @@ class StoreSalesController extends Controller
         StoreSaleStockModel $StoreSaleStockModel
     )
     {
-        $this->BaseModel  = $StoreSaleInvoiceModel;
+        $this->BaseModel  = $StoreReturnedSaleModel;
+        $this->StoreReturnedSalesHasProductsModel = $StoreReturnedSalesHasProductsModel;
+        $this->StoreSaleInvoiceModel             = $StoreSaleInvoiceModel;
         $this->StoreSaleInvoiceHasProductsModel  = $StoreSaleInvoiceHasProductsModel;
-        $this->AdminUserModel  = $AdminUserModel;
+        $this->AdminUserModel       = $AdminUserModel;
         $this->StoreBatchCardModel  = $StoreBatchCardModel;
         $this->StoreSaleStockModel  = $StoreSaleStockModel;
 
         $this->ViewData = [];
         $this->JsonData = [];
 
-        $this->ModuleTitle = 'Sales';
-        $this->ModuleView  = 'admin.sales.';
-        $this->ModulePath = 'admin.sales.';
+        $this->ModuleTitle = 'Returned Sale';
+        $this->ModuleView  = 'admin.return-sale.';
+        $this->ModulePath = 'admin.return-sale.';
 
         ## PERMISSION MIDDELWARE
         // $this->middleware(['permission:store-sale-listing'], ['only' => ['getRecords']]);
@@ -71,13 +76,16 @@ class StoreSalesController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
         
         $company_id = self::_getCompanyId();
+        $invoices =  $this->StoreSaleInvoiceModel
+                                ->where('company_id',$company_id)
+                                ->get();
+
         $customers =  $this->AdminUserModel
                                 ->whereHas('roles', function($query) {
                                     $query->where('name', '=','customer');
                                 })
                                 ->where('users.status',1)
                                 ->get();
-        
         $getStockProducts = $this->StoreSaleStockModel
                                 ->with(['assignedProduct'])
                                 ->where('company_id',$company_id)
@@ -89,15 +97,16 @@ class StoreSalesController extends Controller
         // $products = $objProduct->getProducts($company_id);
         // $this->ViewData['products']   = $products;
 
+        $this->ViewData['invoices']  = $invoices;
         $this->ViewData['customers']  = $customers;
         $this->ViewData['getStockProducts']   = $getStockProducts;
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
 
-    public function store(StoreSaleRequest $request)
+    public function store(StoreReturnedSaleRequest $request)
     {        
-      // dd($request->all());
+        // dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create record, Something went wrong on server.'; 
         if(empty($request->sales)) 
@@ -122,22 +131,29 @@ class StoreSalesController extends Controller
                 if (!empty($request->sales) && count($request->sales) > 0) 
                 {                    
                     ## ADD SALE INVOICE PRODUCTS
-                    foreach ($request->sales as $pkey => $sale) 
+                    foreach ($request->sales as $pkey => $return) 
                     {
-                        $saleObj = new $this->StoreSaleInvoiceHasProductsModel;
-                        $saleObj->sale_invoice_id = $collection->id;
-                        $saleObj->product_id = !empty($sale['product_id']) ? $sale['product_id'] : 0;
-                        $saleObj->batch_id   =  !empty($sale['batch_id']) ? $sale['batch_id'] : 0;
-                        $saleObj->quantity   = !empty($sale['quantity']) ? $sale['quantity'] : 0;
-                        $saleObj->rate       = !empty($sale['rate']) ? $sale['rate'] : 0;
-                        $saleObj->total_basic = $sale['quantity']*$sale['rate'];
-                       // dd($saleObj);
-                        if ($saleObj->save()) 
-                        {                            
+                        $saleReturnedObj = new $this->StoreReturnedSalesHasProductsModel;
+                        $saleReturnedObj->returned_id = $collection->id;
+                        $saleReturnedObj->product_id = !empty($return['product_id']) ? $return['product_id'] : 0;
+                        $saleReturnedObj->batch_id   =  !empty($return['batch_id']) ? $return['batch_id'] : 0;
+                        $saleReturnedObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
+                        // $saleReturnedObj->rate       = !empty($sale['rate']) ? $sale['rate'] : 0;
+                        // $saleReturnedObj->total_basic = $sale['quantity']*$sale['rate'];
+                       // dd($saleReturnedObj);
+                        if ($saleReturnedObj->save()) 
+                        {      
+                            ## Update Returned qty in Sale Invoice
+                            $updateQtyQry = DB::table('store_sale_invoice_has_products')
+                                                            ->where('sale_invoice_id', $request->sale_invoice_id)
+                                                            ->where('product_id', $return['product_id'])
+                                                            ->where('batch_id', $return['batch_id'])
+                                                            ->update(['returned_quantity' => $return['quantity']]);
+
                             ## Update Sales Stock balance qty
                             $saleStock = $this->StoreSaleStockModel
-                                ->where("store_sales_stock.product_id",$sale['product_id'])
-                                ->where("store_sales_stock.batch_id",$sale['batch_id'])
+                                ->where("store_sales_stock.product_id",$return['product_id'])
+                                ->where("store_sales_stock.batch_id",$return['batch_id'])
                                 ->where("store_sales_stock.company_id",$companyId)
                                 ->get(['store_sales_stock.id','store_sales_stock.balance_quantity']);     
 
@@ -145,7 +161,7 @@ class StoreSalesController extends Controller
                             {
                                 $stock = $saleStock->first();
 
-                                $balance_quantity = $stock->balance_quantity-$sale['quantity'];
+                                $balance_quantity = $stock->balance_quantity+$return['quantity'];
                                 $updateQtyQry = DB::table('store_sales_stock')
                                                             ->where('id', $stock->id)
                                                             ->update(['balance_quantity' => $balance_quantity]);
@@ -251,7 +267,7 @@ class StoreSalesController extends Controller
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
-    public function update(StoreSaleRequest $request, $encID)
+    public function update(StoreReturnedSaleRequest $request, $encID)
     {
         // dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
@@ -440,9 +456,9 @@ class StoreSalesController extends Controller
         
         $collection->company_id   = self::_getCompanyId();
         $collection->user_id      = auth()->user()->id;
+        $collection->sale_invoice_id   = $request->sale_invoice_id;
         $collection->customer_id  = $request->customer_id;
-        $collection->invoice_no   = $request->invoice_no;
-        $collection->invoice_date = date('Y-m-d',strtotime($request->invoice_date));   
+        $collection->return_date = date('Y-m-d',strtotime($request->return_date));   
         //Save data
         $collection->save();
         
@@ -469,12 +485,12 @@ class StoreSalesController extends Controller
 
         ## FILTER COLUMNS
         $filter = array(
-            0 => 'store_sale_invoice.id',
-            1 => 'store_sale_invoice.id',
+            0 => 'store_returned_sales.id',
+            1 => 'store_returned_sales.id',
             2 => 'store_sale_invoice.invoice_no',
-            3 => 'store_sale_invoice.invoice_date',
+            3 => 'store_returned_sales.return_date',
             4 => 'users.id',
-            5 => 'store_sale_invoice.id',
+            5 => 'store_returned_sales.id',
         );
 
             /*--------------------------------------
@@ -484,8 +500,9 @@ class StoreSalesController extends Controller
             ## START MODEL QUERY    
             //$modelQuery =  $this->BaseModel;
             $modelQuery =  $this->BaseModel        
-                                ->join('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
-                                ->where('store_sale_invoice.company_id', $companyId);
+                                ->join('users', 'users.id' , '=', 'store_returned_sales.customer_id')
+                                ->join('store_sale_invoice', 'store_sale_invoice.id' , '=', 'store_returned_sales.sale_invoice_id')
+                                ->where('store_returned_sales.company_id', $companyId);
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
@@ -504,16 +521,16 @@ class StoreSalesController extends Controller
                     ->where('store_sale_invoice.invoice_no',  'LIKE', '%'.$key.'%');
                 }
 
-                if (!empty($request->custom['invoice_date'])) 
+                if (!empty($request->custom['return_date'])) 
                 {
                     $custom_search = true;
 
-                    $dateObject = date_create_from_format("d-m-Y",$request->custom['invoice_date']);
-                    $invoice_date   = date_format($dateObject, 'Y-m-d'); 
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['return_date']);
+                    $return_date   = date_format($dateObject, 'Y-m-d'); 
 
                     //$key = $request->custom['invoice_date'];
                     $modelQuery = $modelQuery
-                    ->whereDate('store_sale_invoice.invoice_date', $invoice_date);
+                    ->whereDate('store_returned_sales.return_date', $return_date);
                 }
 
                 if (!empty($request->custom['customer_id'])) 
@@ -547,7 +564,7 @@ class StoreSalesController extends Controller
             ## OFFSET AND LIMIT
             if(empty($column))
             {   
-                $modelQuery = $modelQuery->orderBy('store_sale_invoice.id', 'DESC');
+                $modelQuery = $modelQuery->orderBy('store_returned_sales.id', 'DESC');
                 //$modelQuery = $modelQuery->orderBy('vehicles.chassis_number', 'ASC');           
             }
             else
@@ -558,9 +575,9 @@ class StoreSalesController extends Controller
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get([
-                    'store_sale_invoice.id', 
+                    'store_returned_sales.id', 
                     'store_sale_invoice.invoice_no',
-                    'store_sale_invoice.invoice_date',
+                    'store_returned_sales.return_date',
                     'users.contact_name',
                     'users.company_name',
                 ]);    
@@ -585,7 +602,7 @@ class StoreSalesController extends Controller
                     $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="sales[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
                     $data[$key]['invoice_no']   = $row->invoice_no;
 
-                    $data[$key]['invoice_date'] = date('d M Y',strtotime($row->invoice_date));
+                    $data[$key]['return_date'] = date('d M Y',strtotime($row->return_date));
                     $data[$key]['customer_name'] = $row->contact_name." ( ".$row->company_name." )";
                             
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
@@ -622,7 +639,7 @@ class StoreSalesController extends Controller
         $searchHTML['id']       =  '';
         $searchHTML['select']   =  '';
         $searchHTML['invoice_no']  =    '<input type="text" class="form-control" id="invoice-no" value="'.($request->custom['invoice_no']).'" placeholder="Search...">';
-        $searchHTML['invoice_date']   =  '<input type="text" autocomplete="off" class="form-control datepicker" id="invoice-date" value="'.($request->custom['invoice_date']).'" placeholder="Search...">';   
+        $searchHTML['return_date']   =  '<input type="text" autocomplete="off" class="form-control datepicker" id="return-date" value="'.($request->custom['return_date']).'" placeholder="Search...">';   
         $searchHTML['customer_name'] = $customer_string;
        
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
@@ -644,7 +661,7 @@ class StoreSalesController extends Controller
     public function destroy($encID)
     {
         $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to delete sale, Something went wrong on server.';
+        $this->JsonData['msg'] = 'Failed to delete returned sale, Something went wrong on server.';
 
         $id = base64_decode(base64_decode($encID));
 
@@ -654,39 +671,47 @@ class StoreSalesController extends Controller
                 $companyId = self::_getCompanyId();
 
                 $object = $this->BaseModel->where('id', $id)->get();
+                // dump($object);
                 foreach ($object as $key => $collection) 
                 {
                     if(!empty($collection->id))
                     {
 
-                        $previousSaleObject = $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->get();
-                        if(!empty($previousSaleObject) && count($previousSaleObject)>0)
+                        $previousRetunedSaleObject = $this->StoreReturnedSalesHasProductsModel->where('returned_id', $collection->id)->get();
+                        // dd($previousRetunedSaleObject);
+                        if(!empty($previousRetunedSaleObject) && count($previousRetunedSaleObject)>0)
                         {
-                            foreach($previousSaleObject as $previous) 
+                            foreach($previousRetunedSaleObject as $previous) 
                             {
-                               $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
-                                            WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
-                                $collectionSale = collect(DB::select(DB::raw($sqlQuery)));
+                                ## Update Returned qty to zero in Sale Invoice
+                                $updateQtyQry = DB::table('store_sale_invoice_has_products')
+                                                            ->where('sale_invoice_id', $collection->sale_invoice_id)
+                                                            ->where('product_id', $previous->product_id)
+                                                            ->where('batch_id', $previous->batch_id)
+                                                            ->update(['returned_quantity' => 0]);
 
-                                if(!empty($collectionSale) && count($collectionSale)>0)
+                                ## Update Sales Stock balance qty
+                                $saleStock = $this->StoreSaleStockModel
+                                    ->where("store_sales_stock.product_id",$previous->product_id)
+                                    ->where("store_sales_stock.batch_id",$previous->batch_id)
+                                    ->where("store_sales_stock.company_id",$companyId)
+                                    ->get(['store_sales_stock.id','store_sales_stock.balance_quantity']);     
+
+                                if(!empty($saleStock))
                                 {
-                                    $salesData = $collectionSale->first();
-                                    if($salesData->sssid)
-                                    {
-                                       ##update stock balance quantity in stock
-                                        $balance_quantity=$previous->quantity+$salesData->balance_quantity;
-                                        $updateQtyQry = DB::table('store_sales_stock')
-                                                        ->where('id', $salesData->sssid)
-                                                        ->update(['balance_quantity' => $balance_quantity]);
+                                    $stock = $saleStock->first();
 
-                                    }
-
+                                    $balance_quantity = $stock->balance_quantity-$previous->quantity;
+                                    $updateQtyQry = DB::table('store_sales_stock')
+                                                                ->where('id', $stock->id)
+                                                                ->update(['balance_quantity' => $balance_quantity]);
                                 }
+                               
                             }
                         }
 
                         
-                        $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id',$collection->id)->delete();
+                        $this->StoreReturnedSalesHasProductsModel->where('returned_id',$collection->id)->delete();
 
                     }
                     
@@ -710,28 +735,112 @@ class StoreSalesController extends Controller
     }
 
 
-    public function getProductBatches(Request $request)
+    public function getSaleProducts(Request $request)
     {
         // dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get sale products, Something went wrong on server.';
+        try 
+        {
+            // $material_id   = $request->material_id;
+            $sale_invoice_id   = $request->sale_invoice_id;
+            $companyId = self::_getCompanyId();
+            // dd($companyId);
+            // echo "string:".$batch_id;
+
+            $get_sale_products = $this->StoreSaleInvoiceHasProductsModel
+                                    ->join('products','products.id','store_sale_invoice_has_products.product_id')
+                                  ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
+                                  // ->where("products.status",1)
+                                  ->groupBy('store_sale_invoice_has_products.product_id')
+                                  ->get([
+                                        'products.id',
+                                        'products.name',
+                                        'products.code'
+                                        ]);
+            // dd($get_sale_products);    
+
+            $html="<option value=''>Select Product</option>";
+            foreach($get_sale_products as $product){
+                
+                $html.="<option value='".$product->id."'>".$product->code." (".$product->name.")"."</option>";
+
+            }                              
+
+            /*$raw_materials = $this->StoreRawMaterialModel
+                                   ->join('store_production_has_materials','material_id','store_raw_materials.id')
+                                   ->join('store_productions','store_production_has_materials.production_id','store_production_has_materials.id')
+                                  ->where("store_productions.id",$plan_id)
+                                  ->get(['store_raw_materials.id',
+                                        'store_raw_materials.name']);*/
+
+            /*$get_production_batches = $this->StoreProductionModel
+                                        ->join('store_production_has_materials','production_id','store_productions.id')
+                                        ->where('store_productions.id',$plan_id)
+                                        ->where('company_id',$companyId)
+                                        ->get(['material_id']);
+                                       // ->with(['hasProductionMaterials'])
+           // dd($get_production_batches->toArray());
+            $material_ids = array_column($get_production_batches->toArray(), "material_id");
+
+            $raw_materials = $this->StoreRawMaterialModel
+                                  ->whereIn("id",$material_ids)
+                                  ->get(['id','name']);
+          
+            // dd($raw_materials->toArray());
+            $html="<option value=''>Select Material</option>";
+            foreach($raw_materials as $material){
+                $selected="";
+                
+                $html.="<option value='".$material->id."' $selected>".$material->name."</option>";
+
+            }*/
+            // dd($get_production_batches,$raw_materials);
+            /*$module = "non_material_module";
+            if(!empty($material_id)){
+                $html       = self::_getBatchMaterials($batch_id,$material_id,$module);
+            }else{
+                $html       = self::_getBatchMaterials($batch_id,false,$module);
+            }*/
+ 
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']     = 'Sale Products';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+
+    public function getProductBatches(Request $request)
+    {
+       // dd($request->all());
         $this->JsonData['status'] = 'error';
         $this->JsonData['msg'] = 'Failed to get product batches, Something went wrong on server.';
         try 
         {
             $company_id  = self::_getCompanyId();
             $product_id = $request->product_id;
+            $sale_invoice_id = $request->sale_invoice_id;
             $selected_val = $request->selected_val;
             $editFlag = $request->editFlag;
 
-           $getBatches = $this->StoreSaleStockModel->with(['assignedBatch'])
-                                ->where("store_sales_stock.product_id",$product_id)
-                                ->where("store_sales_stock.company_id",$company_id)
-                                ->get();                            
+            $getBatches = $this->StoreSaleInvoiceHasProductsModel->with(['assignedBatch'])
+                                ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
+                                ->where("store_sale_invoice_has_products.product_id",$product_id)
+                                ->get();  
+           // dd($getBatches->toArray());                                                          
             $html="<option value=''>Select Batch</option>";
             foreach($getBatches as $batch){        
                 if (!in_array($batch->batch_id, $selected_val))
                 {
-                    $balance_quantity=$batch->balance_quantity;
-                    if($editFlag==1){
+                    $balance_quantity=$batch->quantity;
+                    /*if($editFlag==1){
                         $getqty = $this->StoreSaleInvoiceHasProductsModel
                                 ->where("store_sale_invoice_has_products.batch_id",$batch->batch_id)
                                 ->where("store_sale_invoice_has_products.product_id",$product_id)
@@ -740,7 +849,7 @@ class StoreSalesController extends Controller
                             #To add the quantity for proper validations
                             $balance_quantity=$batch->balance_quantity+$getqty->quantity;
                         }
-                    }
+                    }*/
                     if(!empty($balance_quantity) && $balance_quantity>0)
                     {
                         $html.="<option data-qty='".$balance_quantity."' value='".$batch->batch_id."'>".$batch->assignedBatch->batch_card_no." (".$balance_quantity.")</option>";
@@ -787,94 +896,5 @@ class StoreSalesController extends Controller
         return response()->json($this->JsonData);   
     }
 
-    /*public function bulkDelete(Request $request)
-    {
-        $companyId = self::_getCompanyId();
-
-        DB::beginTransaction();
-        $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to delete materials, Something went wrong on server.';
-
-        if (!empty($request->arrEncId)) 
-        {
-            $arrID = array_map(function($item)
-            {
-                return base64_decode(base64_decode($item));
-
-            }, $request->arrEncId);
-
-            try 
-            {
-                $object = $this->BaseModel->whereIn('id', $arrID)->get();
-                foreach ($object as $key => $collection) 
-                {
-
-                    if(!empty($collection->id))
-                    {
-
-                        $returnedMaterialObject = $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->get();
-                    if(!empty($returnedMaterialObject) && count($returnedMaterialObject)>0)
-                    {
-                        foreach($returnedMaterialObject as $mkey => $mvalue) 
-                        {
-                           
-
-                             $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
-                                        join store_productions ON store_production_has_materials.production_id=store_productions.id 
-                                                WHERE store_productions.batch_id = '".$collection->batch_id."'
-                                                AND store_productions.company_id = '".$companyId."'
-                                                AND store_production_has_materials.material_id = '".$mvalue->material_id."'
-                                                AND store_production_has_materials.lot_id = '".$mvalue->lot_id."'";
-                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
-                            if(!empty($collectionReturn) && count($collectionReturn)>0)
-                            {
-                                $returnData = $collectionReturn->first();
-                                if($returnData->spmid)
-                                {
-                                   ##update returned quantity in production and update returned qty+actual qty in store
-                                    $updateQtyQry = DB::table('store_production_has_materials')
-                                                                ->where('id', $returnData->spmid)
-                                                                ->update(['returned_quantity' => 0]);
-
-                                    $updateLotBalance = $this->StoreInMaterialModel->find($mvalue->lot_id);
-                                    if($updateLotBalance)
-                                    {
-                                        $updateLotBalance->lot_balance=($updateLotBalance->lot_balance-$returnData->returned_quantity);
-                                        if($updateLotBalance->save()) 
-                                        {
-                                           $all_transactions[] = 1;
-                                        }else{
-                                           $all_transactions[] = 0;
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-                        }
-                    }
-
-                    
-                    $this->StoreReturnedHasMaterialModel->where('returned_id',$collection->id)->delete();
-
-                    }
-                    
-                    $this->BaseModel->where('id', $collection->id)->delete();
-                }
-
-                DB::commit();
-
-                $this->JsonData['status'] = 'success';
-                $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
-
-            } catch (Exception $e) 
-            {
-               $this->JsonData['exception'] = $e->getMessage();
-                DB::rollback();
-           }
-       }
-
-       return response()->json($this->JsonData);   
-    }*/
+    
 }

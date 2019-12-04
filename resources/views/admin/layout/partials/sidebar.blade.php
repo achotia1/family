@@ -266,16 +266,12 @@
             </span>
           </a>
           <ul class="treeview-menu">
-           
             <li class="{{ active('admin/batch-summary') }}">
               <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
-           
-          
             <li class="{{ active('admin/aged-materials') }}">
               <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
-            </li>
-            
+            </li>            
           </ul>
         </li>
          
@@ -283,17 +279,35 @@
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
             <i class="fa fa-inbox"></i>
-            <span>Sales Managemenet</span>
+            <span>Sales Management</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>
           </a>
           <ul class="treeview-menu">
-            <li>
+            <li class="{{ active('admin/sales') }}">
               <a href="{{ route('admin.sales.index') }}"><i class="fa fa-hand-o-right"></i> View Sales</a>
             </li>
-            <li>
+            <li class="{{ active('admin/sales/create') }}">
               <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add Sale</a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="treeview {{ active(['admin/return-sale', 'admin/return-sale/*']) }}">
+          <a href="#">
+            <i class="fa fa-inbox"></i>
+            <span>Manage Returned Sale</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li class="{{ active('admin/return-sale') }}">
+              <a href="{{ route('admin.return-sale.index') }}"><i class="fa fa-hand-o-right"></i> View Returned Sale</a>
+            </li>
+            <li class="{{ active('admin/return-sale/create') }}">
+              <a href="{{ route('admin.return-sale.create') }}"><i class="fa fa-hand-o-right"></i> Add Returned Sale</a>
             </li>
           </ul>
         </li>
