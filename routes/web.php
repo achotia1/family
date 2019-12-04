@@ -170,7 +170,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('/materials-out/batch-view/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
 				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
 				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
-
+				Route::get('aged-materials', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
+				Route::get('aged-materials/getAgedMaterialRecords', 'ReportController@getAgedMaterialRecords');
 
 				//Sales Management
 				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)

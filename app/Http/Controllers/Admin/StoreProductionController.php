@@ -175,6 +175,9 @@ class StoreProductionController extends Controller
 
     public function edit($encID)
     {
+        /*$prodRawMaterialObj1 = new ProductionHasMaterialModel;
+        $d = $prodRawMaterialObj1->selectRaw('created_at')->where('lot_id', 5)->orderBy('store_production_has_materials.id', 'DESC')->first();
+        dd($d);*/
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
@@ -272,9 +275,15 @@ class StoreProductionController extends Controller
                         
                         ## ADD BALANCE In MATERIAL IN
                         foreach($prevRecords as $pKey=>$pVal){
+                            ## GET PREVIOUS LOT USED DATE
+                            $lotDetails = $prodRawMaterialObj1->selectRaw('created_at')->where('lot_id', $pVal['lot_id'])->orderBy('store_production_has_materials.id', 'DESC')->first();
+                            $prevDate = null;
+                            if($lotDetails)
+                                $prevDate = $lotDetails->created_at;
+                            
                             $inObj = new StoreInMaterialModel;
                             $inMaterialcollection = $inObj->find($pVal['lot_id']);
-                            $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true);
+                            $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true, $prevDate);
                             if($updateBal) 
                             {                            
                                 $all_transactions[] = 1;
@@ -369,8 +378,13 @@ class StoreProductionController extends Controller
                 $prodRawMaterialModel->where('production_id', $id)->delete();
                 $inObj = new StoreInMaterialModel;
                 foreach($prevRecords as $pKey=>$pVal){                
+                    ## GET PREVIOUS LOT USED DATE
+                    $lotDetails = $prodRawMaterialModel->selectRaw('created_at')->where('lot_id', $pVal['lot_id'])->orderBy('store_production_has_materials.id', 'DESC')->first();
+                    $prevDate = null;
+                    if($lotDetails)
+                        $prevDate = $lotDetails->created_at;
                     $inMaterialcollection = $inObj->find($pVal['lot_id']);
-                    $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true);
+                    $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true, $prevDate);
                     if($updateBal) 
                     {                            
                         $all_transactions[] = 1;

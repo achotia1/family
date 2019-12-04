@@ -255,10 +255,11 @@
         </li> -->
         
         <!-- Manage Reports -->
-       
-        <li class="treeview {{ active(['admin/batch-summary', 'admin/batch-summary/*']) }}">
+       <!-- output material -->
+        
+        <li class="treeview {{ active(['admin/batch-summary', 'admin/aged-materials']) }}">
           <a href="#">
-            <i class="fa fa-file"></i>
+            <i class="fa fa-user-secret"></i>
             <span>Manage Reports</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -268,9 +269,13 @@
             <li class="{{ active('admin/batch-summary') }}">
               <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
+            <li class="{{ active('admin/aged-materials') }}">
+              <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
+            </li>            
           </ul>
         </li>
-
+         
+         
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
             <i class="fa fa-inbox"></i>
