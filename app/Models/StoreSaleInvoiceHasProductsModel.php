@@ -14,7 +14,8 @@ class StoreSaleInvoiceHasProductsModel extends Model
 
     protected $fillable = [
         'id',
-		'sale_invoice_id',
+        'sale_invoice_id',
+		'sale_stock_id',
         'product_id',
         'batch_id',
         'quantity',

@@ -146,7 +146,7 @@
                             id="batches_product_{{$k}}"
                             data-error="Batch field is required." 
                         >
-                             <option data-qty="{{ $stock_qty }}" value="{{ $hasSaleInvoiceProducts->batch_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedBatch->batch_card_no }} ({{ $stock_qty }})</option>
+                             <option data-qty="{{ $stock_qty }}" value="{{ $hasSaleInvoiceProducts->batch_id.'||'.$hasSaleInvoiceProducts->sale_stock_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedBatch->batch_card_no }} ({{ $stock_qty }})</option>
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
