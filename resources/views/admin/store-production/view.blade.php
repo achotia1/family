@@ -121,12 +121,13 @@
 	                    if($material->mateialName->material_type == 'Raw'){
 	                    $key = $key + 1;
 	                    $rawTotal = $rawTotal + $material->quantity;
+	                    $materialQty = number_format($material->quantity, 2, '.', '');
 	                    @endphp
 	                    <tr>
 	                    	<td>{{$key}}</td>
 	                    	<td>{{$material->mateialName->name}}</td>
 	                    	<td>{{$material->hasLot->lot_no}}</td>      	
-	                    	<td>{{$material->quantity}}</td>
+	                    	<td>{{$materialQty}}</td>
 	                    </tr>
 	                    @php
 	                    } else {
@@ -136,7 +137,10 @@
 						$i++;
 						}
 	                    @endphp
-	                    @endforeach	                    
+	                    @endforeach
+	                    @php
+	                    $rawTotal = number_format($rawTotal, 2, '.', '');
+	                    @endphp                    
 	                    <tr>	                    	
 	                    	<td colspan="3"></td>
 	                    	<td><b><span id="planned-weight">{{$rawTotal}}</span></b></td>	                    	
@@ -156,14 +160,18 @@
                         @foreach($otherMaterial as $oKey=>$oMaterial)
                         @php
                         $packTotal = $packTotal + $oMaterial['quantity'];
+                        $pmaterialQty = number_format($oMaterial['quantity'], 2, '.', '');
                         @endphp
                         <tr>
 	                    	<td>{{$oKey}}</td>
 	                    	<td>{{$oMaterial['name']}}</td>
 	                    	<td>{{$oMaterial['lot_no']}}</td>      	
-	                    	<td>{{$oMaterial['quantity']}}</td>
+	                    	<td>{{$pmaterialQty}}</td>
 	                    </tr>
                         @endforeach
+                        @php
+	                    $packTotal = number_format($packTotal, 2, '.', '');
+	                    @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
 	                    	<td><b><span id="planned-pweight">{{$packTotal}}</span></b></td>	                    	

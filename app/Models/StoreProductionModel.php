@@ -48,6 +48,17 @@ class StoreProductionModel extends Model
             }
         ])->where('company_id', $companyId)
         ->get();
+        /*return self::with([
+            'assignedBatch' => function($q){                
+                $q->select(['id','batch_card_no']);
+                $q->where('review_status','=', 'open');
+                $q->with(['assignedProduct'=>function($p_query){
+                        $p_query->select(['id','code', 'name']);
+                    }
+                ]);
+            }
+        ])->where('company_id', $companyId)
+        ->get();*/
         
     } 
     

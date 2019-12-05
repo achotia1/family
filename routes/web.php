@@ -173,6 +173,9 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('aged-materials', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
 				Route::get('aged-materials/getAgedMaterialRecords', 'ReportController@getAgedMaterialRecords');
 
+				Route::get('contribution-report', 'ReportController@contributionIndex')->name('admin.report.contribution');
+				Route::get('contribution-report/getContributionRecords', 'ReportController@getContributionRecords');
+
 				//Sales Management
 				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
 				{*/

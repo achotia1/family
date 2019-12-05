@@ -32,6 +32,10 @@ class StoreSaleInvoiceHasProductsModel extends Model
     {
         return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
     }
+    public function assignedInvoice()
+    {
+        return $this->belongsTo(StoreSaleInvoiceModel::class, 'sale_invoice_id', 'id');
+    }
     
     
 }

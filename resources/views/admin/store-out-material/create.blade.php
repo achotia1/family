@@ -24,7 +24,17 @@
                         >                    
                     <option value="">Select Batch</option>
                     @foreach($plans as $plan)
+                    @php
+                    if($plan->assignedBatch){
+						
+					
+                    @endphp
                     <option value="{{$plan->id}}">{{$plan->assignedBatch->batch_card_no}} ({{$plan->assignedBatch->assignedProduct->code}} - {{$plan->assignedBatch->assignedProduct->name}})</option>
+                    @php
+                    }
+						
+					
+                    @endphp
                     @endforeach
                 </select>                
                 <span class="help-block with-errors">

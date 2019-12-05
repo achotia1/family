@@ -74,7 +74,7 @@ class StoreProductionController extends Controller
 
         $companyId = self::_getCompanyId();
         $objStore = new StoreBatchCardModel();
-        $batchNos = $objStore->getBatchNumbers();
+        $batchNos = $objStore->getBatchNumbers(true);
         // dd($batchNos);
         
         $objMaterial = new StoreRawMaterialModel;

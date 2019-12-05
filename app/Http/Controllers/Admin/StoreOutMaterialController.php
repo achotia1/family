@@ -66,6 +66,7 @@ class StoreOutMaterialController extends Controller
         $companyId = self::_getCompanyId();
         $objPlan = new StoreProductionModel;
         $plans = $objPlan->getProductionPlans($companyId);
+        //dd($plans);
         $this->ViewData['plans']   = $plans;
         
         ## VIEW FILE WITH DATA
@@ -127,8 +128,8 @@ class StoreOutMaterialController extends Controller
         
         $companyId = self::_getCompanyId();
         $objPlan = new StoreProductionModel;
-        $plans = $objPlan->getProductionPlans($companyId);
-        $this->ViewData['plans']   = $plans;
+       /* $plans = $objPlan->getProductionPlans($companyId);
+        $this->ViewData['plans']   = $plans;*/
 
         $id = base64_decode(base64_decode($encID));        
         $data = $this->BaseModel
