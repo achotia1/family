@@ -133,6 +133,18 @@ class StoreReturnedSaleController extends Controller
                     ## ADD SALE INVOICE PRODUCTS
                     foreach ($request->sales as $pkey => $return) 
                     {
+                        if(!empty($return['product_id']) && !empty($return['batch_id']) && !empty($return['quantity']))
+                        {
+                            if($return['quantity']>$return['quantityLimit']){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You can not select more than available quantity:'.$return['quantityLimit']; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+
+                            }
+
                         $saleReturnedObj = new $this->StoreReturnedSalesHasProductsModel;
                         $saleReturnedObj->returned_id = $collection->id;
                         $saleReturnedObj->product_id = !empty($return['product_id']) ? $return['product_id'] : 0;
@@ -172,6 +184,8 @@ class StoreReturnedSaleController extends Controller
                         else
                         {
                             $all_transactions[] = 0;
+                        }
+
                         }
                         
                     }
@@ -277,6 +291,21 @@ class StoreReturnedSaleController extends Controller
         {
             return response()->json($this->JsonData);
             exit();
+        }else{
+            foreach ($request->sales as $return) 
+            {
+                if(!empty($return['product_id']) && !empty($return['batch_id']) && !empty($return['quantity']))
+                {
+                    if($return['quantity']>$return['quantityLimit'])
+                    {
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$return['quantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                }
+
+            }
         }
 
         $id = base64_decode(base64_decode($encID));

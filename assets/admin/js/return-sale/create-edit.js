@@ -27,10 +27,6 @@ function checkExistingRecord(sale_invoice_id)
     axios.post(action, {sale_invoice_id:sale_invoice_id})
     .then(response => 
     {
-        // console.log(response);
-        // return false;
-        //var product = response.data.product;
-       // $("#product_id").val(product);
         var url = response.data.url;
         if(url != ''){
             window.location.href = url;
@@ -120,6 +116,13 @@ function addPlan()
                             step="any" 
                             data-error="Quantity should be number."
                         >
+                        <input 
+                            type="hidden" 
+                            class="form-control quantity"
+                            name="sales[${counter}][quantityLimit]"
+                            id="quantityLimit_${counter}"
+                            value="" 
+                        >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
                                 <li class="err_sales[${counter}][quantity][] err_quantity"></li>
@@ -153,6 +156,7 @@ function setQuantityLimit(index)
     $("#quantity_"+index).val("");
     $("#quantity_"+index).attr("min",1);
     $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantityLimit_"+index).val(qtyLimit);
     $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
 }
 

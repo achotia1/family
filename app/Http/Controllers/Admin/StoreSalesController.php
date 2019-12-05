@@ -97,7 +97,7 @@ class StoreSalesController extends Controller
 
     public function store(StoreSaleRequest $request)
     {        
-      // dd($request->all());
+     // dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create record, Something went wrong on server.'; 
         if(empty($request->sales)) 
@@ -124,38 +124,50 @@ class StoreSalesController extends Controller
                     ## ADD SALE INVOICE PRODUCTS
                     foreach ($request->sales as $pkey => $sale) 
                     {
-                        $saleObj = new $this->StoreSaleInvoiceHasProductsModel;
-                        $saleObj->sale_invoice_id = $collection->id;
-                        $saleObj->product_id = !empty($sale['product_id']) ? $sale['product_id'] : 0;
-                        $saleObj->batch_id   =  !empty($sale['batch_id']) ? $sale['batch_id'] : 0;
-                        $saleObj->quantity   = !empty($sale['quantity']) ? $sale['quantity'] : 0;
-                        $saleObj->rate       = !empty($sale['rate']) ? $sale['rate'] : 0;
-                        $saleObj->total_basic = $sale['quantity']*$sale['rate'];
-                       // dd($saleObj);
-                        if ($saleObj->save()) 
-                        {                            
-                            ## Update Sales Stock balance qty
-                            $saleStock = $this->StoreSaleStockModel
-                                ->where("store_sales_stock.product_id",$sale['product_id'])
-                                ->where("store_sales_stock.batch_id",$sale['batch_id'])
-                                ->where("store_sales_stock.company_id",$companyId)
-                                ->get(['store_sales_stock.id','store_sales_stock.balance_quantity']);     
+                        if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']) && !empty($sale['rate'])){
+                            
+                            if($sale['quantity']>$sale['quantityLimit']){
 
-                            if(!empty($saleStock))
-                            {
-                                $stock = $saleStock->first();
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You can not select more than available quantity:'.$sale['quantityLimit']; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
 
-                                $balance_quantity = $stock->balance_quantity-$sale['quantity'];
-                                $updateQtyQry = DB::table('store_sales_stock')
-                                                            ->where('id', $stock->id)
-                                                            ->update(['balance_quantity' => $balance_quantity]);
                             }
+                            $saleObj = new $this->StoreSaleInvoiceHasProductsModel;
+                            $saleObj->sale_invoice_id = $collection->id;
+                            $saleObj->product_id = !empty($sale['product_id']) ? $sale['product_id'] : 0;
+                            $saleObj->batch_id   =  !empty($sale['batch_id']) ? $sale['batch_id'] : 0;
+                            $saleObj->quantity   = !empty($sale['quantity']) ? $sale['quantity'] : 0;
+                            $saleObj->rate       = !empty($sale['rate']) ? $sale['rate'] : 0;
+                            $saleObj->total_basic = $sale['quantity']*$sale['rate'];
+                           // dd($saleObj);
+                            if ($saleObj->save()) 
+                            {                            
+                                ## Update Sales Stock balance qty
+                                $saleStock = $this->StoreSaleStockModel
+                                    ->where("store_sales_stock.product_id",$sale['product_id'])
+                                    ->where("store_sales_stock.batch_id",$sale['batch_id'])
+                                    ->where("store_sales_stock.company_id",$companyId)
+                                    ->get(['store_sales_stock.id','store_sales_stock.balance_quantity']);     
 
-                            $all_transactions[] = 1;
-                        }
-                        else
-                        {
-                            $all_transactions[] = 0;
+                                if(!empty($saleStock))
+                                {
+                                    $stock = $saleStock->first();
+
+                                    $balance_quantity = $stock->balance_quantity-$sale['quantity'];
+                                    $updateQtyQry = DB::table('store_sales_stock')
+                                                                ->where('id', $stock->id)
+                                                                ->update(['balance_quantity' => $balance_quantity]);
+                                }
+
+                                $all_transactions[] = 1;
+                            }
+                            else
+                            {
+                                $all_transactions[] = 0;
+                            }
                         }
                         
                     }
@@ -261,6 +273,21 @@ class StoreSalesController extends Controller
         {
             return response()->json($this->JsonData);
             exit();
+        }else{
+            foreach ($request->sales as $pkey => $sale) 
+            {
+                if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']))
+                {
+                    if($sale['quantity']>$sale['quantityLimit'])
+                    {
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$sale['quantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                }
+
+            }
         }
 
         $id = base64_decode(base64_decode($encID));
@@ -317,7 +344,7 @@ class StoreSalesController extends Controller
                     ## ADD IN store_has_production_materials
                     foreach ($request->sales as $pkey => $sale) 
                     {
-                        if(!empty($sale['product_id']) && !empty($sale['product_id']))
+                        if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']) && !empty($sale['rate']))
                         {
 
                             $saleInvoiceProductObj = new $this->StoreSaleInvoiceHasProductsModel;
@@ -391,25 +418,6 @@ class StoreSalesController extends Controller
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        /*$data = $this->BaseModel->with([   
-                            'hasReturnedMaterials' => function($q)
-                            {  
-                                $q->with('material');
-                                $q->with(['lot' => function($q1)
-                                        {  
-                                            $q1->with('hasProductionMaterial');
-                                        }]
-                                    );
-                            },
-                            'assignedProductionPlan' => function($q){
-                                 $q->with(['assignedBatch'=> function($q){
-                                    $q->with('assignedProduct');
-                                 }]);
-
-                            }
-                        ])
-                            
-                    ->find($id);  */
         $data = $this->BaseModel
                     ->with(['hasSaleInvoiceProducts'=> function($q)
                             {  
@@ -430,8 +438,7 @@ class StoreSalesController extends Controller
 
         $this->ViewData['object'] = $data;         
         $this->ViewData['productBatch_data'] = $productBatch_data;         
-        //->find($id)->toArray(); //
-        //dd($this->ViewData['object']);
+       
         return view($this->ModuleView.'view', $this->ViewData);
     }
 
@@ -721,6 +728,7 @@ class StoreSalesController extends Controller
             $product_id = $request->product_id;
             $selected_val = $request->selected_val;
             $editFlag = $request->editFlag;
+            $sale_invoice_id = $request->sale_invoice_id;
 
            $getBatches = $this->StoreSaleStockModel->with(['assignedBatch'])
                                 ->where("store_sales_stock.product_id",$product_id)
@@ -733,12 +741,17 @@ class StoreSalesController extends Controller
                     $balance_quantity=$batch->balance_quantity;
                     if($editFlag==1){
                         $getqty = $this->StoreSaleInvoiceHasProductsModel
+                                ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
                                 ->where("store_sale_invoice_has_products.batch_id",$batch->batch_id)
                                 ->where("store_sale_invoice_has_products.product_id",$product_id)
-                                ->first(['quantity']);   
+                                ->first(['quantity']);
+                        // dump($getqty);
+                        // dump($batch->balance_quantity);
                         if(!empty($getqty)){
                             #To add the quantity for proper validations
-                            $balance_quantity=$batch->balance_quantity+$getqty->quantity;
+                            // if($batch->balance_quantity!=$getqty->quantity){
+                                $balance_quantity=$batch->balance_quantity+$getqty->quantity;
+                            // }
                         }
                     }
                     if(!empty($balance_quantity) && $balance_quantity>0)

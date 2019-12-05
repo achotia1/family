@@ -103,7 +103,7 @@
                             <td colspan="4"></td>
                         </tr>
                         <tr class="trExpense">
-                            <td colspan="4" class="title"><b>Planned Raw Material</b></td>
+                            <td colspan="4" class="title"><b>Returned Raw Material</b></td>
                         </tr>
                         <tr>
                             <td><b>Sr.No</b></td>
@@ -149,7 +149,7 @@
                         </tr>
                         
                         <tr class="trExpense">
-                            <td colspan="4" class="title"><b>Planned Packaging Material</b></td>             </tr>
+                            <td colspan="4" class="title"><b>Returned Packaging Material</b></td>             </tr>
                         @php 
                         $packTotal = 0;
                         @endphp

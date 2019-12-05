@@ -7,12 +7,12 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($object->id))]) }}">
-            <input type="hidden" name="_method" value="PUT">
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
+        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($object->id))]) }}">
+            <input type="hidden" name="_method" value="PUT">
 
             <div class="col-md-12">
                 <div class="form-group col-md-4">
@@ -168,6 +168,12 @@
                             step="any" 
                             data-error="You can not select more than available quantity: {{$stock_qty}}"
                         >
+                        <input 
+                            type="hidden" 
+                            id="quantityLimit_{{$k}}"
+                            name="sales[{{$k}}][quantityLimit]"
+                            value="{{ $stock_qty }}" 
+                        >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
                                 <li class="err_sales[{{$k}}][quantity][] err_quantity"></li>
@@ -230,7 +236,7 @@
 @section('scripts')
     <script type="text/javascript">
         var material_id = "";
-        var plan_id = "";
+        var sale_invoice_id = "{{ $object->id }}";
         var editFlag = 1;
 
         // PLAN OPTIONS

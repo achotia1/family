@@ -16,7 +16,7 @@ $(document).ready(function ()
      if(plan_id!=""){
         getPlanMaterials(plan_id);
     }*/
-    
+
 })
 
 function addPlan() 
@@ -77,6 +77,13 @@ function addPlan()
                             step="any" 
                             data-error="Quantity should be number."
                         >
+                        <input 
+                            type="hidden" 
+                            class="form-control quantity"
+                            name="sales[${counter}][quantityLimit]"
+                            id="quantityLimit_${counter}"
+                            value="" 
+                        >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
                                 <li class="err_sales[${counter}][quantity][] err_quantity"></li>
@@ -112,6 +119,7 @@ function addPlan()
         $(plan_area).insertAfter($(".heading-tr:last"));    
     }
     $(".add_plan_area").validator();
+    
 }
 
 function deletePlan(element)
@@ -128,6 +136,8 @@ function setQuantityLimit(index)
     $("#quantity_"+index).val("");
     $("#quantity_"+index).attr("min",1);
     $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantityLimit_"+index).val(qtyLimit);
+
     $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
 }
 
@@ -144,7 +154,7 @@ function loadBatches(sel)
     });  
 
     var action = ADMINURL + '/sales/getProductBatches';
-    axios.post(action, {editFlag:editFlag,product_id:product_id,selected_val:selected_val})
+    axios.post(action, {sale_invoice_id:sale_invoice_id,editFlag:editFlag,product_id:product_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#batches_"+id).html(response.data.html); 

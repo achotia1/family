@@ -279,7 +279,7 @@
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
             <i class="fa fa-inbox"></i>
-            <span>Sales Management</span>
+            <span>Manage Sales</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
             </span>

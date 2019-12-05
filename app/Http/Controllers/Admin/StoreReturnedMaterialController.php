@@ -93,7 +93,7 @@ class StoreReturnedMaterialController extends Controller
 
     public function store(StoreReturnedMaterialRequest $request)
     {        
-        // dd($request->all());
+       // dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create record, Something went wrong on server.'; 
         if(empty($request->returned)) 
@@ -118,8 +118,20 @@ class StoreReturnedMaterialController extends Controller
                 if (!empty($request->returned) && count($request->returned) > 0) 
                 {                    
                     ## ADD IN store_has_production_materials
-                    foreach ($request->returned as $pkey => $return) 
+                    foreach ($request->returned as $return) 
                     {
+                        if(!empty($return['material_id']) && !empty($return['lot_id']) && !empty($return['quantity']))
+                        {
+
+                            if($return['quantity']>$return['quantityLimit'])
+                            {
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You can not select more than available quantity:'.$return['quantityLimit']; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+
                         $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
                         $returnRawMaterialObj->returned_id   = $collection->id;
                         $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
@@ -176,6 +188,8 @@ class StoreReturnedMaterialController extends Controller
                         else
                         {
                             $all_transactions[] = 0;
+                        }
+
                         }
                         
                     }
@@ -247,16 +261,17 @@ class StoreReturnedMaterialController extends Controller
                                         }]
                                     );
                             },
-                            // 'hasBatch'
-                            // 'assignedProductionPlan'
                             'assignedProductionPlan' => function($q){
-                                $q->with('assignedBatch');
+                                $q->with(['assignedBatch' => function($q1)
+                                        {  
+                                            $q1->with('assignedProduct');
+                                        }]);
                             }
                         ])
                     ->where('store_returned_materials.id', base64_decode(base64_decode($encID)))
                     ->where('store_returned_materials.company_id', $companyId)
                     ->first();
-        // dd($data->toArray());
+       // dd($data->toArray());
         if(empty($data)) {            
             return redirect()->route('admin.return.index');
         }
@@ -288,6 +303,21 @@ class StoreReturnedMaterialController extends Controller
         {
             return response()->json($this->JsonData);
             exit();
+        }else{
+            foreach ($request->returned as $return) 
+            {
+                if(!empty($return['material_id']) && !empty($return['lot_id']) && !empty($return['quantity']))
+                {
+                    if($return['quantity']>$return['quantityLimit'])
+                    {
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$return['quantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                }
+
+            }
         }
 
         $id = base64_decode(base64_decode($encID));

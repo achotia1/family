@@ -91,6 +91,13 @@ function addPlan()
                             id="quantity_${counter}"
                             step="any"                           
                         >
+                        <input 
+                            type="hidden" 
+                            class="form-control quantity"
+                            name="returned[${counter}][quantityLimit]"
+                            id="quantityLimit_${counter}"
+                            value="" 
+                        >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
                                 <li class="err_returned[${counter}][quantity][] err_quantity"></li>
@@ -124,6 +131,7 @@ function setQuantityLimit(index)
     $("#quantity_"+index).val("");
     $("#quantity_"+index).attr("min",1);
     $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantityLimit_"+index).val(qtyLimit);
     $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
 }
 
