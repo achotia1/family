@@ -7,11 +7,11 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
             <div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
+        <form id="salesForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
 
             <div class="col-md-12">
                 <div class="form-group col-md-4">
@@ -149,6 +149,12 @@
                             required
                             step="any" 
                             data-error="Quantity should be number."
+                        >
+                        <input 
+                            type="hidden" 
+                            id="quantityLimit_0"
+                            name="sales[0][quantityLimit]"
+                            value="" 
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">

@@ -7,11 +7,11 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
+        <div class="box-header with-border">
+          <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
+          <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+        </div>
         <form id="returnForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
-            <div class="box-header with-border">
-              <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
-              <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
-            </div>
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
@@ -135,6 +135,12 @@
                             required
                             step="any" 
                             data-error="Quantity should be number."
+                        >
+                        <input 
+                            type="hidden" 
+                            id="quantityLimit_0"
+                            name="returned[0][quantityLimit]"
+                            value="" 
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">

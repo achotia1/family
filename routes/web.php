@@ -189,6 +189,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				/*Route::group(['prefix' => 'sale', function () use($PREFIX)
 				{*/
 					//,'middleware' => ['permission:store-manage-returned-sale']]
+					Route::post('/return-sale/checkExistingRecord',  'StoreReturnedSaleController@checkExistingRecord');
 					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
 					Route::post('/return-sale/getSaleProducts',  'StoreReturnedSaleController@getSaleProducts');
 					Route::get('/return-sale/getRecords',  'StoreReturnedSaleController@getRecords');

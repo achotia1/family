@@ -7,21 +7,17 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">        
+        <div class="box-header with-border">
+          <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
+          <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+        </div>
         <form id="returnForm" data-toggle="validator" action="{{ route($modulePath.'update', [base64_encode(base64_encode($return_material->id))]) }}" method="post">
             <input type="hidden" name="_method" value="PUT">
-            <div class="box-header with-border">
-              <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
-              <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
-            </div>
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
                 <select class="form-control my-select" id="plan_id" name="plan_id" required="" data-error="Batch Code field is required.">  
-                <option value="{{$return_material->plan_id}}">{{ $return_material->assignedProductionPlan->assignedBatch->batch_card_no??'' }}</option>                  
-                   <!--  <option value="">Select Batch</option>
-                    @foreach($batchNos as $val){
-                    <option value="{{$val['id']}}" @if($return_material->plan_id==$val['id']) selected @endif>{{ $val['batch_card_no']." ".$val['assignedProduct']['code']." (".$val['assignedProduct']['name'].")" }}</option>
-                    @endforeach -->
+                <option value="{{$return_material->plan_id}}">{{ $return_material->assignedProductionPlan->assignedBatch->batch_card_no." (".$return_material->assignedProductionPlan->assignedBatch->assignedProduct->code." - ".$return_material->assignedProductionPlan->assignedBatch->assignedProduct->name.")" }}</option>                  
                 </select>                
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -99,13 +95,13 @@
 
                         @php
                             $production_qty=0;
-                           // dd($material->lot);
                             if(!empty($material->lot->hasProductionMaterial)){
                                 foreach($material->lot->hasProductionMaterial as $production_material)
                                 {
-                                    if($production_material->lot_id==$material->lot->id)
+                                    if($production_material->production_id==$return_material->plan_id && $production_material->material_id==$material->material->id && $production_material->lot_id==$material->lot->id)
                                     {
                                         $production_qty=$production_material->quantity;
+                                        break;
                                     }
                                 }
                             }
@@ -144,6 +140,12 @@
                             max="{{$production_qty}}"
                             step="any" 
                             data-error="You can not select more than available quantity: {{$production_qty}}"
+                        >
+                        <input 
+                            type="hidden" 
+                            id="quantityLimit_{{$k}}"
+                            name="returned[{{$k}}][quantityLimit]"
+                            value="{{ $production_qty }}" 
                         >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">

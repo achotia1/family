@@ -9,7 +9,7 @@ $(document).ready(function ()
     $('#sale_invoice_id').on('change', function() {
         var sale_invoice_id=this.value;
         
-        //checkExistingRecord(plan_id);
+        checkExistingRecord(sale_invoice_id);
         getSaleProducts(sale_invoice_id);
         
      });
@@ -19,6 +19,26 @@ $(document).ready(function ()
     
 })
 
+function checkExistingRecord(sale_invoice_id)
+{    
+    //var plan_id = $(batch).val();
+    var action = ADMINURL + '/return-sale/checkExistingRecord';
+
+    axios.post(action, {sale_invoice_id:sale_invoice_id})
+    .then(response => 
+    {
+        var url = response.data.url;
+        if(url != ''){
+            window.location.href = url;
+        }
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}
+
 function getSaleProducts(sale_invoice_id){
     var action = ADMINURL + '/return-sale/getSaleProducts';
     axios.post(action, {sale_invoice_id:sale_invoice_id})
@@ -27,6 +47,9 @@ function getSaleProducts(sale_invoice_id){
         // $("#material_id").empty(); 
         plan_options=response.data.html;
         $("#product_0").html(response.data.html); 
+        if(response.data.customerHtml){
+            $("#customer_id").html(response.data.customerHtml); 
+        }
     })
     .catch(error =>
     {
@@ -93,6 +116,13 @@ function addPlan()
                             step="any" 
                             data-error="Quantity should be number."
                         >
+                        <input 
+                            type="hidden" 
+                            class="form-control quantity"
+                            name="sales[${counter}][quantityLimit]"
+                            id="quantityLimit_${counter}"
+                            value="" 
+                        >
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
                                 <li class="err_sales[${counter}][quantity][] err_quantity"></li>
@@ -126,6 +156,7 @@ function setQuantityLimit(index)
     $("#quantity_"+index).val("");
     $("#quantity_"+index).attr("min",1);
     $("#quantity_"+index).attr("max",qtyLimit);
+    $("#quantityLimit_"+index).val(qtyLimit);
     $("#quantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
 }
 

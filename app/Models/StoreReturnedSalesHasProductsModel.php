@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ProductsModel;
+use App\Models\StoreBatchCardModel;
 
 class StoreReturnedSalesHasProductsModel extends Model
 {
@@ -15,15 +17,15 @@ class StoreReturnedSalesHasProductsModel extends Model
         'batch_id',
         'quantity'
     ];
-    /*public function material()
+
+    public function assignedProduct()
     {
-        return $this->belongsTo(StoreRawMaterialModel::class, 'material_id', 'id');
+        return $this->belongsTo(ProductsModel::class, 'product_id', 'id');
     }
 
-    public function lot()
+    public function assignedBatch()
     {
-        return $this->belongsTo(StoreInMaterialModel::class, 'lot_id', 'id');
-    }*/
-    
+        return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
+    }    
     
 }

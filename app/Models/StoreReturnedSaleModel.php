@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\StoreReturnedSalesHasProductsModel;
+use App\Models\StoreSaleInvoiceModel;
+use App\Models\AdminUserModel;
 
 class StoreReturnedSaleModel extends Model
 {
@@ -20,33 +23,21 @@ class StoreReturnedSaleModel extends Model
         //'status'        
     ];
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
     protected $dates = ['deleted_at'];
 
-    /*public function getBatchReturnMaterial($batchNo) {
-        $arrReturnData = array();
-        $returnedData =  self::select('material_id','quantity')->where('status', 1)->where('batch_no', $batchNo)->get();
-        foreach($returnedData as $key => $data){            
-            $arrReturnData[$data->material_id] = $data->quantity;
-        }
-        return  $arrReturnData;
-    }
-    public function assignedProductionPlan()
+    public function hasReturnedProducts()
     {
-        return $this->belongsTo(StoreProductionModel::class, 'plan_id', 'id');
+        return $this->hasMany(StoreReturnedSalesHasProductsModel::class, 'returned_id', 'id');
     }
 
-    public function hasReturnedMaterials()
+    public function assignedSale()
     {
-        return $this->hasMany(StoreReturnedHasMaterialModel::class, 'returned_id', 'id');
+        return $this->belongsTo(StoreSaleInvoiceModel::class, 'sale_invoice_id', 'id');
     }
 
-    public function hasBatch()
+    public function assignedCustomer()
     {
-        return $this->belongsTo(StoreBatchCardModel::class, 'batch_id', 'id');
-    }*/
+        return $this->belongsTo(AdminUserModel::class, 'customer_id', 'id');
+    }
+  
 }
