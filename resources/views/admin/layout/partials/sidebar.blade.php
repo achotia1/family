@@ -253,28 +253,6 @@
           </a>
           
         </li> -->
-        
-        <!-- Manage Reports -->
-       <!-- output material -->
-        
-        <li class="treeview {{ active(['admin/batch-summary', 'admin/aged-materials']) }}">
-          <a href="#">
-            <i class="fa fa-user-secret"></i>
-            <span>Manage Reports</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
-          <ul class="treeview-menu">
-            <li class="{{ active('admin/batch-summary') }}">
-              <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
-            </li>
-            <li class="{{ active('admin/aged-materials') }}">
-              <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
-            </li>            
-          </ul>
-        </li>
-         
          
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
@@ -311,6 +289,28 @@
             </li>
           </ul>
         </li>
+        <!-- Manage Reports -->        
+        <li class="treeview {{ active(['admin/batch-summary', 'admin/aged-materials', 'admin/contribution-report']) }}">
+          <a href="#">
+            <i class="fa fa-user-secret"></i>
+            <span>Manage Reports</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li class="{{ active('admin/batch-summary') }}">
+              <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
+            </li>
+            <li class="{{ active('admin/aged-materials') }}">
+              <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
+            </li>
+            <li class="{{ active('admin/contribution-report') }}">
+              <a href="{{ route('admin.report.contribution') }}"><i class="fa fa-hand-o-right"></i> Contribution Report</a>
+            </li>            
+          </ul>
+        </li>
+        <!-- End Manage Reports -->
       
       </ul>
     </section>
