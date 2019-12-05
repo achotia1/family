@@ -62,15 +62,21 @@ class StoreBatchCardModel extends Model
         return $batchNo;
     }
 
-    public function getBatchNumbers() {
-        // return self::select('id','batch_card_no')->where('status', 1)->get();
-        //$companyId = self::_getCompanyId();
-        //dd($companyId);
+    public function getBatchNumbers($opened=false) {        
+         // return self::with(['assignedProduct'])
+         //            ->select('id','batch_card_no','product_code')
+         //            ->whereStatus(1)
+         //            ->get();
+        $modelQuery = self::with(['assignedProduct'])
+                ->select('id','batch_card_no','product_code')
+                ->where('status', 1);
+        if($opened){
+            $modelQuery = $modelQuery
+                        ->where('review_status', 'open'); 
+        }
+        $result = $modelQuery->get();
+        return $result;   
         
-         return self::with(['assignedProduct'])
-                    ->select('id','batch_card_no','product_code')
-                    ->whereStatus(1)
-                    ->get();
     }
 
     public function getBatchDetails($id) {

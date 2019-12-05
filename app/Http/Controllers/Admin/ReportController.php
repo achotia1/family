@@ -9,6 +9,8 @@ use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 use App\Models\StoreInMaterialModel;
 use App\Models\StoreRawMaterialModel;
+use App\Models\StoreSaleInvoiceHasProductsModel;
+
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
 
@@ -417,4 +419,200 @@ public function getAgedMaterialRecords(Request $request)
     return response()->json($this->JsonData);
 }
 
+## CONTRIBUTION REPORT
+public function contributionIndex()
+{
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Contribution Report';
+        $this->ViewData['moduleAction'] = 'Contribution Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        
+        /*$model = new StoreSaleInvoiceHasProductsModel;
+        $modelQuery = $model
+                        ->with(['assignedInvoice'=>function($q){
+                            $q->with('hasCustomer');    
+                        }])
+                        ->with(['assignedProduct'])
+                        ->with(['assignedBatch']);*/
+        /*$companyId = 1;                
+        $model = new StoreSaleInvoiceHasProductsModel;
+        $modelQuery = $model
+        ->selectRaw('store_sale_invoice_has_products.id, store_sale_invoice_has_products.quantity,store_sale_invoice_has_products.returned_quantity,store_sale_invoice_has_products.rate, store_sale_invoice.invoice_no, store_sale_invoice.invoice_date, users.contact_name, users.company_name, products.name, products.code, store_batch_cards.batch_card_no, store_sales_stock.manufacturing_cost')
+        ->leftjoin('store_sale_invoice', 'store_sale_invoice.id' , '=', 'store_sale_invoice_has_products.sale_invoice_id')
+        ->leftjoin('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
+        ->leftjoin('products', 'products.id' , '=', 'store_sale_invoice_has_products.product_id')
+        ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sale_invoice_has_products.batch_id')
+        ->leftjoin('store_sales_stock', 'store_sales_stock.batch_id' , '=', 'store_sale_invoice_has_products.batch_id')
+        ->where('store_sale_invoice.company_id', $companyId)
+        ->where('store_sale_invoice.deleted_at', null);
+        
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->get();*/
+
+        //dd($object);
+        // view file with data
+        return view($this->ModuleView.'contribution',$this->ViewData);
+}
+public function getContributionRecords(Request $request)
+{
+    /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_sale_invoice_has_products.id',            
+            1 => 'store_sale_invoice.invoice_date',
+            2 => 'store_sale_invoice.invoice_no',            
+            3 => 'users.contact_name',
+            4 => 'products.code',
+            5 => 'store_batch_cards.batch_card_no',
+            6 => 'qty',
+            7 => 'store_sale_invoice_has_products.rate',
+            8 => 'net',
+            9 => 'store_sales_stock.manufacturing_cost',
+            10 => 'gross_contibution',
+            11 => 'total_contribution',
+            12 => 'material_consumption',                 
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY       
+        $companyId = self::_getCompanyId();
+        $model = new StoreSaleInvoiceHasProductsModel;
+        $modelQuery = $model
+        ->selectRaw('store_sale_invoice_has_products.id, store_sale_invoice_has_products.quantity,store_sale_invoice_has_products.returned_quantity,store_sale_invoice_has_products.rate, store_sale_invoice.invoice_no, store_sale_invoice.invoice_date, users.contact_name, users.company_name, products.name, products.code, store_batch_cards.batch_card_no, store_sales_stock.manufacturing_cost, 
+            store_sale_invoice_has_products.quantity - store_sale_invoice_has_products.returned_quantity as qty, ( store_sale_invoice_has_products.quantity - store_sale_invoice_has_products.returned_quantity) * rate as net, store_sale_invoice_has_products.rate - store_sales_stock.manufacturing_cost as gross_contibution, ( store_sale_invoice_has_products.quantity - store_sale_invoice_has_products.returned_quantity) * (store_sale_invoice_has_products.rate - store_sales_stock.manufacturing_cost) as total_contribution, (store_sales_stock.manufacturing_cost / store_sale_invoice_has_products.rate)*100 as material_consumption')
+        ->leftjoin('store_sale_invoice', 'store_sale_invoice.id' , '=', 'store_sale_invoice_has_products.sale_invoice_id')
+        ->leftjoin('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
+        ->leftjoin('products', 'products.id' , '=', 'store_sale_invoice_has_products.product_id')
+        ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sale_invoice_has_products.batch_id')
+        ->leftjoin('store_sales_stock', 'store_sales_stock.batch_id' , '=', 'store_sale_invoice_has_products.batch_id')
+        ->where('store_sale_invoice.company_id', $companyId)
+        ->where('store_sale_invoice.deleted_at', null);
+        
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+            {
+                $custom_search = true;
+
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                if (strtotime($start_date)==strtotime($end_date)){
+                    
+                    $modelQuery  = $modelQuery
+                                        ->whereDate('store_sale_invoice.invoice_date','=',$start_date);
+
+                }else{
+                    $modelQuery = $modelQuery
+                                    ->whereBetween('store_sale_invoice.invoice_date', 
+                                    array($start_date,$end_date));
+                }            
+
+            }    
+            
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                 $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('store_sale_invoice.invoice_no', 'LIKE', '%'.$search.'%');   
+                    $query->orwhere('users.contact_name', 'LIKE', '%'.$search.'%');
+                    
+                    $query->orwhere('products.code', 'LIKE', '%'.$search.'%');   
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_sale_invoice_has_products.id', 'ASC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+        //dd($object);
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {
+            $count =1;
+            //$i = 0;
+            foreach ($object as $key => $row)
+            {        
+                $data[$key]['id'] = $row->id;
+                $data[$key]['invoice_date']  = date('d M Y',strtotime($row->invoice_date));
+                $data[$key]['invoice_no']  =  $row->invoice_no;
+                /*if($key > 0 && ($data[$key]['invoice_no'] == $data[$key-1]['invoice_no'])){
+                    $data[$key]['invoice_no']  =  '';
+                }*/
+                //$data[$key]['invoice_no']  =  $row->invoice_no;
+                $data[$key]['customer_name']  = $row->contact_name. " ". $row->company_name;
+                $data[$key]['product_name']  =  $row->code. " (".$row->name. ")";
+                $data[$key]['batch_code']  =  $row->batch_card_no;
+                $data[$key]['quantity']  = number_format($row->qty,2,'.','');
+                $data[$key]['rate']  =  number_format($row->quantity,2,'.','');
+                $data[$key]['net_cost']  =  number_format($row->net,2,'.','');
+                $data[$key]['costing']  =  number_format($row->manufacturing_cost,2,'.','');
+                $data[$key]['gross']  =  number_format($row->gross_contibution,2,'.','');
+                $data[$key]['total']  =  number_format($row->total_contribution,2,'.','');
+                $data[$key]['material_consumption']  =  number_format($row->material_consumption,2,'.','');
+
+            }
+        }    
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+}
 }
