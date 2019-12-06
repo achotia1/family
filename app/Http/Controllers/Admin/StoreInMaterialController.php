@@ -318,7 +318,7 @@ class StoreInMaterialController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_in_materials.status', 'ASC');
+            $modelQuery = $modelQuery->orderBy('store_in_materials.status', 'ASC')->orderBy('store_in_materials.id', 'DESC');
                         
         }
         else
@@ -363,7 +363,7 @@ class StoreInMaterialController extends Controller
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
                 }elseif($row->status==0) {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Closed</span>';
+                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
                 }
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
