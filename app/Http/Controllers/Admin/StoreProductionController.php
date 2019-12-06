@@ -200,7 +200,7 @@ class StoreProductionController extends Controller
         ])->where('company_id', $companyId)
         ->find($id);
         //dd($data);
-        if(empty($data)) {            
+        if(empty($data) || $data->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.production.index');
         }
         $objStore = new StoreBatchCardModel();

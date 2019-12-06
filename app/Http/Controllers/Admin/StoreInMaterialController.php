@@ -361,9 +361,9 @@ class StoreInMaterialController extends Controller
                 $data[$key]['lot_balance']  =  number_format($row->lot_balance, 2, '.', '');           
 
                 if($row->status==1){
-                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
+                    $data[$key]['status'] = 'Active';
                 }elseif($row->status==0) {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
+                 $data[$key]['status'] = 'Inactive';
                 }
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
@@ -398,7 +398,7 @@ class StoreInMaterialController extends Controller
     $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>
             <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>
-            <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Closed</option>            
+            <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Inactive</option>            
             </select>';
     /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';removeSearch*/
 

@@ -142,9 +142,9 @@ class StoreOutMaterialController extends Controller
             }
         ])->where('company_id', $companyId)
         ->find($id);
-        
+        //dd($data);
         // END ASHVINI
-        if(empty($data)) {            
+        if(empty($data) || $data->assignedPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.materials-out.index');
         }
         ## ALL DATA        
