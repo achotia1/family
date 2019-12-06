@@ -182,6 +182,20 @@ class StoreBatchCardController extends Controller
         return $collection;
     }
 
+    public function show($encId)
+    {
+        $id = base64_decode(base64_decode($encId));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
+        $this->ViewData['modulePath']   = $this->ModulePath;
+        $companyId = self::_getCompanyId();
+        $outputDetails = $this->BaseModel->with('assignedProduct')->where('company_id', $companyId)
+        ->find($id);
+        $this->ViewData['object'] = $outputDetails;
+        //dd($outputDetails);        
+        return view($this->ModuleView.'view', $this->ViewData);
+    }
     public function getRecords(Request $request)
     {
 		//dd($request->all());
@@ -346,11 +360,13 @@ class StoreBatchCardController extends Controller
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
                 }
 
+                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
+
                 $data[$key]['actions'] = '';
 
                 if(auth()->user()->can('store-batches-add'))
                 {
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$edit.'</div>';
                 }
 
          }
