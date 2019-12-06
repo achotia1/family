@@ -290,7 +290,7 @@
           </ul>
         </li>
         <!-- Manage Reports -->        
-        <li class="treeview {{ active(['admin/batch-summary', 'admin/aged-materials', 'admin/contribution-report']) }}">
+        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report']) }}">
           <a href="#">
             <i class="fa fa-user-secret"></i>
             <span>Manage Reports</span>
@@ -299,7 +299,7 @@
             </span>
           </a>
           <ul class="treeview-menu">
-            <li class="{{ active('admin/batch-summary') }}">
+            <li class="{{ active(['admin/batch-summary', 'admin/batch-summary/*']) }}">
               <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
             <li class="{{ active('admin/aged-materials') }}">
