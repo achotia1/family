@@ -261,7 +261,7 @@ class StoreRawMaterialController extends Controller
                 $custom_search = true;
                 $key = $request->custom['moq'];
                 $modelQuery = $modelQuery
-                ->where('store_raw_materials.moq', $key);
+                ->where('store_raw_materials.moq', '>', $key);
             }
             if (isset($request->custom['status'])) 
             {
@@ -382,7 +382,7 @@ class StoreRawMaterialController extends Controller
             <option class="theme-black blue-select" value="Packaging" '.( $request->custom['material_type'] == "Packaging" ? 'selected' : '').'>Packaging Material</option>
             <option class="theme-black blue-select" value="Consumable" '.( $request->custom['material_type'] == "Consumable" ? 'selected' : '').'>Consumable Material</option>            
             </select>';
-    $searchHTML['moq']   =  '<input type="text" class="form-control" id="moq" value="'.($request->custom['moq']).'" placeholder="Search...">';   
+    $searchHTML['moq']   =  '<input type="text" class="form-control" id="moq" value="'.($request->custom['moq']).'" placeholder="More than...">';   
     $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>
             <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>

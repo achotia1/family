@@ -249,7 +249,7 @@ class StoreBatchCardController extends Controller
                 $custom_search = true;
                 $key = $request->custom['batch_qty'];                
                 $modelQuery = $modelQuery
-                ->where('store_batch_cards.batch_qty', 'LIKE', '%'.$key.'%');
+                ->where('store_batch_cards.batch_qty', '>', $key);
             }
             if (isset($request->custom['plan_added'])) 
             {
@@ -329,7 +329,7 @@ class StoreBatchCardController extends Controller
                 $data[$key]['product_code']  = $row->code." ( ".$row->name." )";
 
                 $data[$key]['batch_card_no']  =  $row->batch_card_no;
-                $data[$key]['batch_qty']  =  $row->batch_qty;
+                $data[$key]['batch_qty']  =  number_format($row->batch_qty, 2, '.', '');
                 
                 if($row->plan_added=='no'){
                     $data[$key]['plan_added'] = '<div class="text-left" style="color:#EF6D1F;">No</div>';
@@ -341,7 +341,10 @@ class StoreBatchCardController extends Controller
                 }elseif($row->review_status=='closed') {
                  $data[$key]['review_status'] = 'Closed';
                 }                
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                $edit = '';
+                if($row->review_status=='open'){
+                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                }
 
                 $data[$key]['actions'] = '';
 
@@ -365,7 +368,7 @@ class StoreBatchCardController extends Controller
     $searchHTML['id']       =  '';
     $searchHTML['select']   =  '';    
     $searchHTML['batch_card_no']     =  '<input type="text" class="form-control" id="batch-card-no" value="'.($request->custom['batch_card_no']).'" placeholder="Search...">';
-    $searchHTML['batch_qty']   =  '<input type="text" class="form-control" id="batch-qty" value="'.($request->custom['batch_qty']).'" placeholder="Search...">';;
+    $searchHTML['batch_qty']   =  '<input type="text" class="form-control" id="batch-qty" value="'.($request->custom['batch_qty']).'" placeholder="More than...">';;
 
     $searchHTML['plan_added']   =  '<select name="plan_added" id="plan-added" class="form-control my-select">
             <option class="theme-black blue-select" value="">Select</option>
