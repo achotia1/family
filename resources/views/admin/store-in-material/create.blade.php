@@ -12,38 +12,42 @@
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
         <form id="materialInForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
-            <div class="form-group col-md-6">
-                <label class="theme-blue"> 
-                Material <span class="required">*</span></label>
-                <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Batch Code field is required.">
-                    <option value="">Select Material</option>
-                    @foreach($materialIds as $val)
-                    <option value="{{$val['id']}}">{{$val['name']}}</option>
-                    @endforeach
-                   
-                </select>                
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_material_id"></li>
-                    </ul>
-                </span>
+            <div class="row">
+            <div class="col-md-12">
+                <div class="form-group col-md-6">
+                    <label class="theme-blue"> 
+                    Material <span class="required">*</span></label>
+                    <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Batch Code field is required.">
+                        <option value="">Select Material</option>
+                        @foreach($materialIds as $val)
+                        <option value="{{$val['id']}}">{{$val['name']}}</option>
+                        @endforeach
+                       
+                    </select>                
+                    <span class="help-block with-errors">
+                        <ul class="list-unstyled">
+                            <li class="err_material_id"></li>
+                        </ul>
+                    </span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="theme-blue">Lot Number
+                        <span class="required">*</span></label>
+                    <input 
+                        type="text" 
+                        name="lot_no"
+                        value="{{$lotNo}}"                   
+                        class="form-control" 
+                        required                                       
+                        data-error="Lot Number field is required." 
+                    >
+                    <span class="help-block with-errors">
+                        <ul class="list-unstyled">
+                            <li class="err_lot_no"></li>
+                        </ul>
+                    </span>
+                </div>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Lot Number
-                    <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    name="lot_no"
-                    value="{{$lotNo}}"                   
-                    class="form-control" 
-                    required                                       
-                    data-error="Lot Number field is required." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_lot_no"></li>
-                    </ul>
-                </span>
             </div>
             <div class="form-group col-md-6">
                 <label class="theme-blue">Lot Quantity
