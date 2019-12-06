@@ -583,7 +583,7 @@ class StoreProductionController extends Controller
 
                 $data[$key]['batch_id']  = $row->batch_card_no;
                 $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
-                $data[$key]['quantity']  =  $row->total_qty;                
+                $data[$key]['quantity']  =  number_format($row->total_qty, 2, '.','');                
                 $edit = $delete = '';               
                 if( $row->review_status == 'open'){
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
