@@ -198,7 +198,7 @@ class StoreProductionController extends Controller
         }
         ])->where('company_id', $companyId)
         ->find($id);
-        dd($data);
+        //dd($data);
         if(empty($data)) {            
             return redirect()->route('admin.production.index');
         }
