@@ -252,5 +252,12 @@ a.arrow span img {
  transform: translate(-50%,0);
 }
 
+.logo_img img {
+    width: 100%;
+}
 
-    /* End */
+.logo_img {
+    max-width: 50px;
+    float: left;
+}
+/* End */
