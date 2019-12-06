@@ -74,22 +74,14 @@
 	                    </tr>
 	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Batch Card :</b></td>
-	                    	<td colspan="6">	                    	
+	                    	<td>	                    	
 	                    	{{$object->assignedPlan->assignedBatch->batch_card_no}}
 	                    	</td>
-	                    </tr>
-	                    <tr>	                    	
-	                    	<td><b>Unit :</b></td>
-	                    	<td colspan="6">
-	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->name}}	
+	                    	<td class="w-90-px"><b>Product :</b></td>
+	                    	<td colspan="4">	                    	
+	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->code}} ({{$object->assignedPlan->assignedBatch->assignedProduct->name}})	
 	                    	</td>
-	                    </tr>
-	                    <tr>	                    	
-	                    	<td><b>Product Code :</b></td>
-	                    	<td colspan="6">
-	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->code}}	
-	                    	</td>
-	                    </tr>	                    
+	                    </tr>	                                     
 	                    <tr>
                             <td colspan="7"></td>
                         </tr>
@@ -250,8 +242,9 @@
                         $cost_per_unit = number_format($cost_per_unit, 2, '.', '');
                         $coursePowder = number_format($object->course_powder, 2, '.', '');
 	                    $rejection = number_format($object->rejection, 2, '.', '');
-	                    $dustProduct = number_format($object->dust_product, 2, '.', '');	                    
-	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product;
+	                    $dustProduct = number_format($object->dust_product, 2, '.', '');	                    $looseProduct = number_format($object->loose_material, 2, '.', '');
+	                    
+	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product + $object->loose_material;
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
             			$lossPer = ($lossMaterial/$finalTotal) * 100;
 						$lossPer = number_format($lossPer, 2, '.', '');
@@ -266,6 +259,8 @@
 						$rejectionPer = number_format($rejectionPer, 2, '.', '');
 						$dustPer = ($object->dust_product/$finalTotal) * 100;
 						$dustPer = number_format($dustPer, 2, '.', '');
+						$loosePer = ($object->loose_material/$finalTotal) * 100;
+						$loosePer = number_format($loosePer, 2, '.', '');
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
@@ -314,6 +309,18 @@
 	                    	</td>
 	                    	<td colspan="4">
 	                    	{{$dustPer}}%
+	                    	</td>
+	                    </tr>
+	                     <tr>	                    	
+	                    	<td class="w-90-px"><b>Loose Material :</b></td>
+	                    	<td>	                    	
+	                    	{{$looseProduct}}
+	                    	</td>
+	                    	<td>	                    	
+	                    	<b>Loose Material Percentage:</b>
+	                    	</td>
+	                    	<td colspan="4">
+	                    	{{$loosePer}}%
 	                    	</td>
 	                    </tr>
 	                    <tr>	                    	
