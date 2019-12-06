@@ -305,7 +305,7 @@ class StoreBatchCardController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_batch_cards.review_status', 'ASC'); 
+            $modelQuery = $modelQuery->orderBy('store_batch_cards.review_status', 'ASC')->orderBy('store_batch_cards.id', 'DESC');; 
         }
         else
         {

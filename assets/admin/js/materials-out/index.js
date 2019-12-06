@@ -22,6 +22,7 @@ $(document).ready(function()
                 	"sellable_qty" :  $('#sellable-qty').val(),
                 	"loss_material" :  $('#loss-material').val(),
                 	"yield" :  $('#yield').val(),
+                	"review_status" : $('#review-status').val()
                 }
             }
         },
@@ -32,12 +33,18 @@ $(document).ready(function()
             { "data": "product_code"},
             { "data": "sellable_qty"},
             { "data": "loss_material"},
-            { "data": "yield"},            
+            { "data": "yield"},
+            { "data": "review_status"},            
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,7] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,1,8] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "createdRow": function ( row, data, index ) {			
+			if ( data['review_status'] == 'Closed') {                
+                $(row).addClass('batch-closed');
+            }                  
+		}
        /* "language": {
           "processing": "Loading ...",
           "paginate": 
@@ -120,6 +127,7 @@ function removeSearch(element)
 	$('#sellable-qty').val('')
 	$('#loss-material').val('')
 	$('#yield').val('')
+	$('#review-status').val('')
 	$('#listingTable').DataTable().draw();
 }
 

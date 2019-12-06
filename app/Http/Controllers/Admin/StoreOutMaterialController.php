@@ -348,6 +348,13 @@ class StoreOutMaterialController extends Controller
                 $key = $request->custom['yield'];               
                 $modelQuery = $modelQuery
                 ->where('store_out_materials.yield',  '>', $key);               
+            }
+            if (isset($request->custom['review_status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['review_status'];
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.review_status', $key);
             }          
             
         }
@@ -378,7 +385,7 @@ class StoreOutMaterialController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_out_materials.id', 'DESC');
+            $modelQuery = $modelQuery->orderBy('store_out_materials.status', 'ASC')->orderBy('store_out_materials.id', 'DESC');
                         
         }
         else
@@ -412,11 +419,12 @@ class StoreOutMaterialController extends Controller
                 $data[$key]['sellable_qty']  =  number_format($row->sellable_qty, 2, '.', '');
                 $data[$key]['loss_material']  =  number_format($row->loss_material, 2, '.', '');
                 $data[$key]['yield']  =  number_format($row->yield, 2, '.', '');          
+                //$data[$key]['status']  =  'dffd';
 
-                if($row->status==1){
-                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
-                }elseif($row->status==0) {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Closed</span>';
+                if( $row->review_status == 'open'){
+                    $data[$key]['review_status'] = 'Open';
+                } else {
+                    $data[$key]['review_status'] = 'Closed';
                 }
                 $edit = '';
                 if( $row->review_status == 'open'){
@@ -455,13 +463,12 @@ class StoreOutMaterialController extends Controller
     $searchHTML['product_code']     =  $product_code_string;
     $searchHTML['sellable_qty']   =  '<input type="text" class="form-control" id="sellable-qty" value="'.($request->custom['sellable_qty']).'" placeholder="More than...">';
     $searchHTML['loss_material']   =  '<input type="text" class="form-control" id="loss-material" value="'.($request->custom['loss_material']).'" placeholder="More than...">';
-    $searchHTML['yield']   =  '<input type="text" class="form-control" id="yield" value="'.($request->custom['yield']).'" placeholder="More than...">';
-    //$searchHTML['status']   =  '';  
-    /*$searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
-            <option class="theme-black blue-select" value="">Status</option>
-            <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Active</option>
-            <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Closed</option>            
-            </select>';*/
+    $searchHTML['yield']   =  '<input type="text" class="form-control" id="yield" value="'.($request->custom['yield']).'" placeholder="More than...">';    
+    $searchHTML['review_status']   =  '<select name="review_status" id="review-status" class="form-control my-select">
+            <option class="theme-black blue-select" value="">Batch Status</option>
+            <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
+            <option class="theme-black blue-select" value="closed" '.( $request->custom['review_status'] == "closed" ? 'selected' : '').'>Closed</option>            
+            </select>';
     /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';removeSearch*/
 
     if ($custom_search) 

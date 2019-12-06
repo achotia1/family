@@ -39,15 +39,14 @@ $(document).ready(function()
         "aaSorting": [[0, 'DESC']],
         
 		"createdRow": function ( row, data, index ) {
-			console.log(data['plan_added']);
+			//console.log(data['plan_added']);
 			if ( data['review_status'] == 'Closed') {
                 //$('td', row).eq(5).addClass('batch-closed');
                 $(row).addClass('batch-closed');
             }
             if ( data['plan_added'] == 'No') {                
                 $(row).addClass('no-planned');
-            }
-            
+            }            
 		}
        /* "language": {
           "processing": "Loading ...",
