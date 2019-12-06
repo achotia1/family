@@ -85,6 +85,25 @@ class StoreReturnedMaterialController extends Controller
 
         $planBatch = $this->StoreProductionModel
                           ->getProductionPlans($companyId);
+        //
+           /*$da = $this->StoreProductionModel->with([
+            'assignedBatch' => function($q){                
+                $q->where('review_status','=', 'open');
+                //$q->with('assignedProduct');
+            }
+            ])->where('company_id', $companyId)
+            ->get();*/
+        /*$ds = $this->StoreProductionModel
+            ->with(['assignedBatch' => function($qu){
+                $qu->with('assignedProduct'); 
+            }])
+            ->whereHas('assignedBatch', function($q){
+                $q->where('review_status', '=', 'closed');                
+            })
+            ->get();*/
+        
+        //dd($ds);              
+        //
         //dd($planBatch);
         $this->ViewData['materialIds']   = $materialIds;
         $this->ViewData['planBatch']   = $planBatch;
@@ -637,6 +656,7 @@ class StoreReturnedMaterialController extends Controller
         ->take($length)
         ->get(['store_returned_materials.id', 
             'store_batch_cards.batch_card_no',
+            'store_batch_cards.review_status',
             'store_returned_materials.return_date',
            // 'store_returned_materials.material_id',
             //'store_returned_materials.quantity',
@@ -671,10 +691,16 @@ class StoreReturnedMaterialController extends Controller
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
                 }elseif($row->status==0) {
                  $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
-                }    */            
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
+                }    */
+                $edit = $delete = '';
+                if( $row->review_status == 'open'){
+                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
+                    
+                    $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
+                }            
+                
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></span></a>&nbsp';
-                $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
+                
                 //$data[$key]['actions'] = '';    
 
                 $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';

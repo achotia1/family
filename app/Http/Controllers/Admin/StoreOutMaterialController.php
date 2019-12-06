@@ -298,7 +298,7 @@ class StoreOutMaterialController extends Controller
         ## START MODEL QUERY         
         $companyId = self::_getCompanyId();
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_out_materials.id, store_out_materials.plan_id, store_out_materials.sellable_qty, store_out_materials.loss_material, store_out_materials.yield, store_productions.batch_id, store_batch_cards.batch_card_no, products.name, products.code')
+        ->selectRaw('store_out_materials.id, store_out_materials.plan_id, store_out_materials.sellable_qty, store_out_materials.loss_material, store_out_materials.yield, store_productions.batch_id, store_batch_cards.review_status, store_batch_cards.batch_card_no, products.name, products.code')
         ->leftjoin('store_productions', 'store_productions.id' , '=', 'store_out_materials.plan_id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
@@ -333,21 +333,21 @@ class StoreOutMaterialController extends Controller
                 $custom_search = true;
                 $key = $request->custom['sellable_qty'];               
                 $modelQuery = $modelQuery
-                ->where('store_out_materials.sellable_qty',  'LIKE', '%'.$key.'%');               
+                ->where('store_out_materials.sellable_qty',  '>', $key);               
             }
             if (!empty($request->custom['loss_material'])) 
             {
                 $custom_search = true;
                 $key = $request->custom['loss_material'];               
                 $modelQuery = $modelQuery
-                ->where('store_out_materials.loss_material',  'LIKE', '%'.$key.'%');               
+                ->where('store_out_materials.loss_material',  '>', $key);               
             } 
             if (!empty($request->custom['yield'])) 
             {
                 $custom_search = true;
                 $key = $request->custom['yield'];               
                 $modelQuery = $modelQuery
-                ->where('store_out_materials.yield',  'LIKE', '%'.$key.'%');               
+                ->where('store_out_materials.yield',  '>', $key);               
             }          
             
         }
@@ -409,7 +409,7 @@ class StoreOutMaterialController extends Controller
 
                 $data[$key]['batch_id']  = $row->batch_card_no;
                 $data[$key]['product_code']  =  $row->name;
-                $data[$key]['sellable_qty']  =  $row->sellable_qty;
+                $data[$key]['sellable_qty']  =  number_format($row->sellable_qty, 2, '.', '');
                 $data[$key]['loss_material']  =  number_format($row->loss_material, 2, '.', '');
                 $data[$key]['yield']  =  number_format($row->yield, 2, '.', '');          
 
@@ -418,8 +418,10 @@ class StoreOutMaterialController extends Controller
                 }elseif($row->status==0) {
                  $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Closed</span>';
                 }
-                
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                $edit = '';
+                if( $row->review_status == 'open'){
+                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                }
 
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 
@@ -451,9 +453,9 @@ class StoreOutMaterialController extends Controller
     $searchHTML['select']   =  '';
     $searchHTML['batch_id']     =  $batch_no_string;
     $searchHTML['product_code']     =  $product_code_string;
-    $searchHTML['sellable_qty']   =  '<input type="text" class="form-control" id="sellable-qty" value="'.($request->custom['sellable_qty']).'" placeholder="Search...">';
-    $searchHTML['loss_material']   =  '<input type="text" class="form-control" id="loss-material" value="'.($request->custom['loss_material']).'" placeholder="Search...">';
-    $searchHTML['yield']   =  '<input type="text" class="form-control" id="yield" value="'.($request->custom['yield']).'" placeholder="Search...">';
+    $searchHTML['sellable_qty']   =  '<input type="text" class="form-control" id="sellable-qty" value="'.($request->custom['sellable_qty']).'" placeholder="More than...">';
+    $searchHTML['loss_material']   =  '<input type="text" class="form-control" id="loss-material" value="'.($request->custom['loss_material']).'" placeholder="More than...">';
+    $searchHTML['yield']   =  '<input type="text" class="form-control" id="yield" value="'.($request->custom['yield']).'" placeholder="More than...">';
     //$searchHTML['status']   =  '';  
     /*$searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>

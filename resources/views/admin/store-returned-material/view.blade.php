@@ -118,6 +118,7 @@
                         @endphp
                         @foreach($object->hasReturnedMaterials as $material)
                         @php
+                        $quantity = number_format($material->quantity, 2, '.','');
                         if($material->material->material_type == 'Raw'){
                         $key = $key + 1;
                         $rawTotal = $rawTotal + $material->quantity;
@@ -126,7 +127,7 @@
                             <td>{{$key}}</td>
                             <td>{{$material->material->name}}</td>
                             <td>{{$material->lot->lot_no}}</td>          
-                            <td>{{$material->quantity}}</td>
+                            <td>{{$quantity}}</td>
                         </tr>
                         @php
                         } else {
@@ -136,7 +137,10 @@
                         $i++;
                         }
                         @endphp
-                        @endforeach                     
+                        @endforeach
+                        @php
+                        $rawTotal = number_format($rawTotal, 2, '.','');
+                        @endphp                     
                         <tr>                            
                             <td colspan="3"></td>
                             <td><b><span id="planned-weight">{{$rawTotal}}</span></b></td>                          
@@ -155,15 +159,20 @@
                         @endphp
                         @foreach($otherMaterial as $oKey=>$oMaterial)
                         @php
+                        $pquantity = number_format($oMaterial['quantity'], 2, '.','');
                         $packTotal = $packTotal + $oMaterial['quantity'];
+                        
                         @endphp
                         <tr>
                             <td>{{$oKey}}</td>
                             <td>{{$oMaterial['name']}}</td>
                             <td>{{$oMaterial['lot_no']}}</td>       
-                            <td>{{$oMaterial['quantity']}}</td>
+                            <td>{{$pquantity}}</td>
                         </tr>
                         @endforeach
+                        @php
+                        $packTotal = number_format($packTotal, 2, '.','');
+                        @endphp
                         <tr>                            
                             <td colspan="3"></td>
                             <td><b><span id="planned-pweight">{{$packTotal}}</span></b></td>                            

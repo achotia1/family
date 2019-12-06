@@ -188,6 +188,9 @@ class StoreInMaterialController extends Controller
     {        
         if(!$collection->id){
             $collection->lot_balance     = $request->lot_qty;
+        } else {
+            $diffQty = $request->lot_qty - $collection->lot_qty;
+            $collection->lot_balance = $collection->lot_balance + $diffQty; 
         }
         $collection->company_id        = self::_getCompanyId();
         $collection->user_id        = auth()->user()->id;
@@ -271,7 +274,7 @@ class StoreInMaterialController extends Controller
                 $custom_search = true;
                 $key = $request->custom['lot_qty'];               
                 $modelQuery = $modelQuery
-                ->where('store_in_materials.lot_qty', 'LIKE', '%'.$key.'%');
+                ->where('store_in_materials.lot_qty', '>', $key);
 
             }            
             if (isset($request->custom['lot_balance'])) 
@@ -279,7 +282,7 @@ class StoreInMaterialController extends Controller
                 $custom_search = true;
                 $key = $request->custom['lot_balance'];
                 $modelQuery = $modelQuery
-                ->where('store_in_materials.lot_balance', $key);
+                ->where('store_in_materials.lot_balance', '>', $key);
             }            
             if (isset($request->custom['status'])) 
             {
@@ -354,8 +357,8 @@ class StoreInMaterialController extends Controller
 
                 $data[$key]['lot_no']  = $row->lot_no;
                 $data[$key]['material_id']  =  $row->name;
-                $data[$key]['lot_qty']  =  $row->lot_qty;
-                $data[$key]['lot_balance']  =  $row->lot_balance;              
+                $data[$key]['lot_qty']  =  number_format($row->lot_qty, 2, '.', '');
+                $data[$key]['lot_balance']  =  number_format($row->lot_balance, 2, '.', '');           
 
                 if($row->status==1){
                     $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
@@ -389,8 +392,8 @@ class StoreInMaterialController extends Controller
     $searchHTML['select']   =  '';
     $searchHTML['lot_no']     =  '<input type="text" class="form-control" id="lot-no" value="'.($request->custom['lot_no']).'" placeholder="Search...">';
     $searchHTML['material_id']     =  $material_id_string;
-    $searchHTML['lot_qty']   =  '<input type="text" class="form-control" id="lot-qty" value="'.($request->custom['lot_qty']).'" placeholder="Search...">';
-    $searchHTML['lot_balance']   =  '<input type="text" class="form-control" id="lot-balance" value="'.($request->custom['lot_balance']).'" placeholder="Search...">';
+    $searchHTML['lot_qty']   =  '<input type="text" class="form-control" id="lot-qty" value="'.($request->custom['lot_qty']).'" placeholder="More than...">';
+    $searchHTML['lot_balance']   =  '<input type="text" class="form-control" id="lot-balance" value="'.($request->custom['lot_balance']).'" placeholder="More than...">';
     //$searchHTML['status']   =  '';  
     $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>

@@ -198,7 +198,7 @@ class StoreProductionController extends Controller
         }
         ])->where('company_id', $companyId)
         ->find($id);
-        //dd($data);
+        dd($data);
         if(empty($data)) {            
             return redirect()->route('admin.production.index');
         }
@@ -481,7 +481,7 @@ class StoreProductionController extends Controller
         ------------------------------*/
         $companyId = self::_getCompanyId();
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_productions.id, store_productions.batch_id,  store_batch_cards.batch_card_no, products.name, products.code, SUM(store_production_has_materials.quantity) as total_qty')
+        ->selectRaw('store_productions.id, store_productions.batch_id,  store_batch_cards.batch_card_no, store_batch_cards.review_status, products.name, products.code, SUM(store_production_has_materials.quantity) as total_qty')
         ->leftjoin('store_production_has_materials', 'store_production_has_materials.production_id' , '=', 'store_productions.id')
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_productions.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
@@ -564,7 +564,7 @@ class StoreProductionController extends Controller
          $object = $modelQuery
          ->get(); 
 
-        //dd($object->toArray());
+        //dd($object);
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -583,13 +583,16 @@ class StoreProductionController extends Controller
 
                 $data[$key]['batch_id']  = $row->batch_card_no;
                 $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
-                $data[$key]['quantity']  =  $row->total_qty;                
-                               
-                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                $data[$key]['quantity']  =  number_format($row->total_qty, 2, '.','');                
+                $edit = $delete = '';               
+                if( $row->review_status == 'open'){
+                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
+                     $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';    
+                }
+                
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
-                $data[$key]['actions'] = '';
-                $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';
 
+                $data[$key]['actions'] = '';
                 $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
                 if(auth()->user()->can('store-material-plan-add'))
                 {

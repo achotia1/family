@@ -42,23 +42,23 @@ class StoreProductionModel extends Model
         return $this->hasOne(StoreReturnedMaterialModel::class, 'plan_id', 'id');
     }
     public function getProductionPlans($companyId) {      
-        return self::with([
-            'assignedBatch' => function($q){
+        /*return self::with([
+            'assignedBatch' => function($q){                
                 $q->with('assignedProduct');
             }
         ])->where('company_id', $companyId)
-        ->get();
-        /*return self::with([
-            'assignedBatch' => function($q){                
-                $q->select(['id','batch_card_no']);
-                $q->where('review_status','=', 'open');
-                $q->with(['assignedProduct'=>function($p_query){
-                        $p_query->select(['id','code', 'name']);
-                    }
-                ]);
-            }
-        ])->where('company_id', $companyId)
         ->get();*/
+        
+        return self::with(
+            ['assignedBatch' => function($qu){
+                $qu->with('assignedProduct'); 
+            }]
+        )
+        ->whereHas('assignedBatch', function($q){
+            $q->where('review_status', '=', 'open');                
+        })
+        ->where('company_id', $companyId)
+        ->get();
         
     } 
     
