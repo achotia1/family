@@ -168,7 +168,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 
 
 				//Batchwise Summary
-				Route::get('/materials-out/batch-view/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
+				Route::get('/batch-summary/materials-out/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
 				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
 				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
 				Route::get('aged-materials', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
