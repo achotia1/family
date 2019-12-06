@@ -4,8 +4,13 @@
 {{ $moduleTitle }}
 @endsection
 
-@section('styles')
-@endsection
+@section('style')
+<style>
+.batch-closed{	
+	color:#41882a;
+	font-weight: 500;	
+}
+</style>
 
 @section('content')
 
@@ -25,6 +30,7 @@
                         <th class="w-160-px">Batch Code</th>
                         <th class="w-160-px">Product</th>
                         <th class="w-100-px">Total Raw Material</th>
+                        <th class="w-100-px">Batch Status</th>
                         <th class="w-180-px">Actions</th>                        
                     </tr>
                 </thead>

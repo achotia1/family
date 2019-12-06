@@ -612,22 +612,19 @@ class StoreReturnedMaterialController extends Controller
                 $modelQuery = $modelQuery
                     ->where('plan_id', $key);
             }
-           
-            /*if (!empty($request->custom['product_name'])) 
-            {
-                $custom_search = true;
-
-                $key = $request->custom['product_name'];
-                $modelQuery = $modelQuery
-                ->where('products.code',  'LIKE', '%'.$key.'%');
-            }*/
-
             if (!empty($request->custom['product_name'])) 
             {
                 $custom_search = true;
                 $key = $request->custom['product_name'];               
                 $modelQuery = $modelQuery
                 ->where('store_batch_cards.product_code',  $key);               
+            }
+            if (isset($request->custom['review_status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['review_status'];
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.review_status', $key);
             }
                 
         }
@@ -640,7 +637,6 @@ class StoreReturnedMaterialController extends Controller
         if(empty($column))
         {   
             $modelQuery = $modelQuery->orderBy('store_returned_materials.id', 'DESC');
-            //$modelQuery = $modelQuery->orderBy('vehicles.chassis_number', 'ASC');           
         }
         else
         {
@@ -682,11 +678,11 @@ class StoreReturnedMaterialController extends Controller
 
                 $data[$key]['return_date'] = date('d M Y',strtotime($row->return_date));
                 $data[$key]['product_name']  =  $row->prod_code." ( ".$row->prod_name." )";
-                /*if($row->status==1){
-                    $data[$key]['status'] = '<span class="theme-green semibold text-center f-18">Active</span>';
-                }elseif($row->status==0) {
-                 $data[$key]['status'] = '<span class="theme-gray semibold text-center f-18">Inactive</span>';
-                }    */
+                if( $row->review_status == 'open'){
+                    $data[$key]['review_status'] = 'Open';
+                } else {
+                    $data[$key]['review_status'] = 'Closed';
+                }
                 $edit = $delete = '';
                 if( $row->review_status == 'open'){
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
@@ -733,9 +729,12 @@ class StoreReturnedMaterialController extends Controller
     $searchHTML['select']   =  '';
     $searchHTML['plan_id'] = $batch_no_string;
     $searchHTML['return_date']     =  '';    
-     $searchHTML['product_name'] = $product_code_string;
-    //$searchHTML['product_name'] = '<input type="text" class="form-control" id="product-name" value="'.($request->custom['product_name']).'" placeholder="Search...">';
-    //$searchHTML['status']   =  '';
+    $searchHTML['product_name'] = $product_code_string;
+    $searchHTML['review_status']   =  '<select name="review_status" id="review-status" class="form-control my-select">
+            <option class="theme-black blue-select" value="">Batch Status</option>
+            <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
+            <option class="theme-black blue-select" value="closed" '.( $request->custom['review_status'] == "closed" ? 'selected' : '').'>Closed</option>            
+            </select>';
 
     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
 

@@ -20,6 +20,7 @@ $(document).ready(function()
                     "item_code" : $('#item-code').val(),
                     "plan_id" : $('#plan-id').val(),
                     "product_name" : $('#product-name').val(),
+                    "review_status" : $('#review-status').val()
                 }
             }
         },
@@ -29,16 +30,17 @@ $(document).ready(function()
             { "data": "plan_id"},
             { "data": "product_name"},
             { "data": "return_date"},
-            //{ "data": "item_code"},
-            //{ "data": "product_name"},
-            //{ "data": "quantity"},
-           // { "data": "bill_number"},            
-            //{ "data": "status"},
+            { "data": "review_status"},           
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,4] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,5] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "createdRow": function ( row, data, index ) {			
+			if ( data['review_status'] == 'Closed') {                
+                $(row).addClass('batch-closed');
+            }               
+		}
        /* "language": {
           "processing": "Loading ...",
           "paginate": 
@@ -122,6 +124,7 @@ function removeSearch(element)
   $('#product-name').val(''),
   $('#quantity').val(''),
   $('#bill-number').val(''),
+  $('#review-status').val(''),
   $('#listingTable').DataTable().draw();
 }
 

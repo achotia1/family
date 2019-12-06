@@ -4,7 +4,13 @@
 {{ $moduleTitle }}
 @endsection
 
-@section('styles')
+@section('style')
+<style>
+.batch-closed{	
+	color:#41882a;
+	font-weight: 500;	
+}
+</style>
 @endsection
 
 @section('content')
@@ -29,7 +35,8 @@
                         <th class="w-20">Product</th>                        
                         <th class="w-5">Sellable Quantity</th>
                         <th class="w-10">Loss Material</th>
-                        <th class="w-10">Yield</th>                        
+                        <th class="w-10">Yield</th>
+                        <th>Batch Status</th>                        
                         <th class="w-20">Actions</th>
                     </tr>
                 </thead>
