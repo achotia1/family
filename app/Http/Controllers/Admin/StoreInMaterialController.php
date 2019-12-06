@@ -183,6 +183,9 @@ class StoreInMaterialController extends Controller
     {        
         if(!$collection->id){
             $collection->lot_balance     = $request->lot_qty;
+        } else {
+            $diffQty = $request->lot_qty - $collection->lot_qty;
+            $collection->lot_balance = $collection->lot_balance + $diffQty; 
         }
         $collection->company_id        = self::_getCompanyId();
         $collection->user_id        = auth()->user()->id;
