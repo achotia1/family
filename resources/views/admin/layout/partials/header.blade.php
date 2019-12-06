@@ -54,14 +54,30 @@
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
+@php
 
+        if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo))
+        {
+          $logo = 'storage/app/'.$company->logo;
+        }
+        else
+        {
+          $logo = 'assets/admin/images/logo.jpg';
+        }
+        //dd($company);
+
+      @endphp
   <header class="main-header">
     <!-- Logo -->
     <a href="{{ url('/admin') }}" class="logo">
+      <div class="logo_img">
+        <img src="{{ asset($logo) }}" class="company-image" alt="Company Image">
+      </div>
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>O</b>S</span>
+      <span class="logo-mini"><b>{{ substr($company->name,0,1) }}</b>S</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>Orchid</b>Store</span>
+      <span class="logo-lg" style="@if(strlen($company->name)>8) font-size:15px @endif"><b>{{ $company->name }}</b>Store</span>
+
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">
@@ -76,6 +92,7 @@
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
              <!--  <img src="{{ asset('assets/adminLte/dist/img/user2-160x160.jpg') }}" class="user-image" alt="User Image"> -->
+             
             @if(Auth::check())
             <span class="hidden-xs">{{ ucwords(auth()->user()->name) }} </span>
             @endif
