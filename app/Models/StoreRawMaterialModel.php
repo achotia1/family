@@ -74,7 +74,11 @@ class StoreRawMaterialModel extends Model
         return $balanceMaterials;
     }
 
-    public function getMaterialNumbers() {
-        return StoreRawMaterialModel::select('id','name')->where('status', 1)->get();
+    public function getMaterialNumbers($company_id=false) {
+        // dd($company_id);
+        return StoreRawMaterialModel::select('id','name')
+                ->where('status', 1)
+                ->where('company_id', $company_id)
+                ->get();
     }
 }

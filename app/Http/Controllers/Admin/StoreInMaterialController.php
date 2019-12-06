@@ -63,12 +63,16 @@ class StoreInMaterialController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
+
+        $company_id = self::_getCompanyId();
+
         //$objLot = new StoreBatchCardModel;
         $lotNo = $this->BaseModel->geLotNo();
         $this->ViewData['lotNo']   = $lotNo;
 
         $objMaterial = new StoreRawMaterialModel;
-        $materialIds = $objMaterial->getMaterialNumbers();
+        $materialIds = $objMaterial->getMaterialNumbers($company_id);
+
         $this->ViewData['materialIds']   = $materialIds;
 
         // dd('test',$this->ModulePath);
@@ -135,8 +139,9 @@ class StoreInMaterialController extends Controller
         
         ## ALL DATA        
         $this->ViewData['material'] = $data;
+        
         $objMaterial = new StoreRawMaterialModel;
-        $materialIds = $objMaterial->getMaterialNumbers();
+        $materialIds = $objMaterial->getMaterialNumbers($companyId);
         $this->ViewData['materialIds']   = $materialIds;      
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
@@ -371,7 +376,7 @@ class StoreInMaterialController extends Controller
     }
 
     $objMaterial = new StoreRawMaterialModel;
-    $materialIds = $objMaterial->getMaterialNumbers();
+    $materialIds = $objMaterial->getMaterialNumbers($companyId);
     
     $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
         foreach ($materialIds as $mval) {
