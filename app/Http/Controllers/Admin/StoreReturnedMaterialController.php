@@ -82,27 +82,8 @@ class StoreReturnedMaterialController extends Controller
         $materialIds = $objMaterial->getMaterialNumbers($companyId);
 
         $planBatch = $this->StoreProductionModel
-                          ->getProductionPlans($companyId,true);
-        //
-           /*$da = $this->StoreProductionModel->with([
-            'assignedBatch' => function($q){                
-                $q->where('review_status','=', 'open');
-                //$q->with('assignedProduct');
-            }
-            ])->where('company_id', $companyId)
-            ->get();*/
-        /*$ds = $this->StoreProductionModel
-            ->with(['assignedBatch' => function($qu){
-                $qu->with('assignedProduct'); 
-            }])
-            ->whereHas('assignedBatch', function($q){
-                $q->where('review_status', '=', 'closed');                
-            })
-            ->get();*/
-        
-        //dd($ds);              
-        //
-        //dd($planBatch);
+                          ->getProductionPlans($companyId,true);                      
+       
         $this->ViewData['materialIds']   = $materialIds;
         $this->ViewData['planBatch']   = $planBatch;
         ## VIEW FILE WITH DATA
@@ -289,8 +270,8 @@ class StoreReturnedMaterialController extends Controller
                     ->where('store_returned_materials.id', base64_decode(base64_decode($encID)))
                     ->where('store_returned_materials.company_id', $companyId)
                     ->first();
-       // dd($data->toArray());
-        if(empty($data)) {            
+        //dd($data);
+        if(empty($data) || $data->assignedProductionPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.return.index');
         }
 
