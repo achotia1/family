@@ -11,7 +11,7 @@
 	font-weight: 500;	
 }
 </style>
-
+@endsection
 @section('content')
 
 <section class="content">

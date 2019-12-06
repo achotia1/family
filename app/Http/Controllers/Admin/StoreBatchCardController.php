@@ -123,7 +123,8 @@ class StoreBatchCardController extends Controller
         $this->ViewData['products']   = $products;
 
         $data = $this->BaseModel->where('store_batch_cards.id', base64_decode(base64_decode($encID)))->where('store_batch_cards.company_id', $companyId)->first();
-        if(empty($data)) {            
+        //dd($data);
+        if(empty($data) || $data->review_status == 'closed') {            
             return redirect()->route('admin.rms-store.index');
         }
 
