@@ -4,8 +4,18 @@
 {{ $moduleTitle }}
 @endsection
 
-@section('styles')
+@section('style')
+<style>
+.batch-closed{	
+	color:#5EC43C;
+	font-weight: 600;
+	
+}
+.no-planned{	
+	color:#1f7cef;
+}
 
+</style>
 @endsection
 
 @section('content')

@@ -38,6 +38,17 @@ $(document).ready(function()
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
         
+		"createdRow": function ( row, data, index ) {
+			console.log(data['plan_added']);
+			if ( data['review_status'] == 'Closed') {
+                //$('td', row).eq(5).addClass('batch-closed');
+                $(row).addClass('batch-closed');
+            }
+            if ( data['plan_added'] == 'No') {                
+                $(row).addClass('no-planned');
+            }
+            
+		}
        /* "language": {
           "processing": "Loading ...",
           "paginate": 

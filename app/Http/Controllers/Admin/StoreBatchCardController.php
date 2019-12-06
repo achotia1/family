@@ -346,9 +346,10 @@ class StoreBatchCardController extends Controller
                 $data[$key]['batch_qty']  =  number_format($row->batch_qty, 2, '.', '');
                 
                 if($row->plan_added=='no'){
-                    $data[$key]['plan_added'] = '<div class="text-left" style="color:#EF6D1F;">No</div>';
+                    $data[$key]['plan_added'] = 'No';
+                    /*$data[$key]['plan_added'] = '<div class="text-left" style="color:#EF6D1F;">No</div>';*/
                 }elseif($row->plan_added=='yes') {
-                 $data[$key]['plan_added'] = '<div class="text-left">Yes</div>';
+                 $data[$key]['plan_added'] = 'Yes';
                 }
                 if($row->review_status=='open'){
                     $data[$key]['review_status'] = 'Open';
