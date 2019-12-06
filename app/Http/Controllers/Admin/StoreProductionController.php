@@ -538,7 +538,7 @@ class StoreProductionController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_productions.status', 'ASC'); 
+            $modelQuery = $modelQuery->orderBy('store_batch_cards.review_status', 'ASC')->orderBy('store_productions.id', 'DESC'); 
         }
         else
         {
@@ -584,7 +584,12 @@ class StoreProductionController extends Controller
 
                 $data[$key]['batch_id']  = $row->batch_card_no;
                 $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
-                $data[$key]['quantity']  =  number_format($row->total_qty, 2, '.','');                
+                $data[$key]['quantity']  =  number_format($row->total_qty, 2, '.','');
+                if( $row->review_status == 'open'){
+                    $data[$key]['review_status'] = 'Open';
+                } else {
+                    $data[$key]['review_status'] = 'Closed';
+                }              
                 $edit = $delete = '';               
                 if( $row->review_status == 'open'){
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
@@ -625,7 +630,11 @@ class StoreProductionController extends Controller
     $searchHTML['batch_id'] = $batch_no_string;
     $searchHTML['product_code'] = $product_code_string;
     $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
-      
+    $searchHTML['review_status']   =  '<select name="review_status" id="review-status" class="form-control my-select">
+            <option class="theme-black blue-select" value="">Batch Status</option>
+            <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
+            <option class="theme-black blue-select" value="closed" '.( $request->custom['review_status'] == "closed" ? 'selected' : '').'>Closed</option>            
+            </select>';  
     if ($custom_search) 
     {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';

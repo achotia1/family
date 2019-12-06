@@ -7,14 +7,13 @@
 @section('style')
 <style>
 .batch-closed{	
-	color:#5EC43C;
+	color:#41882a;
 	font-weight: 600;
 	
 }
 .no-planned{	
 	color:#1f7cef;
 }
-
 </style>
 @endsection
 

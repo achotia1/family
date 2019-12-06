@@ -7,8 +7,8 @@
 @section('style')
 <style>
 .batch-closed{	
-	color:#5EC43C;
-	font-weight: 600;	
+	color:#41882a;
+	font-weight: 500;	
 }
 </style>
 @endsection

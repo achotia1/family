@@ -4,7 +4,7 @@ $(document).ready(function()
 
     const table = $('#listingTable').DataTable( 
     {
-        "stateSave": true,
+        /*"stateSave": true,*/
         "responsive": true,
         "processing": true,
         "bFilter": true, 
@@ -20,6 +20,7 @@ $(document).ready(function()
                     "batch_id" :  $('#batch-id').val(),
                     "product_code" :  $('#product-code').val(),
                     "quantity" :  $('#quantity').val(),
+                    "review_status" : $('#review-status').val()
                 }
             }
         },
@@ -29,11 +30,17 @@ $(document).ready(function()
             { "data": "batch_id"},
             { "data": "product_code"},            
             { "data": "quantity"},
+            { "data": "review_status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,4] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,5] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "createdRow": function ( row, data, index ) {			
+			if ( data['review_status'] == 'Closed') {                
+                $(row).addClass('batch-closed');
+            }               
+		}
        /* "language": {
           "processing": "Loading ...",
           "paginate": 
@@ -113,7 +120,8 @@ function removeSearch(element)
 {
   $('#batch-id').val(''),
   $('#product-code').val(''),
-  $('#quantity').val('')
+  $('#quantity').val(''),
+  $('#review-status').val(''),
   $('#listingTable').DataTable().draw();
 }
 
