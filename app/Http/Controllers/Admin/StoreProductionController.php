@@ -74,8 +74,9 @@ class StoreProductionController extends Controller
 
         $companyId = self::_getCompanyId();
         $objStore = new StoreBatchCardModel();
-        $batchNos = $objStore->getBatchNumbers(true);
-        // dd($batchNos);
+
+        $batchNos  = $objStore->getBatchNumbers($companyId,true);
+        // dd($companyId,$batchNos);
         
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
@@ -203,7 +204,7 @@ class StoreProductionController extends Controller
             return redirect()->route('admin.production.index');
         }
         $objStore = new StoreBatchCardModel();
-        $batchNos = $objStore->getBatchNumbers();
+        $batchNos = $objStore->getBatchNumbers($companyId);
 
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
@@ -602,7 +603,7 @@ class StoreProductionController extends Controller
          }
      }
     $objStore = new StoreBatchCardModel;
-    $batchNos = $objStore->getBatchNumbers();
+    $batchNos = $objStore->getBatchNumbers($companyId);
 
     ## SEARCH HTML
     $searchHTML['id']       =  '';

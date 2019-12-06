@@ -435,7 +435,7 @@ class StoreOutMaterialController extends Controller
     }
 
     $objStore = new StoreBatchCardModel;
-    $batchNos = $objStore->getBatchNumbers();
+    $batchNos = $objStore->getBatchNumbers($companyId);
     $batch_no_string = '<select name="batch_id" id="batch-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
         foreach ($batchNos as $val) {
             $batch_no_string .='<option class="theme-black blue-select" value="'.$val['id'].'" '.( $request->custom['batch_id'] == $val['id'] ? 'selected' : '').' >'.$val['batch_card_no'].'</option>';

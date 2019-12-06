@@ -76,15 +76,13 @@ class StoreReturnedMaterialController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
         
-        // $objStore = new StoreBatchCardModel;
-        // $batchNos = $objStore->getBatchNumbers();
         $companyId = self::_getCompanyId();
         
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers($companyId);
 
         $planBatch = $this->StoreProductionModel
-                          ->getProductionPlans($companyId);
+                          ->getProductionPlans($companyId,true);
         //
            /*$da = $this->StoreProductionModel->with([
             'assignedBatch' => function($q){                
@@ -296,13 +294,10 @@ class StoreReturnedMaterialController extends Controller
             return redirect()->route('admin.return.index');
         }
 
-		$objStore = new StoreBatchCardModel;
-        $batchNos = $objStore->getBatchNumbers();
-
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers($companyId);       
         
-        $this->ViewData['batchNos']   = $batchNos;
+        // $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
         
         ## ALL DATA
@@ -714,10 +709,8 @@ class StoreReturnedMaterialController extends Controller
          }
      }
 
-    // $objStore = new StoreBatchCardModel;
-    // $batchNos = $objStore->getBatchNumbers();
      $planBatch = $this->StoreProductionModel
-                          ->getProductionPlans($companyId);
+                          ->getProductionPlans($companyId,false);
 
     $batch_no_string = '<select name="batch_no" id="plan-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
         foreach ($planBatch as $plan) {
