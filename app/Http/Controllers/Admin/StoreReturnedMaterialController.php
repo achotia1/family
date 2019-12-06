@@ -78,10 +78,11 @@ class StoreReturnedMaterialController extends Controller
         
         // $objStore = new StoreBatchCardModel;
         // $batchNos = $objStore->getBatchNumbers();
-        $objMaterial = new StoreRawMaterialModel;
-        $materialIds = $objMaterial->getMaterialNumbers();
-
         $companyId = self::_getCompanyId();
+        
+        $objMaterial = new StoreRawMaterialModel;
+        $materialIds = $objMaterial->getMaterialNumbers($companyId);
+
         $planBatch = $this->StoreProductionModel
                           ->getProductionPlans($companyId);
         //
@@ -299,7 +300,7 @@ class StoreReturnedMaterialController extends Controller
         $batchNos = $objStore->getBatchNumbers();
 
         $objMaterial = new StoreRawMaterialModel;
-        $materialIds = $objMaterial->getMaterialNumbers();       
+        $materialIds = $objMaterial->getMaterialNumbers($companyId);       
         
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
