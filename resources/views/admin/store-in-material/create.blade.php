@@ -17,7 +17,7 @@
                 <div class="form-group col-md-6">
                     <label class="theme-blue"> 
                     Material <span class="required">*</span></label>
-                    <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Batch Code field is required.">
+                    <select class="form-control my-select" id="material_id" name="material_id" required="" data-error="Raw Material field is required.">
                         <option value="">Select Material</option>
                         @foreach($materialIds as $val)
                         <option value="{{$val['id']}}">{{$val['name']}}</option>

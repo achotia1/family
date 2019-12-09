@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 
 //Models
 use App\Models\StoreUsersModel;
-use App\Models\ProductsModel;
+use App\Models\StoreRawMaterialModel;
 // use App\Models\OrdersModel;
 use App\Models\CompanyModel;
 use App\Traits\GeneralTrait;
@@ -19,11 +19,11 @@ use Validator;
 
 class DashboardController extends Controller
 {
-    // use GeneralTrait;
+    use GeneralTrait;
 
     public function __construct(
                                 StoreUsersModel $StoreUsersModel,
-                                ProductsModel $ProductsModel,
+                                StoreRawMaterialModel $StoreRawMaterialModel,
                                 CompanyModel $CompanyModel
                                 // OrdersModel $OrdersModel,
                             )
@@ -35,7 +35,7 @@ class DashboardController extends Controller
         $this->CompanyModel     = $CompanyModel;
         $this->StoreUsersModel   = $StoreUsersModel;
         // $this->OrdersModel      = $OrdersModel;
-        $this->ProductsModel    = $ProductsModel;
+        $this->StoreRawMaterialModel    = $StoreRawMaterialModel;
 
         $this->ModuleTitle  = 'Dashboard';
         $this->ModuleView   = 'admin.dashboard.';
@@ -51,7 +51,7 @@ class DashboardController extends Controller
         $this->ViewData['moduleAction'] = $this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
-        // $company_id = self::_getCompanyId();
+        $company_id = self::_getCompanyId();
         // dd($company_id);
         // dd(auth());
         // self::_getAuthenticationForToken();
@@ -59,21 +59,21 @@ class DashboardController extends Controller
         // dd($company);
 
         $usersCount =  $this->StoreUsersModel
-                                ->whereHas('roles', function($query) {
+                                /*->whereHas('roles', function($query) {
                                     $query->where('name', '=','customer');
-                                })
+                                })*/
                              // ->where('users.company_id',$company_id)
                              ->whereStatus(1)
                              ->count();
         // dd($usersCount);
         
-        $productsCount =  $this->ProductsModel
-                                 ->whereStatus(1)
+        $rawMaterialsCount =  $this->StoreRawMaterialModel
+                                 ->where('store_raw_materials.company_id', $company_id)
                                  ->count();
                                  // ->where('products.company_id', $company_id)
         
         $count['customer']          = $usersCount;
-        $count['product']           = $productsCount;
+        $count['rawMaterial']           = $rawMaterialsCount;
         // $count['completedOrder']    = $completedOrderCount;
         // $count['totalOrder']        = $totalOrderCount;
         // $count['pendingOrder']      = $pendingOrderCount;

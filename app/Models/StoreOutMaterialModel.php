@@ -58,7 +58,7 @@ class StoreOutMaterialModel extends Model
         ->find($id);
         $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
         if($outputDetails){
-            $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->course_powder + $outputDetails->rejection + $outputDetails->dust_product;
+            $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->course_powder + $outputDetails->rejection + $outputDetails->dust_product+$outputDetails->loose_material;
             if(isset($outputDetails->assignedPlan->hasProductionMaterials)){
                 foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
                     if($detail->mateialName->material_type == 'Raw'){
@@ -73,6 +73,7 @@ class StoreOutMaterialModel extends Model
                     }
                 }
             }
+            // dd($finalWeight,$wasteageWeight);
             if($finalWeight>0){
                 //$wasteageWeight." >> ". $finalWeight;
                 $loss_material = $finalWeight - $wasteageWeight;
