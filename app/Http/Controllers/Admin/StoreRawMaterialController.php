@@ -12,6 +12,7 @@ use App\Models\StoreInMaterialModel;
 use App\Http\Requests\Admin\StoreRawMaterialRequest;
 use App\Traits\GeneralTrait;
 
+use DB;
 class StoreRawMaterialController extends Controller
 {
 
@@ -47,6 +48,17 @@ class StoreRawMaterialController extends Controller
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;        
 
+        /*$temptable = DB::raw("(SELECT deleted_at, material_id, SUM(store_in_materials.lot_balance) as total_balance 
+        FROM store_in_materials GROUP BY material_id) as im");
+        
+        $data =  DB::table('store_raw_materials')
+        ->select('store_raw_materials.id','store_raw_materials.name', 'store_raw_materials.moq', 'store_raw_materials.unit', 'store_raw_materials.material_type', 'store_raw_materials.status', 'im.total_balance')
+        ->leftJoin($temptable, 'im.material_id', '=', 'store_raw_materials.id') 
+        ->where('store_raw_materials.company_id', '=', 1)
+        ->where('im.deleted_at', null)
+        ->get();
+        dd($data);
+        die;*/
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
     }
@@ -212,18 +224,45 @@ class StoreRawMaterialController extends Controller
         |  MODEL QUERY AND FILTER
         ------------------------------*/
 
-        ## START MODEL QUERY 
-        /*$modelQuery =  $this->BaseModel
-       ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit,store_raw_materials.price_per_unit, store_raw_materials.total_price, store_raw_materials.opening_stock, store_raw_materials.balance_stock,store_raw_materials.trigger_qty,store_raw_materials.status,  store_issued_materials.quantity as issued_quantity')        
-        ->leftjoin('store_issued_materials', 'store_issued_materials.material_id' , '=', 'store_raw_materials.id');*/
+        ## START MODEL QUERY       
         $companyId = self::_getCompanyId();
         /*$modelQuery =  $this->BaseModel
-        ->where('store_raw_materials.company_id', $companyId);*/
-        $modelQuery =  $this->BaseModel
        ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit, store_raw_materials.material_type,store_raw_materials.status, SUM(store_in_materials.lot_balance) as total_balance')
-        ->leftjoin('store_in_materials', 'store_in_materials.material_id' , '=', 'store_raw_materials.id')
+        ->leftjoin('store_in_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
         ->where('store_raw_materials.company_id', $companyId)
-        ->where('store_in_materials.deleted_at', null);
+        ->where('store_in_materials.deleted_at', null);*/
+
+       /* $temptable = DB::raw("(SELECT deleted_at, material_id, SUM(store_in_materials.lot_balance) as total_balance             
+        FROM store_in_materials WHERE deleted_at is null GROUP BY material_id) as im");
+        
+        $modelQuery =  DB::table('store_raw_materials')
+        ->select('store_raw_materials.id','store_raw_materials.name', 'store_raw_materials.moq', 'store_raw_materials.unit', 'store_raw_materials.material_type', 'store_raw_materials.status', 'im.total_balance')
+        ->leftJoin($temptable, 'im.material_id', '=', 'store_raw_materials.id') 
+        ->where('store_raw_materials.company_id', '=', 1);*/
+        //->where('im.deleted_at', null);
+
+        $sub= DB::raw('(SELECT deleted_at, material_id, 
+                      SUM(store_in_materials.lot_balance) as total_balance 
+                      FROM store_in_materials
+                      WHERE deleted_at is null
+                      GROUP BY material_id) im');
+        
+        $modelQuery =  $this->BaseModel
+       ->selectRaw('
+                    store_raw_materials.id,
+                    store_raw_materials.name,
+                    store_raw_materials.moq,
+                    store_raw_materials.unit, 
+                    store_raw_materials.material_type,
+                    store_raw_materials.status,
+                    IFNULL(im.total_balance, 0) AS total_balance 
+                    ')        
+        ->leftjoin($sub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })
+        ->where('store_raw_materials.company_id', $companyId);
+        //->where('im.deleted_at', null);
+
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
@@ -240,15 +279,13 @@ class StoreRawMaterialController extends Controller
                 ->where('store_raw_materials.name', 'LIKE', '%'.$key.'%');
 
             }
-
-            /*if (!empty($request->custom['balance_stock'])) 
+            if (!empty($request->custom['total_balance'])) 
             {
                 $custom_search = true;
-                $key = $request->custom['balance_stock'];               
+                $key = $request->custom['total_balance'];                
                 $modelQuery = $modelQuery
-                ->where('store_raw_materials.balance_stock', 'LIKE', '%'.$key.'%');
-
-            }*/            
+                ->where('total_balance', '>', $key);
+            }           
             if (isset($request->custom['material_type'])) 
             {
                 $custom_search = true;
@@ -304,7 +341,7 @@ class StoreRawMaterialController extends Controller
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
         //dd($modelQuery->toSql());
-        $modelQuery =  $modelQuery->skip($start)
+        /*$modelQuery =  $modelQuery->skip($start)
         ->take($length)
         ->groupBy('store_in_materials.material_id');
         if (!empty($request->custom['total_balance'])) 
@@ -313,12 +350,13 @@ class StoreRawMaterialController extends Controller
             $key = $request->custom['total_balance'];                
             $modelQuery = $modelQuery
             ->havingRaw('sum(store_in_materials.lot_balance) > '.$key );
-        }
-        /*$object = $modelQuery->skip($start)
+        }*/
+        $object = $modelQuery->skip($start)
         ->take($length)
-        ->get();*/ 
-        $object = $modelQuery
-         ->get(); 
+        ->get(); 
+        //dd($modelQuery->toSql());
+        //$object = $modelQuery
+         //->get(); 
 
         /*['store_raw_materials.id', 
             'store_raw_materials.name', 
