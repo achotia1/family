@@ -55,10 +55,15 @@
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
 @php
+        function exist_file($url){
+            $result=get_headers($url);
+            return stripos($result[0],"200 OK")?true:false; //check if $result[0] has 200 OK
+         }
 
-        if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo))
+        if(!empty($company->logo) && exist_file(config('constants.COMPANYURL').'storage/app/'.$company->logo))
         {
-          $logo = 'storage/app/'.$company->logo;
+          //$logo = 'storage/app/'.$company->logo;
+          $logo = config('constants.COMPANYURL').'storage/app/'.$company->logo;
         }
         else
         {

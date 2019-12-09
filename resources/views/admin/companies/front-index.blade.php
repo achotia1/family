@@ -106,14 +106,22 @@
          </h1>
       </div>
       <div class="row">
+         @php
+         function exist_file($url){
+            $result=get_headers($url);
+            return stripos($result[0],"200 OK")?true:false; //check if $result[0] has 200 OK
+         }
+         @endphp
+
          @if(!empty($companies) && sizeof($companies)>0)
          @foreach($companies as $company)
          @php
-         $image_path = asset('/assets/admin/images/default.png');
-         if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo))
-         {
-            $image_path = url('/storage/app/'.$company->logo);
-         }
+            $image_path = asset('/assets/admin/images/default.png');
+           // dump(config('constants.COMPANYURL').'storage/app/'.$company->logo);
+            if(!empty($company->logo) && exist_file(config('constants.COMPANYURL').'storage/app/'.$company->logo))
+            {
+               $image_path = config('constants.COMPANYURL').'storage/app/'.$company->logo;
+            }
          @endphp
          <div class="col-md-4 mb-5">
            <a href="{{ $company->store_company_url }}">
