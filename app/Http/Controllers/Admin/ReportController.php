@@ -597,7 +597,7 @@ public function getContributionRecords(Request $request)
                 $data[$key]['product_name']  =  $row->code. " (".$row->name. ")";
                 $data[$key]['batch_code']  =  $row->batch_card_no;
                 $data[$key]['quantity']  = number_format($row->qty,2,'.','');
-                $data[$key]['rate']  =  number_format($row->quantity,2,'.','');
+                $data[$key]['rate']  =  number_format($row->rate,2,'.','');
                 $data[$key]['net_cost']  =  number_format($row->net,2,'.','');
                 $data[$key]['costing']  =  number_format($row->manufacturing_cost,2,'.','');
                 $data[$key]['gross']  =  number_format($row->gross_contibution,2,'.','');
