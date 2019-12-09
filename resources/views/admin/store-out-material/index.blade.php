@@ -25,19 +25,19 @@
         @endcan
         </div>
         
-        <div class="box-body">
+        <div class="box-body table-responsive">
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >
                 <thead class="blue-border-bottom">
                     <tr>
                         <th style="display: none"></th>
-                        <th class="w-10">Select</th>
-                        <th class="w-10">Batch Code</th>
+                        <th class="w-5">Select</th>
+                        <th class="w-20">Batch Code</th>
                         <th class="w-20">Product</th>                        
-                        <th class="w-5">Sellable Quantity</th>
+                        <th class="w-10">Sellable Quantity</th>
                         <th class="w-10">Loss Material</th>
                         <th class="w-10">Yield</th>
-                        <th>Batch Status</th>                        
-                        <th class="w-20">Actions</th>
+                        <th class="w-10">Batch Status</th>                        
+                        <th class="w-15">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
