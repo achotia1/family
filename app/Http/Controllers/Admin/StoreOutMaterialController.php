@@ -288,7 +288,8 @@ class StoreOutMaterialController extends Controller
             3 => 'products.code',            
             4 => 'store_out_materials.sellable_qty',
             5 => 'store_out_materials.loss_material',
-            6 => 'store_out_materials.yield',                    
+            6 => 'store_out_materials.yield', 
+            7 =>  'store_batch_cards.review_status'                  
         );
 
         /*--------------------------------------
