@@ -199,7 +199,7 @@ class ReportController extends Controller
 
                 $data[$key]['batch_id']     = "<a href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->id))]).">".$row->batch_card_no.'</a>';
                 $data[$key]['product_code'] =  $row->name;
-                $data[$key]['sellable_qty'] =  $row->sellable_qty;
+                $data[$key]['sellable_qty'] =  number_format($row->sellable_qty, 2, '.', '');
                 $data[$key]['loss_material']=  number_format($row->loss_material, 2, '.', '');
                 $data[$key]['yield']  =  number_format($row->yield, 2, '.', '');          
 
