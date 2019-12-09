@@ -65,8 +65,8 @@ class StoreOutMaterialController extends Controller
         
         $companyId = self::_getCompanyId();
         $objPlan = new StoreProductionModel;
-        $plans = $objPlan->getProductionPlans($companyId);
-        //dd($plans);
+        $plans = $objPlan->getProductionPlans($companyId,true);
+        // dd($plans);
         $this->ViewData['plans']   = $plans;
         
         ## VIEW FILE WITH DATA
