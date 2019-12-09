@@ -11,7 +11,7 @@ return [
 
 		//Test Mail
 		'ADMINEMAIL' 		=> 'eluminous_se42@eluminoustechnologies.com',
-		'COMPANYURL' 		=> 'http://localhost/orchid/',
+		'COMPANYURL' 		=> 'http://dev.eluminousdev.com/orchid/',
 		// 'ACCOUNTEMAIL' 		=> 'eluminous.se47@gmail.com',
 
 
