@@ -228,7 +228,7 @@ class StoreInMaterialController extends Controller
             0 => 'store_in_materials.id',
             1 => 'store_in_materials.id',
             2 => 'store_in_materials.lot_no',
-            3 => 'store_in_materials.material_id',            
+            3 => 'store_raw_materials.name',            
             4 => 'store_in_materials.lot_qty',
             5 => 'store_in_materials.lot_balance',
             6 => 'store_in_materials.status',           
