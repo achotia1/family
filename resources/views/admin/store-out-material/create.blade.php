@@ -43,77 +43,87 @@
                     </ul>
                 </span>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Sellable Quantity
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="sellable_qty" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Sellable Quantity should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_sellable_qty"></li>
-                    </ul>
-                </span>
+            <div class="row"> 
+                <div class="col-md-12">
+                    <div class="form-group col-md-6">
+                        <label class="theme-blue">Sellable Quantity
+                            <span class="required">*</span></label>
+                        <input 
+                            type="number" 
+                            name="sellable_qty" 
+                            class="form-control" 
+                            required
+                            maxlength="20"
+                            step="any"                  
+                            data-error="Sellable Quantity should be number." 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_sellable_qty"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="theme-blue">Course Powder
+                            <span class="required">*</span></label>
+                        <input 
+                            type="number" 
+                            name="course_powder" 
+                            class="form-control" 
+                            required
+                            maxlength="20"
+                            step="any"                  
+                            data-error="Course Powder should be number." 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_course_powder"></li>
+                            </ul>
+                        </span>
+                    </div> 
+                    
+                </div>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Course Powder
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="course_powder" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Course Powder should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_course_powder"></li>
-                    </ul>
-                </span>
-            </div> 
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Rejection
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="rejection" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Rejection should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_rejection"></li>
-                    </ul>
-                </span>
+
+            <div class="row"> 
+                <div class="col-md-12">
+                <div class="form-group col-md-6">
+                    <label class="theme-blue">Rejection
+                        <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        name="rejection" 
+                        class="form-control" 
+                        required
+                        maxlength="20"
+                        step="any"                  
+                        data-error="Rejection should be number." 
+                    >
+                    <span class="help-block with-errors">
+                        <ul class="list-unstyled">
+                            <li class="err_rejection"></li>
+                        </ul>
+                    </span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label class="theme-blue">Dust Product
+                        <span class="required">*</span></label>
+                    <input 
+                        type="number" 
+                        name="dust_product" 
+                        class="form-control" 
+                        required
+                        maxlength="20"
+                        step="any"                  
+                        data-error="Dust Product should be number." 
+                    >
+                    <span class="help-block with-errors">
+                        <ul class="list-unstyled">
+                            <li class="err_dust_product"></li>
+                        </ul>
+                    </span>
+                </div>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Dust Product
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="dust_product" 
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Dust Product should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_dust_product"></li>
-                    </ul>
-                </span>
             </div>
             <div class="form-group col-md-6">
                 <label class="theme-blue">Loose Material
