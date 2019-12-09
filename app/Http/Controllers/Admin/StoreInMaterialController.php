@@ -318,7 +318,7 @@ class StoreInMaterialController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_in_materials.status', 'ASC')->orderBy('store_in_materials.id', 'DESC');
+            $modelQuery = $modelQuery->orderBy('store_in_materials.status', 'DESC')->orderBy('store_in_materials.id', 'DESC');
                         
         }
         else
