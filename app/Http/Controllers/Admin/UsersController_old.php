@@ -26,7 +26,7 @@ use Mail;
 use DB;
 use Auth;
 
-class UsersController extends Controller
+class UsersControllerOld extends Controller
 {
     private $BaseModel;
     use GeneralTrait;
