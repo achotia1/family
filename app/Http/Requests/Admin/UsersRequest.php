@@ -21,8 +21,8 @@ class UsersRequest extends FormRequest
         {
             return [
                 'name'     => 'required|regex:/^[a-zA-Z0-9\s]+$/u',
-                'email'     => 'required|unique:users,email',
-                'username'     => 'required|unique:users,username',
+                'email'     => 'required|unique:store_users,email',
+                'username'     => 'required|unique:store_users,username',
                 'password'  => 'required|min:6',
                 'confirm_password'  => 'required|same:password',
                 'role'      => 'required',
@@ -32,8 +32,8 @@ class UsersRequest extends FormRequest
         {
             return [
                 'name'     => 'required|regex:/^[a-zA-Z0-9\s]+$/u',
-                'email'     => 'required|unique:users,email,'.$id,
-                'username'     => 'required|unique:users,username,'.$id,
+                'email'     => 'required|unique:store_users,email,'.$id,
+                'username'     => 'required|unique:store_users,username,'.$id,
                 'password'  => 'nullable|min:6',
                 'confirm_password'  => 'same:password'
             ];

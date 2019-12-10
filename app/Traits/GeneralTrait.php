@@ -47,16 +47,17 @@ trait GeneralTrait
 
         $where = "";
         if(!empty($user_id)){
-           $where = " AND users.id!=".$user_id; 
+           $where = " AND store_users.id!=".$user_id; 
         }
 
         if(!empty($email)){
-            $sqlQuery = "select count(1) as cnt,".$companyId." as currentCompany,users.company_id from users
+            $sqlQuery = "select count(1) as cnt,".$companyId." as currentCompany,store_users.company_id from store_users
                         where status=1 and email='".$email."'".$where." 
-                        GROUP by users.id";
+                        GROUP by store_users.id";
             // and company_id='".$companyId."'
             $collections = collect(DB::select($sqlQuery));
         }   
+        // dd($companyId,$sqlQuery,$collections);
 
         // return $count->cnt;            
         return $collections->first();

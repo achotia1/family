@@ -98,6 +98,7 @@ class UsersController extends Controller
                 return response()->json($this->JsonData);  
             }
         }
+         // dd('pp');
 
         DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
@@ -359,7 +360,7 @@ class UsersController extends Controller
             $modelQuery =  $this->BaseModel
                             ->whereHas('roles', function($query) {
                                 $query->where('guard_name', 'admin');
-                                $query->where('name', '!=','customer');
+                               // $query->where('name', '!=','customer');
                             });
 
              $company_id = self::_getCompanyId();
@@ -374,16 +375,19 @@ class UsersController extends Controller
             $totalData  = $countQuery->count();
 
             // filter options
-            if (!empty($search) || $search == '0') 
+            if (!empty($request->search))
             {
-            
-                $modelQuery = $modelQuery->where(function ($query) use($search)
+                if (!empty($request->search['value'])) 
                 {
-                    $query->orwhere('first_name', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('last_name', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('email', 'LIKE', '%'.$search.'%');   
-                    $query->orwhere('status', 'LIKE', '%'.$search.'%');   
-                });
+                    $search = $request->search['value'];
+
+                     $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('store_users.name', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_users.email', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_users.mobile_number', 'LIKE', '%'.$search.'%');   
+                    });
+                }
             }
 
             // get total filtered
@@ -409,7 +413,7 @@ class UsersController extends Controller
 
                         $data[$key]['id']           = $row->id;
                         $data[$key]['name']   = '<span title="'.ucfirst($row->name).'">'.ucfirst($row->name).'</span>';
-                        $data[$key]['company_name']    = '<span title="'.ucfirst($row->company_name).'">'.ucfirst($row->company_name).'</span>';
+                        // $data[$key]['company_name']    = '<span title="'.ucfirst($row->company_name).'">'.ucfirst($row->company_name).'</span>';
                         $data[$key]['email']        = '<a title="'.$row->email.'" href="mailto:'.$row->email.'" target="_blank" >'.strtolower($row->email).'</a>';                        
                         $data[$key]['mobile_number']  =  "<a href='tel:".$row->mobile_number."'>".$row->mobile_number."</a>";
                         $data[$key]['role']         = ucfirst($row->getRoleNames()[0] ?? '');
@@ -449,24 +453,30 @@ class UsersController extends Controller
     public function _storeOrUpdate($collection, $request)
     {
         // dump(app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions());
-        //     dd('pass');
-        $collection->contact_name   = $request->contact_name;
-        $collection->mobile_number  = $request->mobile_number;
+        // dump($request->all());
+        // dd($request->add);
+        $collection->name   = $request->name;
+        $collection->mobile_number  = str_replace("-", "", $request->mobile_number);
         //$collection->company_id     = base64_decode(base64_decode($request->company_id));
-        $collection->company_name   = $request->company_name;
+        // $collection->company_name   = $request->company_name;
         $collection->email          = $request->email;
         $collection->status         = 1;//Active
         // dd($collection);
-
+        $collection->username       = $request->username;
         if($request->add==1){
-            $collection->username       = strtolower(str_replace(" ", "", $request->contact_name));
-            $password                   = self::_generatePassword(6);
-            $collection->str_password   = $password;
-            $collection->password       = Hash::make($password);
+            // $collection->username       = strtolower(str_replace(" ", "", $request->name));
+           // $password                   = self::_generatePassword(6);
+            if(!empty($request->password))
+            {
+                $collection->str_password   = $request->password;
+                $collection->password   = Hash::make($request->password);
+            }
+
+            // $collection->password       = Hash::make($password);
             
             $collection->company_id     = self::_getCompanyId();
             //new
-            $phone   = str_replace("-", "",$collection->mobile_number);
+            /*$phone   = str_replace("-", "",$collection->mobile_number);
             $site_url = url('/');
             $company_name = "";
 
@@ -478,19 +488,14 @@ class UsersController extends Controller
 
             if(!empty($company->name)){
                 $company_name = $company->name;
-            }
-            $message = 'Hi '.$collection->contact_name.',Username: '.$collection->email.' Password: '.$collection->str_password;//.' ,Connect us at: '.$site_url
+            }*/
+            /*$message = 'Hi '.$collection->name.',Username: '.$collection->email.' Password: '.$collection->str_password;//.' ,Connect us at: '.$site_url
             $message .= " Thanks,".$company_name;
-            self::_sendSms($phone,$message);
+            self::_sendSms($phone,$message);*/
 
             //Send Mail
-            self::_sendRegisterMail($collection,$company);
-        }else{
-            if(!$collection->hasRole('super-admin')){
-                $collection->company_id     = self::_getCompanyId();
-            }
-            $collection->username       = strtolower(str_replace(" ", "", $request->username));
-        }
+           //self::_sendRegisterMail($collection);
+       }
         
         //Save data
         $collection->save();
@@ -498,6 +503,7 @@ class UsersController extends Controller
         // $collection->syncRoles(['customers']);
         
         return $collection;
+        
     }
 
     public function _generatePassword($length = 20){
