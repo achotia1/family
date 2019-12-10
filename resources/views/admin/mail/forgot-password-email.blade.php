@@ -17,7 +17,7 @@ style="margin-bottom: 35px;max-width:700px;width:95%">
 <table width="100%" border="0" cellspacing="0" cellpadding="0"
 style="padding: 40px 0px 20px;">
 <tr>
-<td> <!-- <img src="" alt="logo" style="display:block; border:0;"> --><span class="logo-lg"><b>Traffic</b>Officer</span></td>
+<td> <img src="{{ $user->company->logo }}" alt="logo" style="display:block; border:0;"></td>
 </tr>
 </table>
 </td>
@@ -29,7 +29,7 @@ style="padding: 40px 0px 20px;">
 <td style="text-align: justify; padding: 5%">
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>
-            <td> Dear {{ $user->username }} <br /><br /> We have received a request to reset
+            <td> Dear {{ $user->name }} <br /><br /> We have received a request to reset
                 the password for the {{  $user->company->name??"" }} account associated with this email
                 address. If you made this request, please follow the instructions
                 below. <br />
@@ -48,9 +48,8 @@ style="padding: 40px 0px 20px;">
                 we will never email you and ask you to disclose or verify your
                 password or credit card number. If you receive a suspicious email
                 requesting you update your account information, immediately report
-                it to <a href="mailto:"></a><br />
+                it to <a href="mailto:{{$user->company->adminmail}}">{{$user->company->adminmail}}</a><br />
                 <br />
-                <br /> <br />
             </td>
             <tr>
                 <td style="padding-top:5%;">

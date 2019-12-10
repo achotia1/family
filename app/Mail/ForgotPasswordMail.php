@@ -35,6 +35,7 @@ class ForgotPasswordMail extends Mailable
             $viewName='web.forgot.forgot-password-email';
         }
         $this->replyTo(config('constants.ADMINEMAIL'),config('ADMINFROMNAME'));
+        // dd($this->data);
 
         return $this->view($viewName, ['user' => $this->data]);
     }
