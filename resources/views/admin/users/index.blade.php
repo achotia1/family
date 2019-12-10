@@ -18,7 +18,7 @@
                 <thead class="blue-border-bottom">
                     <tr>
                         <th style="visibility: hidden;"></th>
-                        <th class="w-140-px">Name</th>
+                        <th class="w-140-px">Namekk</th>
                        <!--  <th class="w-140-px">Company Name</th> -->
                         <th class="w-200-px">Email</th>
                         <th class="w-100-px">Mobile</th>

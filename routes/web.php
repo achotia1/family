@@ -197,6 +197,17 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('return-sale', 'StoreReturnedSaleController', ['as' => $PREFIX]);
 				/*});*/
 
+				// Return Sale
+				/*Route::group(['prefix' => 'sale', function () use($PREFIX)
+				{*/
+					//,'middleware' => ['permission:store-manage-returned-sale']]
+					/*Route::post('/sale-stock/checkExistingRecord',  'StoreReturnedSaleController@checkExistingRecord');
+					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
+					Route::post('/return-sale/getSaleProducts',  'StoreReturnedSaleController@getSaleProducts');*/
+					Route::get('/sale-stock/getRecords',  'StoreSaleStockController@getRecords');
+					Route::resource('sale-stock', 'StoreSaleStockController', ['as' => $PREFIX]);
+				/*});*/
+
 
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
