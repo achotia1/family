@@ -79,6 +79,7 @@ class StoreRawMaterialModel extends Model
         return StoreRawMaterialModel::select('id','name')
                 ->where('status', 1)
                 ->where('company_id', $company_id)
+                ->orderBy('name', 'ASC')
                 ->get();
     }
 }
