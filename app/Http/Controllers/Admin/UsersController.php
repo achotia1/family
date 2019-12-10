@@ -157,7 +157,7 @@ class UsersController extends Controller
     public function edit($encID)
     {
 
-        // dd('edit');
+        dd('edit');
         // Default site settings
         $this->ViewData['moduleTitle']  = 'Manage123 '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.str_singular($this->ModuleTitle);
