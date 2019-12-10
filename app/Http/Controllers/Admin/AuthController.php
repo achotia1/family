@@ -190,7 +190,7 @@ class AuthController extends Controller
         {
 
             $this->JsonData['status'] = 'error';
-            $this->JsonData['msg'] = 'User does not match our records.';
+            $this->JsonData['msg'] = 'User does not exist.';
 
             $email = self::_validateUsername($request->username);
             
