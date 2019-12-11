@@ -6,7 +6,7 @@ $(document).ready(function ()
 })
 
 // submitting form after validation
-$('#materialInForm').validator().on('submit', function (e) 
+$('#stockInForm').validator().on('submit', function (e) 
 {
     if (!e.isDefaultPrevented()) {
 
