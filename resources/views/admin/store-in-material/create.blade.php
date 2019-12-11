@@ -71,10 +71,12 @@
                 <label class="theme-blue">Price Per Unit
                     <span class="required">*</span></label>
                 <input 
-                    type="text" 
+                    type="number" 
                     name="price_per_unit"                    
                     class="form-control" 
-                    required                                       
+                    required
+                    step="any"                   
+                    maxlength="20"                                       
                     data-error="Price Per Unit field is required." 
                 >
                 <span class="help-block with-errors">
