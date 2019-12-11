@@ -225,12 +225,7 @@ class StoreRawMaterialController extends Controller
         ------------------------------*/
 
         ## START MODEL QUERY       
-        $companyId = self::_getCompanyId();
-        /*$modelQuery =  $this->BaseModel
-       ->selectRaw('store_raw_materials.id, store_raw_materials.name, store_raw_materials.moq, store_raw_materials.unit, store_raw_materials.material_type,store_raw_materials.status, SUM(store_in_materials.lot_balance) as total_balance')
-        ->leftjoin('store_in_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
-        ->where('store_raw_materials.company_id', $companyId)
-        ->where('store_in_materials.deleted_at', null);*/
+        $companyId = self::_getCompanyId();        
 
        /* $temptable = DB::raw("(SELECT deleted_at, material_id, SUM(store_in_materials.lot_balance) as total_balance             
         FROM store_in_materials WHERE deleted_at is null GROUP BY material_id) as im");
