@@ -215,6 +215,9 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					/*Route::post('/sale-stock/checkExistingRecord',  'StoreReturnedSaleController@checkExistingRecord');
 					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
 					Route::post('/return-sale/getSaleProducts',  'StoreReturnedSaleController@getSaleProducts');*/
+					Route::get('/sale-stock/correct-balance/{id}',  'StoreSaleStockController@correctBalance')->name($PREFIX.'.sale-stock.correct-balance');
+					Route::post('/sale-stock/updateBalance',  'StoreSaleStockController@updateBalance')->name($PREFIX.'.sale-stock.updateBalance');
+					Route::get('/sale-stock/show/{id}',  'StoreSaleStockController@show')->name($PREFIX.'.sale-stock.show');
 					Route::get('/sale-stock/getRecords',  'StoreSaleStockController@getRecords');
 					Route::resource('sale-stock', 'StoreSaleStockController', ['as' => $PREFIX]);
 				/*});*/

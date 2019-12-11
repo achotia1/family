@@ -416,7 +416,7 @@ class StoreOutMaterialController extends Controller
                 $data[$key]['select'] = '<label class="checkbox-container d-inline-block"><input type="checkbox" name="store_in_materials[]" value="'.base64_encode(base64_encode($row->id)).'" class="rowSelect"><span class="checkmark"></span></label>';
 
                 $data[$key]['batch_id']  = $row->batch_card_no;
-                $data[$key]['product_code']  =  $row->name;
+                $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
                 $data[$key]['sellable_qty']  =  number_format($row->sellable_qty, 2, '.', '');
                 $data[$key]['loss_material']  =  number_format($row->loss_material, 2, '.', '');
                 $data[$key]['yield']  =  number_format($row->yield, 2, '.', '');          
@@ -555,7 +555,7 @@ public function sendToSale(Request $request)
         DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.'; 
-        //dd($request->   all());
+        //dd($request->all());
         try
         {
             $id = $request->id;
@@ -583,6 +583,7 @@ public function sendToSale(Request $request)
                     $objStock = new StoreSaleStockModel;
 
                     if($objStock->addSalesStock($data)){
+                        //dd($objStock);  
                         ## ADD WASTAGE STOCK
                         $wasteData['course'] = $request->course;
                         $wasteData['balance_course'] = $request->course;

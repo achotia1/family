@@ -11,39 +11,39 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>            
-        <form id="materialInForm" data-toggle="validator" action="{{ route($modulePath.'updateBalance') }}" method="post">
+        <form id="stockInForm" data-toggle="validator" action="{{ route($modulePath.'updateBalance') }}" method="post">
             
             <div class="form-group col-md-6">
-                <label class="theme-blue">Material</label>
+                <label class="theme-blue">Product</label>
                 <input 
                     type="text" 
-                    name="material_id"
-                    value="{{$material->hasMateials->name}}"                   
+                    name="code"
+                    value="{{$stock->assignedProduct->code}} ({{$stock->assignedProduct->name}})"                   
                     class="form-control" 
                     disabled
                 >               
             </div>
             <div class="form-group col-md-6">
-                <label class="theme-blue">Lot Number</label>
+                <label class="theme-blue">Batch Code</label>
                 <input 
                     type="text" 
-                    name="lot_no"
-                    value="{{$material->lot_no}}"                   
+                    name="batch_card_no"
+                    value="{{$stock->assignedBatch->batch_card_no}}"                   
                     class="form-control" 
                     disabled
                 >               
             </div>
             <div class="form-group col-md-6">
-                <label class="theme-blue">Old Lot Balance</label>
+                <label class="theme-blue">Old Stock Balance</label>
                 <input 
                     type="number" 
                     name="previous_balance"
-                    value="{{$material->lot_balance}}"
+                    value="{{$stock->balance_quantity}}"
                     class="form-control" 
                     readonly
                     step="any"                   
                     maxlength="20" 
-                    data-error="Lot Quantity should be number." 
+                    data-error="Stock Balance should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -52,7 +52,7 @@
                 </span>
             </div>
             <div class="form-group col-md-6">
-                <label class="theme-blue">New Lot Balance
+                <label class="theme-blue">New Stock Balance
                 	<span class="required">*</span></label>
                 <input 
                     type="number" 
@@ -62,7 +62,7 @@
                     step="any"
                     required                   
                     maxlength="20" 
-                    data-error="Corrected Lot Balance should be number." 
+                    data-error="Corrected Stock Balance should be number." 
                 >
                 <span class="help-block with-errors">
                     <ul class="list-unstyled">
@@ -70,7 +70,7 @@
                     </ul>
                 </span>
             </div>
-            <input type="hidden" name="id" value="{{$material->id}}"/>
+            <input type="hidden" name="id" value="{{$stock->id}}"/>
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                     <!-- <button type="reset" class="btn btn-danger">Reset</button> -->
@@ -84,5 +84,5 @@
 
 @endsection
 @section('scripts')    
-    <script type="text/javascript" src="{{ url('assets/admin/js/materials-in/create-edit.js') }}"></script>    
+    <script type="text/javascript" src="{{ url('assets/admin/js/stock-in/create-edit.js') }}"></script>    
 @endsection

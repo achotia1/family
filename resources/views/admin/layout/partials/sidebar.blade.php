@@ -245,6 +245,24 @@
         </li>
          @endcan 
         <!-- end production -->
+        
+        <!-- stock -->
+        <li class="treeview {{ active(['admin/sale-stock', 'admin/sale-stock/*']) }}">
+          <a href="#">
+            <i class="fa fa-inbox"></i>
+            <span>Manage Stock</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li class="{{ active('admin/sale-stock') }}">
+              <a href="{{ route('admin.sale-stock.index') }}"><i class="fa fa-hand-o-right"></i> View Stock</a>
+            </li>            
+          </ul>
+        </li>
+        <!-- end stock -->
+        
         <!-- Review Batch card -->
         
        <!--  <li class="{{ active(['admin/review-batch-card','admin/review-batch-card/*']) }}">

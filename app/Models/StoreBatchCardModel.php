@@ -91,6 +91,16 @@ class StoreBatchCardModel extends Model
         return $collection;
     }
 
+    public function getClosedBatches($companyId) {      
+        
+        $modelQuery = self::select('id','batch_card_no')
+                ->where('company_id', $companyId)
+                ->where('review_status', 'closed')
+                ->where('status', 1);        
+        $result = $modelQuery->get();
+        return $result;   
+        
+    }
    /* public function getPendingBatches() {
         return self::where('status', 1)->orderBy('id', 'DESC')->get();
         
