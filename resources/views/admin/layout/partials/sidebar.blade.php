@@ -99,7 +99,7 @@
         @can('store-manage-material-in')     
         <li class="treeview {{ active(['admin/materials-in', 'admin/materials-in/*']) }}">
           <a href="#">
-            <i class="fa fa-list-alt"></i>
+            <i class="fa fa-inbox"></i>
             <span>Manage Material In</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -148,7 +148,7 @@
         @can('store-manage-material-plans') 
         <li class="treeview {{ active(['admin/production', 'admin/production/*']) }}">
           <a href="#">
-            <i class="fa fa-user-secret"></i>
+            <i class="fa fa-gear"></i>
             <span>Manage Material Plans</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -198,7 +198,7 @@
        @can('store-manage-returned-material') 
         <li class="treeview {{ active(['admin/return', 'admin/return/*']) }}">
           <a href="#">
-            <i class="fa fa-user-secret"></i>
+            <i class="fa fa-share"></i>
             <span>Manage Returned Material</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -256,7 +256,7 @@
          
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
-            <i class="fa fa-inbox"></i>
+            <i class="ion ion-bag"></i>
             <span>Manage Sales</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -274,7 +274,7 @@
 
         <li class="treeview {{ active(['admin/return-sale', 'admin/return-sale/*']) }}">
           <a href="#">
-            <i class="fa fa-inbox"></i>
+            <i class="fa fa-share"></i>
             <span>Manage Returned Sale</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -290,9 +290,9 @@
           </ul>
         </li>
         <!-- Manage Reports -->        
-        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report']) }}">
+        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material']) }}">
           <a href="#">
-            <i class="fa fa-user-secret"></i>
+            <i class="fa fa-file"></i>
             <span>Manage Reports</span>
             <span class="pull-right-container">
               <i class="fa fa-angle-left pull-right"></i>
@@ -307,7 +307,13 @@
             </li>
             <li class="{{ active('admin/contribution-report') }}">
               <a href="{{ route('admin.report.contribution') }}"><i class="fa fa-hand-o-right"></i> Contribution Report</a>
-            </li>            
+            </li>  
+            <li class="{{ active('admin/aged-products') }}">
+              <a href="{{ route('admin.report.agedProducts') }}"><i class="fa fa-hand-o-right"></i> Aged Product Report</a>
+            </li> 
+            <li class="{{ active('admin/deviation-material') }}">
+              <a href="{{ route('admin.report.deviationMaterial') }}"><i class="fa fa-hand-o-right"></i> Deviation Material Report</a>
+            </li>         
           </ul>
         </li>
         <!-- End Manage Reports -->

@@ -344,10 +344,10 @@ class UsersController extends Controller
             // filter columns
             $filter = array(
                 0 => 'id',
-                1 => 'contact_name',
-                2 => 'company_name',
-                3 => 'email',
-                4 => 'mobile_number',
+                1 => 'store_users.name',
+                2 => 'store_users.email',
+                3 => 'store_users.mobile_number',
+                4 => 'role',
                 5 => 'role',
                 // 4 => 'status'
             );

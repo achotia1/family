@@ -171,11 +171,22 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('/batch-summary/materials-out/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
 				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
 				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
+
+				//Aged Material Report
 				Route::get('aged-materials', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
 				Route::get('aged-materials/getAgedMaterialRecords', 'ReportController@getAgedMaterialRecords');
 
+				//Contribution Report
 				Route::get('contribution-report', 'ReportController@contributionIndex')->name('admin.report.contribution');
 				Route::get('contribution-report/getContributionRecords', 'ReportController@getContributionRecords');
+
+				//Aged Product Report
+				Route::get('aged-products', 'ReportController@agedProductIndex')->name('admin.report.agedProducts');
+				Route::get('aged-products/getAgedProductRecords', 'ReportController@getAgedProductRecords');
+
+				//Deviation Report
+				Route::get('deviation-material', 'ReportController@deviationMaterialIndex')->name('admin.report.deviationMaterial');
+				Route::get('deviation-material/getdeviationMaterialRecords', 'ReportController@getdeviationMaterialRecords');
 
 				//Sales Management
 				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)

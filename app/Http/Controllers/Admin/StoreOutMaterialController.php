@@ -393,7 +393,7 @@ class StoreOutMaterialController extends Controller
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
-        //dd($modelQuery->toSql());
+        // dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get();  

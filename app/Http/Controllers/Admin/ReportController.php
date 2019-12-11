@@ -10,6 +10,7 @@ use App\Models\ProductsModel;
 use App\Models\StoreInMaterialModel;
 use App\Models\StoreRawMaterialModel;
 use App\Models\StoreSaleInvoiceHasProductsModel;
+use App\Models\StoreSaleStockModel;
 
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
@@ -21,11 +22,15 @@ class ReportController extends Controller
     
     public function __construct(
 
-        StoreOutMaterialModel $StoreOutMaterialModel
+        StoreOutMaterialModel $StoreOutMaterialModel,
+        StoreSaleStockModel $StoreSaleStockModel,
+        StoreInMaterialModel $StoreInMaterialModel
     )
     {
 
         $this->BaseModel = $StoreOutMaterialModel;   
+        $this->StoreSaleStockModel = $StoreSaleStockModel;   
+        $this->StoreInMaterialModel = $StoreInMaterialModel;   
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -615,4 +620,350 @@ public function getContributionRecords(Request $request)
 
     return response()->json($this->JsonData);
 }
+
+/*--------------------------------------
+ |  Aged Product Report
+------------------------------*/
+    public function agedProductIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Aged Product Report';
+        $this->ViewData['moduleAction'] = 'Aged Product Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        //dd('aged report');
+        // view file with data
+        return view($this->ModuleView.'agedProduct',$this->ViewData);
+    }
+
+    public function getAgedProductRecords(Request $request)
+    {
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+            ## SKIP AND LIMIT
+            $start = $request->start;
+            $length = $request->length;
+
+            ## SEARCH VALUE
+            $search = $request->search['value']; 
+
+            ## ORDER
+            $column = $request->order[0]['column'];
+            $dir = $request->order[0]['dir'];
+
+            ## FILTER COLUMNS
+            $filter = array(
+                0 => 'store_sales_stock.id',            
+                1 => 'store_sales_stock.batch_id',
+                2 => 'store_sales_stock.product_id',            
+                3 => 'store_sales_stock.balance_quantity',
+                4 => 'store_sales_stock.last_used_at',
+                5 => 'store_sales_stock.created_at',                    
+            );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+            ## START MODEL QUERY        
+            //$companyId = self::_getCompanyId();
+            $companyId = self::_getCompanyId();        
+            // $model = new StoreInMaterialModel;
+            $modelQuery = $this->StoreSaleStockModel
+            ->selectRaw('store_sales_stock.id, 
+                        store_sales_stock.batch_id, 
+                        store_sales_stock.product_id,
+                        store_sales_stock.balance_quantity,
+                        store_sales_stock.last_used_at,
+                        store_sales_stock.created_at, 
+                        store_batch_cards.batch_card_no,
+                        products.name as productName,
+                        products.code as productCode
+                        ')       
+            ->leftjoin('products', 'products.id' , '=', 'store_sales_stock.product_id')
+            ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sales_stock.batch_id')
+            ->where('store_sales_stock.balance_quantity', '>', 0)
+            ->where('store_sales_stock.company_id', $companyId)
+            ->where('store_batch_cards.deleted_at', null);
+            ## GET TOTAL COUNT
+            $countQuery = clone($modelQuery);            
+            $totalData  = $countQuery->count();
+
+            ## FILTER OPTIONS
+            $custom_search = false;
+            if (!empty($request->custom))
+            {
+                if (!empty($request->custom['interval-time'])) 
+                {
+                    $custom_search = true;
+                    $key = $request->custom['interval-time'];
+                    
+                    /*$modelQuery = $modelQuery
+                    ->where('store_in_materials.created_at', '<=', 'now() - INTERVAL '.$key.' DAY');                
+                    $modelQuery = $modelQuery->where(function($query)use($key) {
+                    $query->where('last_used_at', null)
+                        ->orWhere('last_used_at', '<=', 'NOW() - INTERVAL '.$key.' DAY'); 
+                        });*/
+                    //$keyDate = '2019-11-30';
+                    $modelQuery = $modelQuery
+                    ->where('store_sales_stock.created_at', '<=', Carbon::now()->subDays($key));                
+                    $modelQuery = $modelQuery->where(function($query)use($key) {
+                        $query->where('last_used_at', null)
+                        ->orWhere('last_used_at', '<=', Carbon::now()->subDays($key)); 
+                    });
+                }
+                
+            }
+
+            if (!empty($request->search))
+            {
+                if (!empty($request->search['value'])) 
+                {
+                    $search = $request->search['value'];
+
+                     $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('products.name', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('products.code', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');
+                        $query->orwhere('store_sales_stock.balance_quantity', 'LIKE', '%'.$search.'%');   
+                    });              
+
+                }
+            }
+
+            ## GET TOTAL FILTER
+            $filteredQuery = clone($modelQuery);            
+            $totalFiltered  = $filteredQuery->count();
+
+            ## OFFSET AND LIMIT
+            if(empty($column))
+            {   
+                $modelQuery = $modelQuery->orderBy('store_sales_stock.last_used_at', 'ASC');
+                            
+            }
+            else
+            {
+                $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+            }
+            //dd($modelQuery->toSql());
+            $object = $modelQuery->skip($start)
+            ->take($length)
+            ->get(); 
+            //dd($object);
+            /*--------------------------------------
+            |  DATA BINDING
+            ------------------------------*/
+
+            $data = [];
+
+            if (!empty($object) && sizeof($object) > 0)
+            {
+                $count =1;
+                foreach ($object as $key => $row)
+                {
+                    $last_used_at = 'Never';
+                    if($row->last_used_at != null)
+                        $last_used_at = date('d M Y',strtotime($row->last_used_at));
+                            
+                    $data[$key]['id'] = $row->id;
+                    $data[$key]['batch']  = $row->batch_card_no;
+                    $data[$key]['product']  =  $row->productCode." (".$row->productName.")";
+                    $data[$key]['stock_balance']  =  number_format($row->balance_quantity, 2, '.', '');
+                    $data[$key]['last_used_at']  =  $last_used_at;
+                    $data[$key]['stock_in_date']  =  date('d M Y',strtotime($row->created_at));
+
+                }
+            }    
+
+        ## WRAPPING UP
+        $this->JsonData['draw']             = intval($request->draw);
+        $this->JsonData['recordsTotal']     = intval($totalData);
+        $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+        $this->JsonData['data']             = $data;
+
+        return response()->json($this->JsonData);
+    }
+
+/*--------------------------------------
+ |  Deviation Report
+------------------------------*/
+
+    public function deviationMaterialIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Deviation Material Report';
+        $this->ViewData['moduleAction'] = 'Deviation Material Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        //dd('aged report');
+        // view file with data
+        return view($this->ModuleView.'deviationMaterial',$this->ViewData);
+    }
+
+    public function getdeviationMaterialRecords(Request $request)
+    {
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+            ## SKIP AND LIMIT
+            $start = $request->start;
+            $length = $request->length;
+
+            ## SEARCH VALUE
+            $search = $request->search['value']; 
+
+            ## ORDER
+            $column = $request->order[0]['column'];
+            $dir = $request->order[0]['dir'];
+
+            ## FILTER COLUMNS
+            $filter = array(
+                0 => 'store_in_materials.id',            
+                1 => 'store_in_materials.lot_no',
+                2 => 'store_in_materials.material_id',            
+                3 => 'store_in_materials.balance_corrected_at',
+            );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+            ## START MODEL QUERY        
+            $companyId = self::_getCompanyId();        
+
+            $modelQuery = $this->StoreInMaterialModel
+            ->selectRaw('store_in_materials.id, 
+                        store_in_materials.lot_no, 
+                        store_in_materials.material_id,
+                        store_in_materials.balance_corrected_at,
+                        store_in_materials.created_at, 
+                        store_raw_materials.name as materialName
+                        ')       
+            ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
+            ->where('store_in_materials.company_id', $companyId)
+            ->whereNotNull('store_in_materials.balance_corrected_at')
+            ->where('store_raw_materials.deleted_at', null);
+            ## GET TOTAL COUNT
+            $countQuery = clone($modelQuery);            
+            $totalData  = $countQuery->count();
+
+            ## FILTER OPTIONS
+            $custom_search = false;
+            if (!empty($request->custom))
+            {            
+               
+                if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+                    $custom_search = true;
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    if (strtotime($start_date)==strtotime($end_date)){
+                        
+                        $modelQuery  = $modelQuery
+                                            ->whereDate('store_in_materials.balance_corrected_at','=',$start_date);
+
+                    }else{
+                        $modelQuery = $modelQuery
+                                        ->whereBetween('store_in_materials.balance_corrected_at', 
+                                        array($start_date,$end_date));
+                    }
+
+                
+
+                }else if(!empty($request->custom['from-date']) && empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_in_materials.balance_corrected_at','>=',$start_date);
+
+                }else if(empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_in_materials.balance_corrected_at','<=',$end_date);
+                }         
+                
+            }
+           
+            //Datatable Global Search
+            if (!empty($request->search))
+            {
+                if (!empty($request->search['value'])) 
+                {
+                    $search = $request->search['value'];
+
+                     $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('store_in_materials.lot_no', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');   
+                    });              
+
+                }
+            }
+
+            ## GET TOTAL FILTER
+            $filteredQuery = clone($modelQuery);            
+            $totalFiltered  = $filteredQuery->count();
+
+            ## OFFSET AND LIMIT
+            if(empty($column))
+            {   
+                $modelQuery = $modelQuery->orderBy('store_in_materials.balance_corrected_at', 'ASC');
+                            
+            }
+            else
+            {
+                $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+            }
+            //dd($modelQuery->toSql());
+            $object = $modelQuery->skip($start)
+            ->take($length)
+            ->get(); 
+            //dd($object);
+            /*--------------------------------------
+            |  DATA BINDING
+            ------------------------------*/
+
+            $data = [];
+
+            if (!empty($object) && sizeof($object) > 0)
+            {
+                $count =1;
+                foreach ($object as $key => $row)
+                {
+                    $balance_corrected_at = 'Never';
+                    if($row->balance_corrected_at != null)
+                        $balance_corrected_at = date('d M Y',strtotime($row->balance_corrected_at));
+                            
+                    $data[$key]['id'] = $row->id;
+                    $data[$key]['lot_no']  = $row->lot_no;
+                    $data[$key]['materialName']  =  $row->materialName;
+                    $data[$key]['balance_corrected_at']  =  $balance_corrected_at;
+                    // $data[$key]['stock_in_date']  =  date('d M Y',strtotime($row->created_at));
+
+                }
+            }    
+
+        ## WRAPPING UP
+        $this->JsonData['draw']             = intval($request->draw);
+        $this->JsonData['recordsTotal']     = intval($totalData);
+        $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+        $this->JsonData['data']             = $data;
+
+        return response()->json($this->JsonData);
+    }
+
 }

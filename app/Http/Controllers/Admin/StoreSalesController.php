@@ -168,7 +168,7 @@ class StoreSalesController extends Controller
                                     $balance_quantity = $saleStock->balance_quantity-$sale['quantity'];
                                     $updateQtyQry = DB::table('store_sales_stock')
                                                                 ->where('id', $saleStock->id)
-                                                                ->update(['balance_quantity' => $balance_quantity]);
+                                                                ->update(['balance_quantity' => $balance_quantity,'last_used_at' => date('Y-m-d')]);
                                 }
 
                                 $all_transactions[] = 1;
@@ -318,33 +318,7 @@ class StoreSalesController extends Controller
                                                     ->where('sale_invoice_id', $collection->id)
                                                     ->get();
 
-                    //Iterate all the previous products and update the stock balance
-                    if(!empty($previousSaleProducts))
-                    {
-                        foreach($previousSaleProducts as $previous) 
-                        {
-                            $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
-                                        WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
-                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
-
-                            ## Update Stock Balance quantity                            
-                            if(!empty($collectionReturn) && count($collectionReturn)>0)
-                            {
-                                $salesData = $collectionReturn->first();
-                               // dump($collectionReturn);
-                                if($salesData->sssid)
-                                {
-                                   ##update returned quantity in production and update returned qty+actual qty in store
-                                    $balance_quantity=$previous->quantity+$salesData->balance_quantity;
-                                    $updateQtyQry = DB::table('store_sales_stock')
-                                                                ->where('id', $salesData->sssid)
-                                                                ->update(['balance_quantity' => $balance_quantity]);
-
-                                }
-
-                            }
-                        }
-                    }
+                    
 
                     //Delete records
                     $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->delete();
@@ -390,7 +364,7 @@ class StoreSalesController extends Controller
                                     $balance_quantity = $saleStock->balance_quantity-$sale['quantity'];
                                     $updateQtyQry = DB::table('store_sales_stock')
                                                                 ->where('id', $saleStock->id)
-                                                                ->update(['balance_quantity' => $balance_quantity]);
+                                                                ->update(['balance_quantity' => $balance_quantity,'last_used_at' => date('Y-m-d')]);
                                 }
                             }
                             else
@@ -400,6 +374,46 @@ class StoreSalesController extends Controller
 
                         } 
                     }
+
+
+                    //Iterate all the previous products and update the stock balance and lastused date
+                    if(!empty($previousSaleProducts))
+                    {
+                        foreach($previousSaleProducts as $previous) 
+                        {
+                            $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
+                                        WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
+                            $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
+
+                            ## Update Stock Balance quantity                            
+                            if(!empty($collectionReturn) && count($collectionReturn)>0)
+                            {
+                                $salesData = $collectionReturn->first();
+                               // dump($collectionReturn);
+                                if($salesData->sssid)
+                                {
+                                    $batchDetails = $this->StoreSaleInvoiceHasProductsModel
+                                                    ->selectRaw('created_at')
+                                                    ->where('batch_id', $previous->batch_id)
+                                                    ->orderBy('store_sale_invoice_has_products.id', 'DESC')
+                                                    ->first();
+                                    $prevDate = null;
+                                    if($batchDetails)
+                                        $prevDate = $batchDetails->created_at;
+
+                                   ##update returned quantity in production and update returned qty+actual qty in store
+                                    $balance_quantity=$previous->quantity+$salesData->balance_quantity;
+                                    $updateQtyQry = DB::table('store_sales_stock')
+                                                                ->where('id', $salesData->sssid)
+                                                                ->update(['balance_quantity' => $balance_quantity,'last_used_at' =>$prevDate ]);
+
+                                }
+
+                            }
+                        }
+                    }
+
+
                 }//ifclose
             }
 
@@ -684,6 +698,9 @@ class StoreSalesController extends Controller
                     {
 
                         $previousSaleObject = $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->get();
+
+                        $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id',$collection->id)->delete();
+                        
                         if(!empty($previousSaleObject) && count($previousSaleObject)>0)
                         {
                             foreach($previousSaleObject as $previous) 
@@ -697,11 +714,21 @@ class StoreSalesController extends Controller
                                     $salesData = $collectionSale->first();
                                     if($salesData->sssid)
                                     {
+
+                                        $batchDetails = $this->StoreSaleInvoiceHasProductsModel
+                                                    ->selectRaw('created_at')
+                                                    ->where('batch_id', $previous->batch_id)
+                                                    ->orderBy('store_sale_invoice_has_products.id', 'DESC')
+                                                    ->first();
+                                        $prevDate = null;
+                                        if($batchDetails)
+                                            $prevDate = $batchDetails->created_at;
+
                                        ##update stock balance quantity in stock
                                         $balance_quantity=$previous->quantity+$salesData->balance_quantity;
                                         $updateQtyQry = DB::table('store_sales_stock')
                                                         ->where('id', $salesData->sssid)
-                                                        ->update(['balance_quantity' => $balance_quantity]);
+                                                        ->update(['balance_quantity' => $balance_quantity,'last_used_at' =>$prevDate]);
 
                                     }
 
@@ -710,7 +737,7 @@ class StoreSalesController extends Controller
                         }
 
                         
-                        $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id',$collection->id)->delete();
+                        
 
                     }
                     

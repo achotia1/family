@@ -21,8 +21,10 @@ class StoreSaleInvoiceHasProductsModel extends Model
         'quantity',
         'rate',
         'total_basic',
+        'created_at',
+        'updated_at',
     ];
-	public $timestamps = false;
+	// public $timestamps = false;
 
     public function assignedProduct()
     {
