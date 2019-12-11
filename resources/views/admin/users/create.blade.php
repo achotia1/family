@@ -7,11 +7,11 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
+        <div class="box-header with-border">
+          <h1 class="box-title">User Information</h1>
+          <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+        </div>
         <form id="customerForm" data-toggle="validator" action="{{ route($modulePath.'.store') }}">
-            <div class="box-header with-border">
-              <h1 class="box-title">User Information</h1>
-              <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
-            </div>
             
             <div class="form-group">
                 <label class="theme-blue"> 

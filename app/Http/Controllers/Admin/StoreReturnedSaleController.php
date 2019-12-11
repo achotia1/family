@@ -135,6 +135,15 @@ class StoreReturnedSaleController extends Controller
                     {
                         if(!empty($return['product_id']) && !empty($return['batch_id']) && !empty($return['quantity']))
                         {
+                            if($return['quantity']<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+
                             if($return['quantity']>$return['quantityLimit']){
 
                                 $this->JsonData['status'] = __('admin.RESP_ERROR');
@@ -296,6 +305,13 @@ class StoreReturnedSaleController extends Controller
             {
                 if(!empty($return['product_id']) && !empty($return['batch_id']) && !empty($return['quantity']))
                 {
+                    if($return['quantity']<=0){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
                     if($return['quantity']>$return['quantityLimit'])
                     {
                         $this->JsonData['status'] = __('admin.RESP_ERROR');

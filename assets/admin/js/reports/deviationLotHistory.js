@@ -1,20 +1,7 @@
 $(document).ready(function() 
 {
-    var date = new Date();
-    $("#from-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
-    $("#to-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
 
-    $('#from-date').datepicker({
-            format: 'dd-mm-yyyy',
-            autoclose: true,
-        });
-    $('#to-date').datepicker({
-            format: 'dd-mm-yyyy',
-            autoclose: true,
-        });
-
-
-    var action = ADMINURL+'/deviation-material/getdeviationMaterialRecords'; 
+    var action = ADMINURL+'/deviation-material/lot-history/getdeviationLotHistoryRecords/'+lotId; 
 
     const table = $('#listingTable').DataTable( 
     {
@@ -31,20 +18,17 @@ $(document).ready(function()
             "data": function (object) 
             {
                 object.custom = {
-                	"from-date" :  $('#from-date').val(),
-                    "to-date"   :  $('#to-date').val(),
-                    "material-id" :  $('#material-id').val(),
+                	// "from-date" :  $('#from-date').val(),
+                 //    "to-date"   :  $('#to-date').val(),
                 }
             }
         },
         "columns": [
             { "data": "id",  "visible": false, },
-            // { "data": "select"},
             { "data": "lot_no"},
-            { "data": "materialName"},
-            { "data": "balance_corrected_at"},
-            //{ "data": "loss_material"},
-            //{ "data": "yield"},            
+            { "data": "previous_balance"},
+            { "data": "corrected_balance"},
+            { "data": "correction_date"},
             // { "data": "actions"}
         ],
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [0] }],

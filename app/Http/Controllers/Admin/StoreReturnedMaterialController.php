@@ -121,6 +121,14 @@ class StoreReturnedMaterialController extends Controller
                     {
                         if(!empty($return['material_id']) && !empty($return['lot_id']) && !empty($return['quantity']))
                         {
+                            if($return['quantity']<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
 
                             if($return['quantity']>$return['quantityLimit'])
                             {
@@ -304,6 +312,13 @@ class StoreReturnedMaterialController extends Controller
             {
                 if(!empty($return['material_id']) && !empty($return['lot_id']) && !empty($return['quantity']))
                 {
+                    if($return['quantity']<=0){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
                     if($return['quantity']>$return['quantityLimit'])
                     {
                         $this->JsonData['status'] = __('admin.RESP_ERROR');

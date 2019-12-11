@@ -125,6 +125,15 @@ class StoreSalesController extends Controller
                     foreach ($request->sales as $pkey => $sale) 
                     {
                         if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']) && !empty($sale['rate'])){
+
+                            if($sale['quantity']<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
                             
                             if($sale['quantity']>$sale['quantityLimit']){
 
@@ -287,6 +296,14 @@ class StoreSalesController extends Controller
             {
                 if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']))
                 {
+                    if($sale['quantity']<=0){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                    
                     if($sale['quantity']>$sale['quantityLimit'])
                     {
                         $this->JsonData['status'] = __('admin.RESP_ERROR');
