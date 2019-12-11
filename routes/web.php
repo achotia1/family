@@ -119,6 +119,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/rms-store/getRecords',  'StoreBatchCardController@getRecords');
 					Route::post('/rms-store/bulkDelete',  'StoreBatchCardController@bulkDelete');
 					Route::get('/rms-store/show/{id}',  'StoreBatchCardController@show')->name($PREFIX.'.rms-store.show');
+					Route::post('/rms-store/getAvailableStock',  'StoreBatchCardController@getAvailableStock');
 					Route::resource('rms-store', 'StoreBatchCardController', ['as' => $PREFIX]);
 				});
 

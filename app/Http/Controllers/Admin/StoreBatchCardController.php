@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 use App\Models\StoreProductionModel;
+use App\Models\StoreSaleStockModel;
 
 use App\Http\Requests\Admin\StoreBatchCardRequest;
 use App\Traits\GeneralTrait;
@@ -127,10 +128,13 @@ class StoreBatchCardController extends Controller
         if(empty($data) || $data->review_status == 'closed') {            
             return redirect()->route('admin.rms-store.index');
         }
-
+        ## PRODUCT STOCK DATA
+        $objStock = new StoreSaleStockModel;
+        $stockData = $objStock->getProductStock($data->product_code, $companyId);
+        //dd($data);
         ## ALL DATA
-        // $this->ViewData['branch'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
         $this->ViewData['branch'] = $data;
+        $this->ViewData['stockData'] = $stockData;
 
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
@@ -462,6 +466,40 @@ public function bulkDelete(Request $request)
    }
 
    return response()->json($this->JsonData);   
+}
+public function getAvailableStock(Request $request)
+{
+    $this->JsonData['status'] = 'error';
+    $this->JsonData['msg'] = 'Failed to get Product Stock, Something went wrong on server.';    
+    try 
+    {
+        $html = '';
+        $product_id   = $request->product_id;
+        $companyId = self::_getCompanyId();       
+        $objStock = new StoreSaleStockModel;
+        $stockData = $objStock->getProductStock($product_id, $companyId);
+                  
+        if(!empty($stockData->toArray())){
+            foreach($stockData as $data){
+                $balanceQty = number_format($data->balance_quantity, 2, '.', '');
+                $html .= '<tr>                          
+                            <td>'.$data->assignedBatch->batch_card_no.'</td>
+                            <td>'.$balanceQty.'</td>
+                        </tr>';     
+            }    
+        } else {
+            $html = '<tr><td colspan="2">No Stock Available.</td></tr>';   
+        }
+        
+        $this->JsonData['html']  = $html;
+        $this->JsonData['status']  = 'Success';
+        $this->JsonData['msg']  = 'Product Stock';
+        
+    }
+    catch(\Exception $e){
+        $this->JsonData['exception'] = $e->getMessage();
+    }
+    return response()->json($this->JsonData);
 }
 
 }

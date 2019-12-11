@@ -1,5 +1,23 @@
 @extends('admin.layout.master')
-
+@section('style')
+<style>
+    .trExpense{
+        text-align: center;
+        /*color: maroon;*/
+        /*background: aliceblue;*/
+    }
+    .trExpenseTotal{
+        text-align: right;
+    }    
+    table,tbody ,tr, td {
+        border: 1px solid darkgray;
+    }
+    tbody:first-child{
+        border-top: 3px solid darkgray;   
+    }
+    
+</style>
+@endsection
 @section('title')
    {{ $moduleTitle }}
 @endsection
@@ -15,7 +33,7 @@
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Product Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="product_code" name="product_code"required="" data-error="Product Code field is required.">
+                <select class="form-control my-select" id="product_code" name="product_code"required="" onchange="checkStock(this);" data-error="Product Code field is required.">
                     <option value="">Select Product</option>
                     @foreach($products as $product){
                     <option value="{{$product['id']}}">{{$product['code']}}  ( {{$product['name']}} )</option>
@@ -27,8 +45,7 @@
                         <li class="err_product_code"></li>
                     </ul>
                 </span>
-            </div>
-
+            </div>			
             <div class="form-group col-md-6">
                 <label class="theme-blue">Batch Code
                     <span class="required">*</span></label>
@@ -64,16 +81,8 @@
                         <li class="err_batch_qty"></li>
                     </ul>
                 </span>
-            </div>                  
-            <!--<div class="form-group col-md-6">
-                <label class="theme-blue">Status</label>
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="status" checked value="1">
-                      Active
-                    </label>
-                </div>  
-            </div>-->
+            </div>               
+            
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="submit" class="btn btn-success">Save</button>
@@ -81,6 +90,22 @@
                 </div>
             </div>
         </form>
+        	<div class="col-md-12" id="show-stock">			
+          		<h4>Available Stock for: <span id="spn_product"></span></h4>        	
+				<div class="table-responsive"  id="tblProduct">
+					<table class="table" border="1px;">
+			            <thead class="theme-bg-blue-light-opacity-15">
+			            	<tr class="trExpense">	                    	
+		                    	<td><b>Batch Card</b></td>
+		                    	<td><b>Balance Stock</b></td>
+			                </tr>	
+			            </thead>
+			            <tbody>
+			            	                
+			            </tbody>
+		            </table>
+				</div>
+			</div>
         </div>
     </div>
 </section>

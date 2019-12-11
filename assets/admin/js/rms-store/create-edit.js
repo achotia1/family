@@ -2,7 +2,7 @@ $(document).ready(function ()
 {
     // adding focus event to first field    
     //$('#product_code').focus();  
-    
+    $("#show-stock").hide();
 })
 
 // submitting form after validation
@@ -49,4 +49,25 @@ $('#batchForm').validator().on('submit', function (e)
 
         return false;
     }
-})
+});
+function checkStock(txtProd)
+{	
+	var product_id = $(txtProd).val();
+	var selectedProduct = $(txtProd).find("option:selected").text();
+	$('#spn_product').html('<b>'+selectedProduct+'</b>');
+	var action = ADMINURL + '/rms-store/getAvailableStock';
+	
+    axios.post(action, {product_id:product_id})
+    .then(response => 
+    {
+   		var html = response.data.html;
+		$('#tblProduct tbody').html(html);
+		$("#show-stock").show();
+			
+    })
+    .catch(error =>
+    {
+
+    })
+    return false;
+}

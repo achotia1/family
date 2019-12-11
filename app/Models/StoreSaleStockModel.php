@@ -50,5 +50,17 @@ class StoreSaleStockModel extends Model
         }
         return $stockReturn;
     }
+    public function getProductStock($productId, $companyId) {
+        $stockData = self::select('id', 'batch_id', 'balance_quantity')
+                    ->with(['assignedBatch' => function($q){
+                        //$q->select('batch_card_no');
+                    }])
+                    ->where('product_id', $productId)
+                    ->where('balance_quantity', '>', 0)
+                    ->where('company_id', $companyId)
+                    ->orderBy('balance_quantity','DESC')
+                    ->get();
+        return $stockData;
+    }
 
 }
