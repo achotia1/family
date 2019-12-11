@@ -120,7 +120,15 @@ class StoreProductionController extends Controller
                     $finalArray = $correntRecords = array();
                     $i = 0;
                     foreach($result as $materialId=>$rVal){                        
-                        foreach($rVal as $lotId=>$quantity){                            
+                        foreach($rVal as $lotId=>$quantity){ 
+                            if($quantity<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }                           
                             if($quantity > 0 && $materialId > 0 && $lotId > 0){
                                 $finalArray[$i]['production_id'] = $collection->id;
                                 $finalArray[$i]['material_id'] = $materialId;
@@ -228,7 +236,6 @@ class StoreProductionController extends Controller
 
             $collection = $this->BaseModel->find($id);            
             $collection = self::_storeOrUpdate($collection,$request);
-            //dd($request->all());
             if($collection->save()){
                 $all_transactions = [];
                 $productionId = $id;
@@ -255,6 +262,13 @@ class StoreProductionController extends Controller
                     $i = 0;
                     foreach($result as $materialId=>$rVal){     
                         foreach($rVal as $lotId=>$quantity){
+                            if($quantity<=0){
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }    
                             if($quantity > 0 && $materialId > 0 && $lotId > 0){
                                 $finalArray[$i]['production_id'] = $productionId;
                                 $finalArray[$i]['material_id'] = $materialId;

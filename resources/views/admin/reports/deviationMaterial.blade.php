@@ -40,15 +40,27 @@
     <div class="box">
         <div class="row">
             <div class="col-md-12">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="theme-blue f-14">From Date</label>
                     <input id="from-date" type="text" class="form-control">
                  </div>   
-                 <div class="col-md-4">
+                 <div class="col-md-3">
                      <label class="theme-blue f-14">To Date</label>
                      <input id="to-date" type="text" class="form-control">
                 </div>
-                 <div class="col-md-4" style="margin-top: 24px !important;">
+                 <div class="col-md-3">
+                     <label class="theme-blue">Material Name</label>
+                    <select class="form-control select2" 
+                         id="material-id"
+                         name="material_id" 
+                        >                    
+                        <option value="">Select Material</option>
+                        @foreach($materials as $material)
+                            <option value="{{ $material->id }}">{{ $material->name }}</option>
+                        @endforeach
+                    </select>  
+                </div>
+                 <div class="col-md-3" style="margin-top: 24px !important;">
                     <button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
                 </div>
             </div>
