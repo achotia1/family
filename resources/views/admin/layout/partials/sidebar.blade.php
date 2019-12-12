@@ -308,7 +308,7 @@
           </ul>
         </li>
         <!-- Manage Reports -->        
-        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*']) }}">
+        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*']) }}">
           <a href="#">
             <i class="fa fa-file"></i>
             <span>Manage Reports</span>
@@ -323,14 +323,17 @@
             <li class="{{ active('admin/aged-materials') }}">
               <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
             </li>
+            <li class="{{ active(['admin/deviation-material','admin/deviation-material/*']) }}">
+              <a href="{{ route('admin.report.deviationMaterial') }}"><i class="fa fa-hand-o-right"></i> Material Deviation Report</a>
+            </li>
             <li class="{{ active('admin/contribution-report') }}">
               <a href="{{ route('admin.report.contribution') }}"><i class="fa fa-hand-o-right"></i> Contribution Report</a>
             </li>  
             <li class="{{ active('admin/aged-products') }}">
               <a href="{{ route('admin.report.agedProducts') }}"><i class="fa fa-hand-o-right"></i> Aged Product Report</a>
-            </li> 
-            <li class="{{ active(['admin/deviation-material','admin/deviation-material/*']) }}">
-              <a href="{{ route('admin.report.deviationMaterial') }}"><i class="fa fa-hand-o-right"></i> Material Deviation Report</a>
+            </li>
+            <li class="{{ active(['admin/stock-deviation','admin/stock-deviation/*']) }}">
+              <a href="{{ route('admin.report.stockDeviation') }}"><i class="fa fa-hand-o-right"></i> Stock Deviation Report</a>
             </li>         
           </ul>
         </li>

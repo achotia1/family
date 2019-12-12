@@ -192,6 +192,12 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::get('deviation-material/lot-history/{encId}', 'ReportController@deviationLotHistoryIndex')->name('admin.report.deviationLotHistory');
 				Route::get('deviation-material/lot-history/getdeviationLotHistoryRecords/{encId}', 'ReportController@getdeviationLotHistoryRecords');
 
+				// Stock Deviation Report
+				Route::get('stock-deviation', 'ReportController@deviationStockIndex')->name('admin.report.stockDeviation');
+				Route::get('stock-deviation/getdeviationStockRecords', 'ReportController@getdeviationStockRecords');
+				Route::get('stock-deviation/stock-history/{encId}', 'ReportController@deviationStockHistoryIndex')->name('admin.report.deviationStockHistory');
+				Route::get('stock-deviation/stock-history/getdeviationStockHistoryRecords/{encId}', 'ReportController@getdeviationStockHistoryRecords');
+				
 				//Sales Management
 				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
 				{*/

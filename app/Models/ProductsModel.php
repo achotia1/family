@@ -27,4 +27,19 @@ class ProductsModel extends Model
                             ->where('company_id',$companyId)
                             ->get();
     }
+
+    public function getDeviatedProducts($companyId=false) {        
+        $modelQuery = ProductsModel::select('product_id','name','code')
+                    ->leftjoin('store_sales_stock','store_sales_stock.product_id', '=', 'products.id');
+        if($companyId){
+           $modelQuery = $modelQuery
+                        ->where('store_sales_stock.company_id', $companyId);
+        }        
+                    
+        $result = $modelQuery
+                    ->whereNotNull('store_sales_stock.balance_corrected_at')
+                    ->groupBy('products.id')
+                    ->get();
+        return $result;
+    }
 }

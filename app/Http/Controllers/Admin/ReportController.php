@@ -12,6 +12,7 @@ use App\Models\StoreRawMaterialModel;
 use App\Models\StoreSaleInvoiceHasProductsModel;
 use App\Models\StoreSaleStockModel;
 use App\Models\StoreLotCorrectionModel;
+use App\Models\StoreStockCorrectionModel;
 
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
@@ -759,8 +760,7 @@ class ReportController extends Controller
         $this->ViewData['moduleAction'] = 'Material Deviation Report';
         $this->ViewData['modulePath']   = $this->ModulePath;   
 
-        $companyId = self::_getCompanyId();     
-
+        $companyId = self::_getCompanyId();
         $materials = $this->StoreRawMaterialModel
                             ->join('store_in_materials', 'store_in_materials.material_id' , '=', 'store_raw_materials.id')
                             ->where('store_raw_materials.company_id', $companyId)
@@ -769,8 +769,19 @@ class ReportController extends Controller
                             ->get([
                                 'store_raw_materials.id',
                                 'store_raw_materials.name'
-                                ]);                             
-        // dd($materials);
+                                ]);
+
+        /*$materials = $this->StoreInMaterialModel
+                            ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
+                            ->where('store_in_materials.company_id', $companyId)
+                            ->whereNotNull('store_in_materials.balance_corrected_at')
+                            ->groupBy('store_in_materials.material_id');
+                            ->get([
+                                'store_raw_materials.id',
+                                'store_raw_materials.name'
+                                ]);                           
+        dd($materials->toSql());*/
+        //dd($materials);
 
         $this->ViewData['materials']   = $materials;    
 
@@ -1085,6 +1096,358 @@ class ReportController extends Controller
                 {
                     $data[$key]['id']               =   $row->id;
                     $data[$key]['lot_no']           =   $row->lot_no;
+                    $data[$key]['previous_balance']  =  $row->previous_balance;
+                    $data[$key]['corrected_balance'] =  $row->corrected_balance;
+                    $data[$key]['correction_date']   =   date('d M Y',strtotime($row->correction_date));
+
+                }
+            }    
+
+        ## WRAPPING UP
+        $this->JsonData['draw']             = intval($request->draw);
+        $this->JsonData['recordsTotal']     = intval($totalData);
+        $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+        $this->JsonData['data']             = $data;
+
+        return response()->json($this->JsonData);
+    }
+
+/*--------------------------------------
+ |  Stock Deviation Report
+------------------------------*/
+
+    public function deviationStockIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Stock Deviation Report';
+        $this->ViewData['moduleAction'] = 'Stock Deviation Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;   
+
+        $companyId = self::_getCompanyId();     
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getDeviatedProducts($companyId);
+        /*$products = $objProduct
+                    ->leftjoin('store_sales_stock','store_sales_stock.product_id', '=', 'products.id')
+                    ->where('store_sales_stock.company_id', $companyId)
+                    ->whereNotNull('store_sales_stock.balance_corrected_at')
+                    ->groupBy('products.id')
+                    ->get(['product_id','name','code']);*/
+        //dd($products);
+        $this->ViewData['products']   = $products;    
+
+        // view file with data
+        return view($this->ModuleView.'deviationStock',$this->ViewData);
+    }
+    public function getdeviationStockRecords(Request $request)
+    {
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+            ## SKIP AND LIMIT
+            $start = $request->start;
+            $length = $request->length;
+
+            ## SEARCH VALUE
+            $search = $request->search['value']; 
+
+            ## ORDER
+            $column = $request->order[0]['column'];
+            $dir = $request->order[0]['dir'];
+
+            ## FILTER COLUMNS
+            $filter = array(
+                0 => 'store_sales_stock.id',            
+                1 => 'store_batch_cards.batch_card_no',
+                2 => 'products.code',            
+                3 => 'store_sales_stock.balance_corrected_at',
+            );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+            ## START MODEL QUERY        
+            $companyId = self::_getCompanyId();        
+
+            $modelQuery = $this->StoreSaleStockModel
+            ->selectRaw('store_sales_stock.id, 
+                        store_sales_stock.batch_id, 
+                        store_sales_stock.product_id,
+                        store_sales_stock.balance_corrected_at,
+                        store_sales_stock.created_at, 
+                        store_batch_cards.batch_card_no,
+                        products.name,
+                        products.code
+                        ')       
+            ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sales_stock.batch_id')
+            ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+            ->where('store_sales_stock.company_id', $companyId)
+            ->whereNotNull('store_sales_stock.balance_corrected_at')
+            ->where('store_batch_cards.deleted_at', null);
+            //dd($modelQuery->toSql());
+            ## GET TOTAL COUNT
+            $countQuery = clone($modelQuery);            
+            $totalData  = $countQuery->count();
+
+            ## FILTER OPTIONS
+            $custom_search = false;
+            if (!empty($request->custom))
+            {            
+               
+                if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+                    $custom_search = true;
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    if (strtotime($start_date)==strtotime($end_date)){
+                        
+                        $modelQuery  = $modelQuery
+                                            ->whereDate('store_sales_stock.balance_corrected_at','=',$start_date);
+
+                    }else{
+                        $modelQuery = $modelQuery
+                                        ->whereBetween('store_sales_stock.balance_corrected_at', 
+                                        array($start_date,$end_date));
+                    }
+
+                
+
+                }else if(!empty($request->custom['from-date']) && empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_sales_stock.balance_corrected_at','>=',$start_date);
+
+                }else if(empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_sales_stock.balance_corrected_at','<=',$end_date);
+                } 
+
+                if (!empty($request->custom['product-id'])) 
+                {
+                    $custom_search = true;
+                    $product_id = $request->custom['product-id'];
+                    
+                    $modelQuery = $modelQuery
+                                        ->where('products.id',$product_id);
+
+                }        
+                
+            }
+           
+            //Datatable Global Search
+            if (!empty($request->search))
+            {
+                if (!empty($request->search['value'])) 
+                {
+                    $search = $request->search['value'];
+
+                     $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('products.name', 'LIKE', '%'.$search.'%');
+                        $query->orwhere('products.code', 'LIKE', '%'.$search.'%');   
+                    });              
+
+                }
+            }
+
+            ## GET TOTAL FILTER
+            $filteredQuery = clone($modelQuery);            
+            $totalFiltered  = $filteredQuery->count();
+
+            ## OFFSET AND LIMIT
+            if(empty($column))
+            {   
+                $modelQuery = $modelQuery->orderBy('store_sales_stock.balance_corrected_at', 'ASC');
+                            
+            }
+            else
+            {
+                $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+            }
+            
+            $object = $modelQuery->skip($start)
+            ->take($length)
+            ->get(); 
+            //dd($object);
+            /*--------------------------------------
+            |  DATA BINDING
+            ------------------------------*/
+
+            $data = [];
+
+            if (!empty($object) && sizeof($object) > 0)
+            {
+                $count =1;
+                foreach ($object as $key => $row)
+                {
+                    $balance_corrected_at = 'Never';
+                    if($row->balance_corrected_at != null)
+                        $balance_corrected_at = date('d M Y',strtotime($row->balance_corrected_at));
+                            
+                    $data[$key]['id'] = $row->id;
+                    $data[$key]['batch_code']  = "<a href=".route('admin.report.deviationStockHistory',[ base64_encode(base64_encode($row->id))]).">". $row->batch_card_no.'</a>'; //
+                    $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
+                    $data[$key]['balance_corrected_at']  =  $balance_corrected_at;
+                    // $data[$key]['stock_in_date']  =  date('d M Y',strtotime($row->created_at));
+
+                }
+            }    
+
+        ## WRAPPING UP
+        $this->JsonData['draw']             = intval($request->draw);
+        $this->JsonData['recordsTotal']     = intval($totalData);
+        $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+        $this->JsonData['data']             = $data;
+
+        return response()->json($this->JsonData);
+    }
+
+/*--------------------------------------
+ |  Deviation STOCK History Report
+------------------------------*/
+
+    public function deviationStockHistoryIndex($encID)
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['modulePath']   = $this->ModulePath;  
+
+         
+        $objProduct = new ProductsModel;
+        $product = $objProduct
+                    ->join('store_sales_stock','store_sales_stock.product_id', '=', 'products.id')
+                    ->where('store_sales_stock.id', base64_decode(base64_decode($encID)))
+                    ->first(['product_id','name','code']);
+        //dd($products)   ;
+
+        $this->ViewData['stockId']  = $encID;             
+        $this->ViewData['moduleTitle']  = 'Deviation History';
+        $this->ViewData['moduleAction'] = 'Deviation History of Product:'.$product->code." (".$product->name.")";
+        // $this->ViewData['material']  = $material;             
+
+        // view file with data
+        return view($this->ModuleView.'deviationStockHistory',$this->ViewData);
+    }
+
+    public function getdeviationStockHistoryRecords(Request $request,$encID)
+    {
+
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+            $stockId  = base64_decode(base64_decode($encID));             
+
+            ## SKIP AND LIMIT
+            $start = $request->start;
+            $length = $request->length;
+
+            ## SEARCH VALUE
+            $search = $request->search['value']; 
+
+            ## ORDER
+            $column = $request->order[0]['column'];
+            $dir = $request->order[0]['dir'];
+
+            ## FILTER COLUMNS
+            $filter = array(
+                0 => 'store_stock_corrections.id',            
+                1 => 'store_batch_cards.batch_card_no',
+                2 => 'store_stock_corrections.previous_balance',            
+                3 => 'store_stock_corrections.corrected_balance',
+                4 => 'store_stock_corrections.correction_date',
+            );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+            ## START MODEL QUERY        
+            $companyId = self::_getCompanyId();        
+            $objStockCorrection = new StoreStockCorrectionModel;
+            $modelQuery = $objStockCorrection
+            ->selectRaw('store_stock_corrections.id, 
+                        store_batch_cards.batch_card_no, 
+                        store_stock_corrections.previous_balance,
+                        store_stock_corrections.corrected_balance,
+                        store_stock_corrections.correction_date
+                        ')       
+            ->leftjoin('store_sales_stock', 'store_sales_stock.id' , '=', 'store_stock_corrections.stock_id')
+            ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sales_stock.batch_id')
+            ->where('store_sales_stock.company_id', $companyId)
+            ->where('store_sales_stock.id', $stockId)
+            ->whereNull('store_sales_stock.deleted_at');
+            //dd($modelQuery->toSql());
+            ## GET TOTAL COUNT
+            $countQuery = clone($modelQuery);            
+            $totalData  = $countQuery->count();
+
+            ## FILTER OPTIONS
+            $custom_search = false;
+            
+            //Datatable Global Search
+            if (!empty($request->search))
+            {
+                if (!empty($request->search['value'])) 
+                {
+                    $search = $request->search['value'];
+
+                     $modelQuery = $modelQuery->where(function ($query) use($search)
+                    {
+                        $query->orwhere('store_batch_cards.batch_card_no', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_stock_corrections.previous_balance', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('store_stock_corrections.corrected_balance', 'LIKE', '%'.$search.'%');   
+                    });              
+
+                }
+            }
+
+            ## GET TOTAL FILTER
+            $filteredQuery = clone($modelQuery);            
+            $totalFiltered  = $filteredQuery->count();
+
+            ## OFFSET AND LIMIT
+            if(empty($column))
+            {   
+                $modelQuery = $modelQuery->orderBy('store_stock_corrections.correction_date', 'ASC');
+                            
+            }
+            else
+            {
+                $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+            }
+            //dd($modelQuery->toSql());
+            $object = $modelQuery->skip($start)
+            ->take($length)
+            ->get(); 
+            //dd($object);
+            /*--------------------------------------
+            |  DATA BINDING
+            ------------------------------*/
+
+            $data = [];
+
+            if (!empty($object) && sizeof($object) > 0)
+            {
+                foreach ($object as $key => $row)
+                {
+                    $data[$key]['id']               =   $row->id;
+                    $data[$key]['batch_code']           =   $row->batch_card_no;
                     $data[$key]['previous_balance']  =  $row->previous_balance;
                     $data[$key]['corrected_balance'] =  $row->corrected_balance;
                     $data[$key]['correction_date']   =   date('d M Y',strtotime($row->correction_date));
