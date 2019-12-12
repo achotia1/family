@@ -1126,15 +1126,8 @@ class ReportController extends Controller
         $companyId = self::_getCompanyId();     
         $objProduct = new ProductsModel;
         $products = $objProduct->getDeviatedProducts($companyId);
-        /*$products = $objProduct
-                    ->leftjoin('store_sales_stock','store_sales_stock.product_id', '=', 'products.id')
-                    ->where('store_sales_stock.company_id', $companyId)
-                    ->whereNotNull('store_sales_stock.balance_corrected_at')
-                    ->groupBy('products.id')
-                    ->get(['product_id','name','code']);*/
-        //dd($products);
-        $this->ViewData['products']   = $products;    
-
+       
+        $this->ViewData['products']   = $products;
         // view file with data
         return view($this->ModuleView.'deviationStock',$this->ViewData);
     }
@@ -1185,7 +1178,7 @@ class ReportController extends Controller
             ->where('store_sales_stock.company_id', $companyId)
             ->whereNotNull('store_sales_stock.balance_corrected_at')
             ->where('store_batch_cards.deleted_at', null);
-            //dd($modelQuery->toSql());
+            
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
@@ -1304,7 +1297,6 @@ class ReportController extends Controller
                     $data[$key]['batch_code']  = "<a href=".route('admin.report.deviationStockHistory',[ base64_encode(base64_encode($row->id))]).">". $row->batch_card_no.'</a>'; //
                     $data[$key]['product_code']  =  $row->code." ( ".$row->name." )";
                     $data[$key]['balance_corrected_at']  =  $balance_corrected_at;
-                    // $data[$key]['stock_in_date']  =  date('d M Y',strtotime($row->created_at));
 
                 }
             }    
@@ -1338,8 +1330,7 @@ class ReportController extends Controller
         $this->ViewData['stockId']  = $encID;             
         $this->ViewData['moduleTitle']  = 'Deviation History';
         $this->ViewData['moduleAction'] = 'Deviation History of Product:'.$product->code." (".$product->name.")";
-        // $this->ViewData['material']  = $material;             
-
+                
         // view file with data
         return view($this->ModuleView.'deviationStockHistory',$this->ViewData);
     }
