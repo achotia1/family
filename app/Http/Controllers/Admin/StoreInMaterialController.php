@@ -328,17 +328,8 @@ class StoreInMaterialController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get();  
+        ->get();
 
-       /* ['store_in_materials.id', 
-            'store_in_materials.material_id', 
-            'store_in_materials.lot_no',            
-            'store_in_materials.lot_qty',
-            'store_in_materials.price_per_unit',             
-            'store_in_materials.lot_balance',
-            'store_in_materials.status',
-            'store_raw_materials.name',            
-        ]*/
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -402,14 +393,14 @@ class StoreInMaterialController extends Controller
             </select>';
     /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';removeSearch*/
 
-    if ($custom_search) 
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
-    }
-    else
-    {
+    /*if ($custom_search) 
+    {*/
+        /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';*/
+     /*}
+     else
+     {*/
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }
+    /*}*/
 
     $searchHTML['actions'] = $seachAction;
 

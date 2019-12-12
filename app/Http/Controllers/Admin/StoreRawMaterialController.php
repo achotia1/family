@@ -400,14 +400,14 @@ class StoreRawMaterialController extends Controller
             <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Inactive</option>            
             </select>';
    
-    if ($custom_search) 
+    /*if ($custom_search) 
     {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
     }
     else
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }
+    {*/
+    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    /*}*/
 
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
