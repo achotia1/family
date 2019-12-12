@@ -62,11 +62,8 @@ class StoreBatchCardModel extends Model
         return $batchNo;
     }
 
-    public function getBatchNumbers($companyId,$opened=false) {        
-         // return self::with(['assignedProduct'])
-         //            ->select('id','batch_card_no','product_code')
-         //            ->whereStatus(1)
-         //            ->get();
+    public function getBatchNumbers($companyId,$opened=false) {       
+         
         $modelQuery = self::with(['assignedProduct'])
                 ->select('id','batch_card_no','product_code')
                 ->where('company_id', $companyId)

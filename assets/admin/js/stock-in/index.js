@@ -20,7 +20,8 @@ $(document).ready(function()
                     "product" : $('#product').val(),
                     "quantity" : $('#quantity').val(),
                     "balance_quantity" : $('#balance-quantity').val(),
-                    "manufacturing_cost" : $('#manufacturing-cost').val()
+                    "manufacturing_cost" : $('#manufacturing-cost').val(),
+                    "status" : $('#status').val()
                 }
             }
         },
@@ -32,11 +33,17 @@ $(document).ready(function()
             { "data": "quantity"},
             { "data": "balance_quantity"},           
             { "data": "manufacturing_cost"},
+            { "data": "status"},
             { "data": "actions"}
         ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,6] }],
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,7] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "createdRow": function ( row, data, index ) {			
+			if ( data['status'] == 'Yes') {                
+                $(row).addClass('opening-stock');
+            }                  
+		}
     });
 
     table.on("draw.dt", function (e) {                    
