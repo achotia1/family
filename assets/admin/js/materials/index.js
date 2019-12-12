@@ -4,6 +4,7 @@ $(document).ready(function()
 
     const table = $('#listingTable').DataTable( 
     {
+        "stateSave": true,
         "responsive": true,
         "processing": true,
         "bFilter": true, 
