@@ -649,14 +649,14 @@ class StoreProductionController extends Controller
             <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
             <option class="theme-black blue-select" value="closed" '.( $request->custom['review_status'] == "closed" ? 'selected' : '').'>Closed</option>            
             </select>';  
-    if ($custom_search) 
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
-    }
-    else
-    {
+    // if ($custom_search) 
+    // {
+    //     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
+    // }
+    // else
+    // {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }
+    /*}*/
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
 
