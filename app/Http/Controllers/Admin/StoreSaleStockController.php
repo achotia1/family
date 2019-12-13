@@ -206,7 +206,7 @@ class StoreSaleStockController extends Controller
             3 => 'store_sales_stock.quantity',
             4 => 'store_sales_stock.balance_quantity',
             5 => 'store_sales_stock.manufacturing_cost', 
-            6 => 'store_sales_stock.id'
+            6 => 'store_sales_stock.status'
         );
 
         /*--------------------------------------

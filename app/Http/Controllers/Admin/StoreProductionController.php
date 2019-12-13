@@ -650,7 +650,7 @@ class StoreProductionController extends Controller
     $product_code_string .='</select>';
     $searchHTML['batch_id'] = $batch_no_string;
     $searchHTML['product_code'] = $product_code_string;
-    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
+    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="More than...">';
     $searchHTML['review_status']   =  '<select name="review_status" id="review-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Batch Status</option>
             <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
