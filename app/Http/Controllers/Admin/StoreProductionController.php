@@ -528,6 +528,13 @@ class StoreProductionController extends Controller
                 $modelQuery = $modelQuery
                 ->where('store_batch_cards.product_code',  $key);               
             }
+            if (isset($request->custom['review_status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['review_status'];
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.review_status', $key);
+            }
         }
 
         if (!empty($request->search))
@@ -573,7 +580,7 @@ class StoreProductionController extends Controller
             $custom_search = true;
             $key = $request->custom['quantity'];                
             $modelQuery = $modelQuery
-            ->havingRaw('sum(store_production_has_materials.quantity) = '.$key );
+            ->havingRaw('sum(store_production_has_materials.quantity) > '.$key );
         }
 
          $object = $modelQuery
