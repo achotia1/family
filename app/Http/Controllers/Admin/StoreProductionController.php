@@ -485,10 +485,10 @@ class StoreProductionController extends Controller
         ## FILTER COLUMNS
         $filter = array(
             0 => 'store_productions.id',
-            1 => 'store_productions.id',
-            2 => 'store_productions.batch_id',
-            3 => 'products.code', 
-            4 => 'total_qty',                   
+            1 => 'store_batch_cards.batch_card_no',
+            2 => 'products.code',
+            3 => 'total_qty', 
+            4 => 'review_status',                   
         );       
 
         /*--------------------------------------

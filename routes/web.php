@@ -232,6 +232,13 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('sale-stock', 'StoreSaleStockController', ['as' => $PREFIX]);
 				/*});*/
 
+				//Wastage Material Management
+				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
+				{*/
+				Route::get('/wastage-material/getRecords',  'StoreWasteStockController@getRecords');
+				//Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
+				Route::resource('wastage-material', 'StoreWasteStockController', ['as' => $PREFIX]);
+				/*});*/
 
 				// Review Batch card
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
