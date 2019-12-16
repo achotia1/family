@@ -74,7 +74,7 @@
                         <th class="w-10">Batch Name</th>
                         <th class="w-20">Product</th>                        
                         <th class="w-5">Stock Balance</th>
-                        <th class="w-10">Last Used Date</th>
+                        <th class="w-10">Last Sold Date</th>
                         <th class="w-10">Stock In Date</th>
                     </tr>
                 </thead>
