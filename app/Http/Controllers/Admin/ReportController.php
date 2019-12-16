@@ -280,7 +280,7 @@ class ReportController extends Controller
             $filter = array(
                 0 => 'store_in_materials.id',            
                 1 => 'store_in_materials.lot_no',
-                2 => 'store_in_materials.material_id',            
+                2 => 'store_raw_materials.name',            
                 3 => 'store_in_materials.lot_balance',
                 4 => 'store_in_materials.last_used_at',
                 5 => 'store_in_materials.created_at',                    
