@@ -86,12 +86,11 @@ class ReportController extends Controller
             ## FILTER COLUMNS
             $filter = array(
                 0 => 'store_out_materials.id',
-                1 => 'store_out_materials.id',
-                2 => 'store_batch_cards.batch_card_no',
-                3 => 'products.code',            
-                4 => 'store_out_materials.sellable_qty',
-                5 => 'store_out_materials.loss_material',
-                6 => 'store_out_materials.yield',                    
+                1 => 'store_batch_cards.batch_card_no',
+                2 => 'products.code',
+                3 => 'store_out_materials.sellable_qty',            
+                4 => 'store_out_materials.loss_material',
+                5 => 'store_out_materials.yield',                                   
             );
 
         /*--------------------------------------
