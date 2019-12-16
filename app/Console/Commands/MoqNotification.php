@@ -79,6 +79,7 @@ class MoqNotification extends Command
             HAVING
                 `total_balance` < store_raw_materials.moq";
         $collection = collect(DB::select(DB::raw($sqlQuery)));
+        // dd($collection);
 
         if(!empty($collection)){
             $mail_collection = [];

@@ -146,7 +146,7 @@ function addPlan()
                     </div>                    
                     </td>
                     <td>
-                    <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
+                    <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this,'add_plan_area')"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
                     </tr>`;
     
     if($("#plan-table tr").length > 1){		
@@ -156,11 +156,11 @@ function addPlan()
 	}
         
 }
-function deletePlan(element)
+function deletePlan(element,className)
 {
-	$(element).closest('.add_plan_area').find('*').attr('disabled', true);
-	//$(element).closest('.add_plan_area').hide();
-	$(element).closest('.add_plan_area').remove();
+	$(element).closest('.'+className).find('*').attr('disabled', true);
+	//$(element).closest('.'+className).hide();
+	$(element).closest('.'+className).remove();
 }
 function loadLot(sel)
 {    
@@ -203,8 +203,9 @@ function checkBal(txtQty)
 function checkBatch(batch)
 {    
     var batch_id = $(batch).val();
+    var product_id = $(batch).find('option:selected').attr('data-pid');
     var action = ADMINURL + '/production/getExistingBatch';
-    axios.post(action, {batch_id:batch_id})
+    axios.post(action, {batch_id:batch_id,product_id:product_id})
     .then(response => 
     {
         // var product = response.data.product;
@@ -212,11 +213,162 @@ function checkBatch(batch)
         var url = response.data.url;
         if(url != '')
         	window.location.href = url;
+        return false;
     })
     .catch(error =>
     {
-
+         return false;
     })
     return false;
+}
+
+//*************************Wastage Plan Material*************************
+function getWastageBatches(element)
+{    
+    // console.log('getWastageBatchesOrMaterials');
+    var batch_id = $(element).val();
+    var product_id = $(element).find('option:selected').attr('data-pid');
+    var flag = 'loadbatch';
+
+    var action = ADMINURL + '/production/getWastageBatchesOrMaterials';
+    axios.post(action, {batch_id:batch_id,product_id:product_id,flag:flag})
+    .then(response => 
+    {
+
+        wastage_batch_options = response.data.batchesHtml;
+        $("#wastage_0").html(response.data.batchesHtml); 
+
+        return false;
+       
+    })
+    .catch(error =>
+    {
+         return false;
+    })
+    return false;
+}
+
+function loadWastageBatchMaterial(element)
+{    
+    var id = $(element).attr("id");   
+    var wastage_batch_id = $(element).val();
+    var product_id = $("#batch_id").find('option:selected').attr('data-pid');
+    var flag = 'loadmaterial';
+
+    var material_selected_val=[];
+    $(".wastage_material").each(function(){
+        var str = this.value;
+        if(str){
+            var res = str.split("||");
+            material_selected_val.push(res[1]);
+        }
+    }); 
+   // console.log(material_selected_val);
+
+    var action = ADMINURL + '/production/getWastageBatchesOrMaterials';
+    axios.post(action, {wastage_batch_id:wastage_batch_id,product_id:product_id,flag:flag,material_selected_val:material_selected_val})
+    .then(response => 
+    {
+
+        $("#m_"+id).html(response.data.batchesMaterialHtml); 
+
+        return false;
+       
+    })
+    .catch(error =>
+    {
+         return false;
+    })
+    return false;
+}
+
+function setQuantityLimit(index)
+{
+    var qtyLimit = $( "#m_wastage_"+index+" option:selected" ).attr('data-qty');    
+
+    $("#wastage_q_"+index).val("");
+    $("#wastage_q_"+index).attr("min",1);
+    $("#wastage_q_"+index).attr("max",qtyLimit);
+    $("#wastageQuantityLimit_"+index).val(qtyLimit);
+    $("#wastage_q_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
+}
+
+function addWastageStockPlan() 
+{
+    var items = parseInt($("#wastage_total_items").val()) + 1;  
+    $("#wastage_total_items").val(items);
+    var counter = items;    
+    //var counter = $(".plan").length;  
+    var add_wastage_area = `<tr class="inner-td add_wastage_area wastage">                    
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select wastage_batch" 
+                            placeholder="All Batches"             
+                            name="wastage[${counter}][batch_id]"
+                            id="wastage_${counter}"
+                            onchange="loadWastageBatchMaterial(this);"
+                        >${wastage_batch_options}</select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastage[${counter}][batch_id][] err_wastage_batch"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select wastage_material" 
+                            placeholder="Material"
+                            name="wastage[${counter}][material_id]"
+                            id="m_wastage_${counter}"
+                            onchange="setQuantityLimit(${counter});"
+                            required
+                            data-error="Material field is required." 
+                        >
+                            <option value="">Select Material</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastage[${counter}][lot_id][] err_wastage_material"></li>
+                            </ul>
+                        </span>
+                        </div>
+                    </td>
+                    <td>
+                    <div class="wastage_add_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control quantity"
+                            name="wastage[${counter}][quantity]"
+                            id="wastage_q_${counter}"
+                            required
+                            step="any" 
+                            data-error="Quantity should be number."
+                        >
+                        <input 
+                            type="hidden" 
+                            id="wastageQuantityLimit_${counter}"
+                            name="wastage[${counter}][wastageQuantityLimit]"
+                            value="" 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="errq_${counter} err_wastage[${counter}][quantity][] err_wastage_quantity"></li>
+                            </ul>
+                        </span>
+                    </div>                   
+                    </td>
+                    <td>
+                    <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this,'add_wastage_area')"  id="${counter}" style="cursor:pointer">Remove</p>              </td>
+                    </tr>`;
+    
+    if($("#plan-table tr").length > 1){     
+        $(add_wastage_area).insertAfter($(".add_wastage_area:last")); 
+    } else {        
+        $(add_wastage_area).insertAfter($(".heading-wastage-tr:last"));    
+    }
+    $(".add_wastage_area").validator();   
 }
 

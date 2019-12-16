@@ -15,6 +15,9 @@ use App\Models\ProductionHasMaterialModel;
 use App\Models\ProductsModel;
 use App\Models\StoreOutMaterialModel;
 use App\Models\StoreReturnedMaterialModel;
+use App\Models\StoreWasteStockModel;
+use App\Models\StoreReuseWastageModel;
+use App\Models\StoreReuseWastageHasMaterialsModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
@@ -31,7 +34,11 @@ class StoreProductionController extends Controller
         StoreProductionModel $StoreProductionModel,
         StoreRawMaterialModel $StoreRawMaterialModel,
         StoreOutMaterialModel $StoreOutMaterialModel,
-        StoreReturnedMaterialModel $StoreReturnedMaterialModel
+        StoreReturnedMaterialModel $StoreReturnedMaterialModel,
+        StoreBatchCardModel $StoreBatchCardModel,
+        StoreWasteStockModel $StoreWasteStockModel,
+        StoreReuseWastageModel $StoreReuseWastageModel,
+        StoreReuseWastageHasMaterialsModel $StoreReuseWastageHasMaterialsModel
     )
     {
         $this->BaseModel  = $StoreProductionModel;
@@ -39,6 +46,11 @@ class StoreProductionController extends Controller
         $this->StoreRawMaterialModel  = $StoreRawMaterialModel;
         $this->StoreOutMaterialModel  = $StoreOutMaterialModel;
         $this->StoreReturnedMaterialModel  = $StoreReturnedMaterialModel;
+        $this->StoreBatchCardModel = $StoreBatchCardModel;
+        $this->StoreWasteStockModel = $StoreWasteStockModel;
+        $this->StoreReuseWastageModel = $StoreReuseWastageModel;
+        $this->StoreReuseWastageHasMaterialsModel = $StoreReuseWastageHasMaterialsModel;
+
 
         $this->ViewData = [];
         $this->JsonData = [];
@@ -46,6 +58,12 @@ class StoreProductionController extends Controller
         $this->ModuleTitle = 'Production';
         $this->ModuleView  = 'admin.store-production.';
         $this->ModulePath = 'admin.production.';
+        $this->wastageMaterialRecords = array(
+                                                0=>'Course',
+                                                1=>'Rejection',
+                                                2=>'Dust',
+                                                3=>'Loose'
+                                            );
 
         ## PERMISSION MIDDELWARE
         $this->middleware(['permission:store-material-plan-listing'], ['only' => ['getRecords']]);
@@ -73,11 +91,11 @@ class StoreProductionController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
 
         $companyId = self::_getCompanyId();
-        $objStore = new StoreBatchCardModel();
-
-        $batchNos  = $objStore->getBatchNumbers($companyId,true);
+        // $objStore = new StoreBatchCardModel();
+        //$batchNos  = $objStore->getBatchNumbers($companyId,true);
+        $batchNos  = $this->StoreBatchCardModel->getBatchNumbers($companyId,true);
         // dd($companyId,$batchNos);
-        
+
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
 
@@ -89,7 +107,27 @@ class StoreProductionController extends Controller
     }
 
     public function store(StoreProductionRequest $request)
-    {        
+    {    
+        ##Validation for Wastage Material Stock quantity
+        if (!empty($request->wastage) && count($request->wastage) > 0){
+            foreach ($request->wastage as $wastage){
+                if($wastage['quantity']<=0){
+
+                    $this->JsonData['status'] = __('admin.RESP_ERROR');
+                    $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                    return response()->json($this->JsonData);
+                    exit();
+                }
+                if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+
+                    $this->JsonData['status'] = __('admin.RESP_ERROR');
+                    $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
+                    return response()->json($this->JsonData);
+                    exit();
+                }
+            }
+        }
+
         DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create Record, Something went wrong on server.';
@@ -162,6 +200,72 @@ class StoreProductionController extends Controller
                     $objBatch = new StoreBatchCardModel();
                     $objBatch->updatePlanAdded($batchId);
                 }
+
+
+                if (!empty($request->wastage) && sizeof($request->wastage) > 0) 
+                {
+                    $collectionReuse = new $this->StoreReuseWastageModel;
+                    $plan_id = $collection->id;
+                    $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                    
+                    if($collectionReuse)
+                    {   
+                        $batchWiseMaterial = array();
+                        foreach ($request->wastage as $wastage) 
+                        {
+                            $wastage_stock_material = explode("||", $wastage['material_id']);
+                            $wastage_stock_id = $wastage_stock_material[0];
+                            $wastage_material_id = $wastage_stock_material[1];
+
+                            $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
+                            $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
+                            $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
+                            $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+
+                        }
+                        
+                        if(!empty($batchWiseMaterial)){
+                            foreach ($batchWiseMaterial as $wastageMaterial) {
+
+                                $wastageMaterialObj = new $this->StoreReuseWastageHasMaterialsModel;
+                                $wastageMaterialObj->reuse_wastage_id = $wastageMaterial['reuse_wastage_id'];
+                                $wastageMaterialObj->batch_id = $wastageMaterial['batch_id'];
+                                $wastageMaterialObj->waste_stock_id   =  $wastageMaterial['waste_stock_id'];
+                                $wastageMaterialObj->course   = !empty($wastageMaterial['Course']) ? $wastageMaterial['Course'] : 0;
+                                $wastageMaterialObj->rejection   = !empty($wastageMaterial['Rejection']) ? $wastageMaterial['Rejection'] : 0;
+                                $wastageMaterialObj->dust   = !empty($wastageMaterial['Dust']) ? $wastageMaterial['Dust'] : 0;
+                                $wastageMaterialObj->loose   = !empty($wastageMaterial['Loose']) ? $wastageMaterial['Loose'] : 0;
+
+                                if ($wastageMaterialObj->save()) 
+                                {
+                                    $all_transactions[] = 1;
+
+                                    $storeWasteStock = $this->StoreWasteStockModel
+                                                        ->find($wastageMaterial['waste_stock_id']);
+                                    $storeWasteStock->balance_course = $storeWasteStock->balance_course - $wastageMaterialObj->course;   
+                                    $storeWasteStock->balance_rejection = $storeWasteStock->balance_rejection - $wastageMaterialObj->rejection;
+                                    $storeWasteStock->balance_dust = $storeWasteStock->balance_dust - $wastageMaterialObj->dust;    
+                                    $storeWasteStock->balance_loose =$storeWasteStock->balance_loose - $wastageMaterialObj->loose; 
+
+                                    ##Update Balance qty of materials in store_waste_stock
+                                    if($storeWasteStock->save()){
+                                        $all_transactions[] = 1;
+                                    }else{
+                                        $all_transactions[] = 0;
+                                    }  
+
+                                }else{
+                                    $all_transactions[] = 0;
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+
+
                 if (!in_array(0,$all_transactions)) 
                 {
                     $this->JsonData['status'] = __('admin.RESP_SUCCESS');
@@ -201,32 +305,64 @@ class StoreProductionController extends Controller
             {  
                 $q->with('mateialName');
                 $q->with('hasLot');
-            }
-        ])->with(['assignedBatch' => function($q){
+            },
+            'assignedBatch' => function($q){
                 $q->with('assignedProduct');
-        }
-        ])->where('company_id', $companyId)
+            },
+            'hasReuseWastage' => function($q)
+            {  
+               $q->with(['hasReuseMaterials'=>function($q1){
+                    $q1->with(['assignedBatch','assignedWastageStock']); 
+               }]);
+            }
+
+        ])
+        ->where('company_id', $companyId)
         ->find($id);
-        //dd($data);
+        // dd($data);
         if(empty($data) || $data->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.production.index');
         }
-        $objStore = new StoreBatchCardModel();
+        /*$objStore = new StoreBatchCardModel();
         $batchNos = $objStore->getBatchNumbers($companyId);
+        $this->ViewData['batchNos']   = $batchNos;*/
 
+        $batchesHtml = self::_getWastageBatch($data->assignedBatch->product_code,$companyId);
+       // dd($batchesHtml);
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
         //d($materialIds);
-        $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;        
         $this->ViewData['production'] = $data;
+        $this->ViewData['wastages'] = $this->wastageMaterialRecords;
+        $this->ViewData['batchesHtml'] = $batchesHtml;
 
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
-    public function update(StoreProductionRequest $request, $encID)    {
-        
+    public function update(StoreProductionRequest $request, $encID)    
+    {
+        ##Validation for Wastage Material Stock quantity
+        if (!empty($request->wastage) && count($request->wastage) > 0){
+            foreach ($request->wastage as $wastage){
+                if($wastage['quantity']<=0){
+
+                    $this->JsonData['status'] = __('admin.RESP_ERROR');
+                    $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                    return response()->json($this->JsonData);
+                    exit();
+                }
+                if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+
+                    $this->JsonData['status'] = __('admin.RESP_ERROR');
+                    $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
+                    return response()->json($this->JsonData);
+                    exit();
+                }
+            }
+        }
+
         DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Branch, Something went wrong on server.';       
@@ -236,7 +372,8 @@ class StoreProductionController extends Controller
 
             $collection = $this->BaseModel->find($id);            
             $collection = self::_storeOrUpdate($collection,$request);
-            if($collection->save()){
+            if($collection->save())
+            {
                 $all_transactions = [];
                 $productionId = $id;
                 if (!empty($request->production) && sizeof($request->production) > 0) 
@@ -332,6 +469,101 @@ class StoreProductionController extends Controller
                                 $all_transactions[] = 0;
                             }
                         }
+
+                        if (!empty($request->wastage) && count($request->wastage) > 0) 
+                        {
+                            $reuse_wastage_id = $request->reuse_wastage_id;
+                            $plan_id = $productionId;
+                            $collectionReuse = $this->StoreReuseWastageModel->find($reuse_wastage_id);
+                            // dd($collectionReuse);
+                            $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                            
+                            if($collectionReuse)
+                            {   
+                                $batchWiseMaterial = array();
+                                foreach ($request->wastage as $wastage) 
+                                {
+                                    $wastage_stock_material = explode("||", $wastage['material_id']);
+                                    $wastage_stock_id = $wastage_stock_material[0];
+                                    $wastage_material_id = $wastage_stock_material[1];
+
+                                    $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
+                                    $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
+                                    $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
+                                    $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+
+                                }
+                                
+                                if(!empty($batchWiseMaterial)){
+                                    //Update store_waste_stock and Delete the records of store_reuse_wastage_has_materials
+
+                                    $oldwastageMaterials = $this->StoreReuseWastageHasMaterialsModel
+                                        ->where('reuse_wastage_id',$reuse_wastage_id)
+                                        ->get();
+
+                                    foreach ($oldwastageMaterials as $oldwastageMaterial) {
+
+                                        $storeWasteStockRec = $this->StoreWasteStockModel
+                                                                    ->find($oldwastageMaterial->waste_stock_id);
+                                        
+                                        $storeWasteStockRec->balance_course = $storeWasteStockRec->balance_course + $oldwastageMaterial->course;
+
+                                        $storeWasteStockRec->balance_rejection = $storeWasteStockRec->balance_rejection + $oldwastageMaterial->rejection;
+                                        
+                                        $storeWasteStockRec->balance_dust = $storeWasteStockRec->balance_dust + $oldwastageMaterial->dust;
+                                       
+                                        $storeWasteStockRec->balance_loose = $storeWasteStockRec->balance_loose + $oldwastageMaterial->loose;
+
+                                        if($storeWasteStockRec->save()){
+                                            $all_transactions[] = 1;
+                                        }else{
+                                            $all_transactions[] = 0;
+                                        }  
+
+                                    }
+
+                                    //Delete records
+                                    $this->StoreReuseWastageHasMaterialsModel->where('reuse_wastage_id', $reuse_wastage_id)->delete();
+
+
+                                    foreach ($batchWiseMaterial as $wastageMaterial) {
+
+                                        $wastageMaterialObj = new $this->StoreReuseWastageHasMaterialsModel;
+                                        $wastageMaterialObj->reuse_wastage_id = $wastageMaterial['reuse_wastage_id'];
+                                        $wastageMaterialObj->batch_id = $wastageMaterial['batch_id'];
+                                        $wastageMaterialObj->waste_stock_id   =  $wastageMaterial['waste_stock_id'];
+                                        $wastageMaterialObj->course   = !empty($wastageMaterial['Course']) ? $wastageMaterial['Course'] : 0;
+                                        $wastageMaterialObj->rejection   = !empty($wastageMaterial['Rejection']) ? $wastageMaterial['Rejection'] : 0;
+                                        $wastageMaterialObj->dust   = !empty($wastageMaterial['Dust']) ? $wastageMaterial['Dust'] : 0;
+                                        $wastageMaterialObj->loose   = !empty($wastageMaterial['Loose']) ? $wastageMaterial['Loose'] : 0;
+
+                                        if ($wastageMaterialObj->save()) 
+                                        {
+                                            $all_transactions[] = 1;
+
+                                            $storeWasteStock = $this->StoreWasteStockModel
+                                                                ->find($wastageMaterial['waste_stock_id']);
+                                            $storeWasteStock->balance_course = $storeWasteStock->balance_course - $wastageMaterialObj->course;   
+                                            $storeWasteStock->balance_rejection = $storeWasteStock->balance_rejection - $wastageMaterialObj->rejection;
+                                            $storeWasteStock->balance_dust = $storeWasteStock->balance_dust - $wastageMaterialObj->dust;    
+                                            $storeWasteStock->balance_loose =$storeWasteStock->balance_loose - $wastageMaterialObj->loose; 
+
+                                            ##Update Balance qty of materials in store_waste_stock
+                                            if($storeWasteStock->save()){
+                                                $all_transactions[] = 1;
+                                            }else{
+                                                $all_transactions[] = 0;
+                                            }  
+
+                                        }else{
+                                            $all_transactions[] = 0;
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
                                         
                     } else {
                         $all_transactions[] = 0;
@@ -359,7 +591,7 @@ class StoreProductionController extends Controller
     {
         
         $this->JsonData['status'] = 'error';
-        $this->JsonData['msg'] = 'Failed to delete user, Something went wrong on server.';
+        $this->JsonData['msg'] = 'Failed to delete production, Something went wrong on server.';
         $id = base64_decode(base64_decode($encID));
 
         $available_count = $this->StoreOutMaterialModel->where('plan_id',$id)->count();
@@ -409,7 +641,45 @@ class StoreProductionController extends Controller
                 }
                 ## MARK BATCH AS PLAN ADDED BATCH
                 $objBatch = new StoreBatchCardModel();
-                $objBatch->updatePlanAdded($batchId, 'no');           
+                $objBatch->updatePlanAdded($batchId, 'no');     
+
+                ## UPDATE WASTAGE STOCK AND DELETE THE REUSE WASTAGE RECORD
+                $oldwastageMaterials = $this->StoreReuseWastageModel
+                                        ->join('store_reuse_wastage_has_materials','store_reuse_wastage_has_materials.reuse_wastage_id','=','store_reuse_wastage.id')
+                                        ->where('store_reuse_wastage.plan_id',$id)
+                                        ->get(['reuse_wastage_id','waste_stock_id','course','rejection','dust','loose']);
+
+                if(!empty($oldwastageMaterials) && count($oldwastageMaterials)>0){
+
+                    foreach ($oldwastageMaterials as $oldwastageMaterial) {
+
+                        $reuse_wastage_id = $oldwastageMaterial->reuse_wastage_id;
+                        $storeWasteStockRec = $this->StoreWasteStockModel
+                                                    ->find($oldwastageMaterial->waste_stock_id);
+                        
+                        $storeWasteStockRec->balance_course = $storeWasteStockRec->balance_course + $oldwastageMaterial->course;
+
+                        $storeWasteStockRec->balance_rejection = $storeWasteStockRec->balance_rejection + $oldwastageMaterial->rejection;
+                        
+                        $storeWasteStockRec->balance_dust = $storeWasteStockRec->balance_dust + $oldwastageMaterial->dust;
+                       
+                        $storeWasteStockRec->balance_loose = $storeWasteStockRec->balance_loose + $oldwastageMaterial->loose;
+
+                        if($storeWasteStockRec->save()){
+                            $all_transactions[] = 1;
+                        }else{
+                            $all_transactions[] = 0;
+                        }  
+
+                    }
+
+                    //Delete records
+                    $this->StoreReuseWastageModel->where('id', $reuse_wastage_id)->delete();
+                    $this->StoreReuseWastageHasMaterialsModel->where('reuse_wastage_id', $reuse_wastage_id)->delete();
+                }                        
+
+
+
             } else {
                 $all_transactions[] = 0;
             }
@@ -439,6 +709,18 @@ class StoreProductionController extends Controller
         
         ## SAVE DATA
         //$collection->save();        
+        return $collection;
+    }
+
+    public function _storeOrUpdateReuseWastage($collection, $request,$plan_id)
+    {
+        $collection->company_id  = self::_getCompanyId();
+        $collection->user_id     = auth()->user()->id;
+        $collection->plan_id     = $plan_id;
+        $collection->batch_id    = $request->batch_id;        
+        
+        ## SAVE DATA
+        $collection->save();        
         return $collection;
     }
     public function show($encId)
@@ -787,10 +1069,10 @@ class StoreProductionController extends Controller
         {
             $batch_id   = $request->batch_id;
             $collection = $this->BaseModel->where('batch_id',$batch_id)->first();
-           // $objStore = new StoreBatchCardModel;
-            //$batcDetails = $objStore->getBatchDetails($batch_id);
-           // $product = $batcDetails->assignedProduct->code." (".$batcDetails->assignedProduct->name.")";      
-            //dd($collection->toArray());
+            
+            // $product_id = $request->product_id;
+            $company_id = self::_getCompanyId();
+
             $url = '';
             if($collection){               
                 $url = route($this->ModulePath.'edit', [ base64_encode(base64_encode($collection->id))]);    
@@ -806,6 +1088,93 @@ class StoreProductionController extends Controller
         }
 
         return response()->json($this->JsonData);   
+    }
+
+
+    public function getWastageBatchesOrMaterials(Request $request)
+    {
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get wastage batches, Something went wrong on server.';
+        try 
+        {
+            $flag           = $request->flag;
+            $batch_id           = $request->batch_id;
+            $wastage_batch_id   = $request->wastage_batch_id;
+
+            $product_id         = $request->product_id;
+            $company_id         = self::_getCompanyId();
+            $batchesHtml="<option value=''>Select Batch</option>";
+            $batchesMaterialHtml="<option value=''>Select Material</option>";
+
+            if($flag=="loadbatch")
+            {
+
+                $batchesHtml = self::_getWastageBatch($product_id,$company_id);
+                
+            }elseif($flag=="loadmaterial"){
+
+                $wastageBatchesMaterials = $this->StoreWasteStockModel
+                            ->where('store_waste_stock.product_id',$product_id)
+                            ->where('store_waste_stock.batch_id',$wastage_batch_id)
+                            ->where('store_waste_stock.company_id',$company_id)
+                            ->get([
+                                    'store_waste_stock.id as waste_stock_id',
+                                    'store_waste_stock.balance_course as Course',
+                                    'store_waste_stock.balance_rejection as Rejection',
+                                    'store_waste_stock.balance_dust as Dust',
+                                    'store_waste_stock.balance_loose as Loose',
+                                ]);
+
+
+                foreach($wastageBatchesMaterials as $batchMaterial){
+
+                    foreach ($this->wastageMaterialRecords as $materialKey=>$material) {
+                        // dd($material,$batchMaterial->$material);
+                        if($batchMaterial->$material>0){
+                            $batchesMaterialHtml.="<option data-qty='".$batchMaterial->$material."' value='".$batchMaterial->waste_stock_id."||".$materialKey."'>".$material." (".$batchMaterial->$material.")</option>";
+                        }
+                    }
+
+                }
+            }
+
+            // dd($wastageBatchesMaterials->toArray(),$batchesMaterialHtml,$batchesHtml);
+           
+            $this->JsonData['batchesHtml']  = $batchesHtml;
+            $this->JsonData['batchesMaterialHtml']  = $batchesMaterialHtml;
+            $this->JsonData['msg']      = 'Batches and its Material';
+            $this->JsonData['status']   = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+
+    public function _getWastageBatch($product_id,$company_id){
+
+        $wastageBatchesMaterials = $this->StoreBatchCardModel
+                            ->join('store_waste_stock','store_waste_stock.batch_id','=','store_batch_cards.id')
+                            ->where('store_waste_stock.product_id',$product_id)
+                            ->where('store_waste_stock.company_id',$company_id)
+                            ->get([
+                                    'store_batch_cards.id',
+                                    'store_batch_cards.batch_card_no',
+                                    'store_waste_stock.id as waste_stock_id',
+                                    'store_waste_stock.balance_course as Course',
+                                    'store_waste_stock.balance_rejection as Rejection',
+                                    'store_waste_stock.balance_dust as Dust',
+                                    'store_waste_stock.balance_loose as Loose',
+                                ]);
+        $batchesHtml = "<option value=''>Select Batch</option>";   
+        foreach($wastageBatchesMaterials as $batches){
+            
+            $batchesHtml.= "<option value='".$batches->id."'>".$batches->batch_card_no."</option>";
+        }
+        return $batchesHtml;
     }
 
 }

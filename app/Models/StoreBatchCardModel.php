@@ -101,6 +101,21 @@ class StoreBatchCardModel extends Model
         return $result;   
         
     }
+
+    public function getWastageBatchNumbers($companyId) {  
+
+         $modelQuery = self::with(['assignedProduct'])
+                ->select('id','batch_card_no','product_code')
+                ->where('company_id', $companyId)
+                ->where('status', 1);
+        /*if($opened){
+            $modelQuery = $modelQuery
+                        ->where('review_status', 'open'); 
+        }*/
+        $result = $modelQuery->get();
+        return $result;   
+        
+    }
    /* public function getPendingBatches() {
         return self::where('status', 1)->orderBy('id', 'DESC')->get();
         

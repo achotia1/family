@@ -41,6 +41,12 @@ class StoreProductionModel extends Model
     {       
         return $this->hasOne(StoreReturnedMaterialModel::class, 'plan_id', 'id');
     }
+
+    public function hasReuseWastage()
+    {
+        return $this->hasOne(StoreReuseWastageModel::class, 'plan_id', 'id');
+    }
+
     public function getProductionPlans($companyId,$batchOpened=false) { 
         /*return self::with([
             'assignedBatch' => function($q){                

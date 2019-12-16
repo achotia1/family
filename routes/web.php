@@ -129,19 +129,20 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::post('/production/getBatchMaterials',  'StoreProductionController@getBatchMaterials');
 					Route::post('/production/getMaterialLots',  'StoreProductionController@getMaterialLots');
 					Route::post('/production/getExistingBatch',  'StoreProductionController@getExistingBatch');
+					Route::post('/production/getWastageBatchesOrMaterials',  'StoreProductionController@getWastageBatchesOrMaterials');
 					Route::get('/production/getRecords',  'StoreProductionController@getRecords');
 					Route::get('/production/show/{id}',  'StoreProductionController@show')->name($PREFIX.'.production.show');
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);
 				});
 
-				// Sales
+				// StoreIssuedMaterialController
 				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
 				{*/
-					Route::post('/sales/getBatchMaterials',  'StoreIssuedMaterialController@getBatchMaterials');
+					/*Route::post('/sales/getBatchMaterials',  'StoreIssuedMaterialController@getBatchMaterials');
 					Route::get('/sales/getRecords',  'StoreIssuedMaterialController@getRecords');
 					Route::post('/sales/bulkDelete',  'StoreIssuedMaterialController@bulkDelete');
-					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);
+					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);*/
 				/*});*/
 
 				// Return Material
@@ -258,24 +259,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				});*/
 				
 				// Orders
-				/*Route::group(['middleware' => ['permission:manage-orders']], function () use($PREFIX)
-				{
-					Route::post('/orders/dispatch/{id}',  'OrdersController@dispatcherAccountantHistoryStore')->name($PREFIX.'.orders.dispatch.store');	
-					Route::post('/orders/decline/{id}',  'OrdersController@decline')->name($PREFIX.'.orders.decline');	
-					Route::post('/orders/dispatched/{id}',  'OrdersController@dispatched')->name($PREFIX.'.orders.dispatched');	
-					Route::post('/orders/confirm/{id}',  'OrdersController@confirm')->name($PREFIX.'.orders.confirm');				
-					
-					Route::get('/orders/getRecords',  'OrdersController@getRecords');
-					Route::get('/orders/dispatcher/history/{id}',  'OrdersController@viewDispatcherHistory')->name('admin.orders.viewDispatcherHistory');
-					Route::get('/orders/getDispatcherHistory/{order_id}',  'OrdersController@getDispatcherHistory');
-					Route::get('/orders/notes/history/{encoded_order_id}',  'OrdersController@viewNotesHistory')->name('admin.orders.viewNotesHistory');
-					Route::get('/orders/getNotesHistory/{order_id}',  'OrdersController@getNotesHistory');
-
-					Route::post('/orders/note',  'OrdersController@storeNote')->name('admin.orders.storeNote');;
-					Route::resource('orders', 'OrdersController', ['as' => $PREFIX]);
-				
-				});	
-
+				/*
 				// Companies
 				Route::group(['middleware' => ['permission:manage-companies']], function () use($PREFIX)
 				{	

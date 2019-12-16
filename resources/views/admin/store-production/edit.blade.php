@@ -22,7 +22,7 @@
                         required="" 
                         data-error="Batch Code field is required." 
                         >                    
-                    <option value="{{$production->batch_id}}">{{$production->assignedBatch->batch_card_no}} ({{$production->assignedBatch->assignedProduct->code}} - {{$production->assignedBatch->assignedProduct->name}})</option>
+                    <option value="{{$production->batch_id}}" data-pid="{{ $production->assignedBatch->product_code }}">{{$production->assignedBatch->batch_card_no}} ({{$production->assignedBatch->assignedProduct->code}} - {{$production->assignedBatch->assignedProduct->name}})</option>
                     
                 </select>                
                 <span class="help-block with-errors">
@@ -45,6 +45,7 @@
                         </tr>
                         @php
                         $k = 0;
+                        $k1 = 0;
                         @endphp
                         @foreach($production->hasProductionMaterials as $material)
                         <tr class="inner-td add_plan_area plan">
@@ -108,7 +109,7 @@
                         </td>
                         <td>
                         	
-                        	<p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this)"  id="${{$k}}" style="cursor:pointer">Remove</p>
+                        	<p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this,'add_plan_area')"  id="${{$k}}" style="cursor:pointer">Remove</p>
                         </td>
                         </tr>
                         @php
@@ -126,6 +127,129 @@
                             </a>
             	</div>
             </div>
+            @if(!empty($production->hasReuseWastage))
+            <div class="with-border col-md-12">
+                <h4 class="">Wastage Material Stock</h4>
+            </div>
+            <div class="col-md-12">
+                <table class="table mb-0 border-none " id="wastage-table">
+                    <thead class="theme-bg-blue-light-opacity-15">
+                        <tr class="heading-wastage-tr">                            
+                            <th class="w-160-px">Batch Code</th>
+                            <th class="w-160-px">Material</th>
+                            <th class="w-160-px">Quantity</th>
+                            <th class="w-50-px"></th>
+                        </tr>
+                    </thead>
+                    @foreach($production->hasReuseWastage->hasReuseMaterials as $reuseMaterial)
+                    @foreach($wastages as $wastageKey=>$wastage)
+                        @php
+                        $wastage = strtolower($wastage);
+                        @endphp
+                    @if($reuseMaterial->$wastage>0)
+                    <tbody class="no-border">
+                    <tr class="inner-td add_wastage_area wastage">                    
+                    <td>
+                    <div class="form-group"> 
+                        <select 
+                            class="form-control my-select wastage_batch" 
+                            placeholder="All Batches"
+                            name="wastage[{{$k1}}][batch_id]"
+                            id="wastage_{{$k1}}"
+                            onchange="loadWastageBatchMaterial(this);"
+                            data-error="Batch field is required." 
+                        >
+                            <option value="{{ $reuseMaterial->assignedBatch->id }}"  selected >{{ $reuseMaterial->assignedBatch->batch_card_no }}</option>
+                           
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastage[{{$k1}}][batch_id][] err_wastage_batch"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+
+                    @php
+                        $total_balance_qty=0;
+                        if(!empty($reuseMaterial->assignedWastageStock)){
+
+                            $balanceVar = 'balance_'.$wastage;
+                            $total_balance_qty= $reuseMaterial->$wastage + $reuseMaterial->assignedWastageStock->$balanceVar;
+                        }
+
+                    @endphp
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select wastage_material" 
+                            placeholder="Material"
+                            name="wastage[{{$k1}}][material_id]"
+                            id="m_wastage_{{$k1}}"
+                            onchange="setQuantityLimit({{$k1}});"
+                            data-error="Material field is required." 
+                        >
+                          <option data-qty="{{ $total_balance_qty }}" value="{{ $reuseMaterial->waste_stock_id.'||'.$wastageKey }}" selected>{{ ucfirst($wastage) }} ({{ $total_balance_qty }})</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastage[{{$k1}}][lot_id][] err_wastage_material"></li>
+                            </ul>
+                        </span>
+                        </div>
+                    </td>
+                    <td>
+                    <div class="wastage_add_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control quantity"
+                            name="wastage[{{$k1}}][quantity]"
+                            id="wastage_q_{{$k1}}"
+                            value="{{ $reuseMaterial->$wastage }}" 
+                            min="1"
+                            max="{{$total_balance_qty}}"
+                            step="any" 
+                            data-error="You can not select more than available quantity: {{$total_balance_qty}}"
+                        >
+                        <input 
+                            type="hidden" 
+                            id="wastageQuantityLimit_{{$k1}}"
+                            name="wastage[{{$k1}}][wastageQuantityLimit]"
+                            value="{{ $total_balance_qty }}" 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="errq_{{$k1}} err_wastage[{{$k1}}][quantity][] err_wastage_quantity"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deletePlan(this,'add_wastage_area')" style="cursor:pointer">Remove</p>
+                    </td>
+                    </tr>
+                    @php
+                        $k1++;
+                    @endphp
+                    @endif        
+                    @endforeach                   
+                    @endforeach                   
+                    <input type="hidden" name="wastage_total_items" id="wastage_total_items" value="{{$k1}}">
+                    <input type="hidden" name="reuse_wastage_id" id="reuse_wastage_id" value="{{ $production->hasReuseWastage->id }}">
+                    </tbody> 
+                </table>
+                <div class="col-md-8">
+                <a href="javascript:void(0)" class="theme-green bold f-16 text-underline"
+                                onclick="return addWastageStockPlan()" style="cursor: pointer;">
+                                <span class="mr-2"><img src="{{ url('/assets/admin/images') }}/icons/green_plus.svg"
+                                        alt=" view"></span> Add More
+                            </a>
+                </div>
+            </div>
+            
+            @endif
+
+
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>
@@ -142,6 +266,7 @@
     <script type="text/javascript">
         var material_id = "";
         var batch_id = "";
+        var wastage_batch_options = "{!! $batchesHtml !!}";
         // PLAN OPTIONS
         var plan_options = '';
         @if(!empty($materialIds) && sizeof($materialIds) > 0)
