@@ -24,7 +24,7 @@ class StoreRawMaterialRequest extends FormRequest
             ];
         }else{
              return [                
-                'name'     => 'required|unique:store_raw_materials,name,'.$id,
+                'name'     => 'required|unique:store_raw_materials,name,'.$id.',id,deleted_at,NULL',
                 'moq'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 /*'balance_stock'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',*/
             ];
