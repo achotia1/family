@@ -546,7 +546,8 @@ class ReportController extends Controller
                         $query->orwhere('store_sale_invoice.invoice_no', 'LIKE', '%'.$search.'%');   
                         $query->orwhere('users.contact_name', 'LIKE', '%'.$search.'%');
                         
-                        $query->orwhere('products.code', 'LIKE', '%'.$search.'%');   
+                        $query->orwhere('products.code', 'LIKE', '%'.$search.'%');
+
                     });              
 
                 }
@@ -848,7 +849,7 @@ class ReportController extends Controller
             $filter = array(
                 0 => 'store_in_materials.id',            
                 1 => 'store_in_materials.lot_no',
-                2 => 'store_in_materials.material_id',            
+                2 => 'store_raw_materials.name',            
                 3 => 'store_in_materials.balance_corrected_at',
             );
 
