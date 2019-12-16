@@ -89,8 +89,8 @@
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="status" checked value="1">
-                      Active
+                      <input type="checkbox" name="status" value="1">
+                      Is Opening?
                     </label>
                 </div>  
             </div>

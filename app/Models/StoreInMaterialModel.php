@@ -49,7 +49,7 @@ class StoreInMaterialModel extends Model
     }*/
 
     public function geLotNo() {
-        $todaysRecords = self::whereDate('created_at', Carbon::today())->orderBy('id', 'desc')->first();
+        $todaysRecords = self::where('status', 1)->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')->first();
         $lotNoArr[0] = 0;
         $numRecord = sprintf("%02d", 1);
         if(!empty($todaysRecords)){
