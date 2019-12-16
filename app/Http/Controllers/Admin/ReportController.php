@@ -654,8 +654,8 @@ class ReportController extends Controller
             ## FILTER COLUMNS
             $filter = array(
                 0 => 'store_sales_stock.id',            
-                1 => 'store_sales_stock.batch_id',
-                2 => 'store_sales_stock.product_id',            
+                1 => 'store_batch_cards.batch_card_no',
+                2 => 'products.code',            
                 3 => 'store_sales_stock.balance_quantity',
                 4 => 'store_sales_stock.last_used_at',
                 5 => 'store_sales_stock.created_at',                    
