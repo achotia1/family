@@ -79,22 +79,6 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				});
 				Route::post('/users/updatePassword', 'UsersController@updatePassword');
 
-				
-				// Vehicles
-				/*Route::group(['middleware' => ['permission:manage-vehicles']], function () use($PREFIX)
-				{
-					Route::get('/vehicles/getRecords',  'VehiclesController@getRecords');
-					Route::post('/vehicles/bulkDelete',  'VehiclesController@bulkDelete');
-					Route::resource('vehicles', 'VehiclesController', ['as' => $PREFIX]);
-				});*/
-
-				// Offences
-				/*Route::group(['middleware' => ['permission:manage-offences']], function () use($PREFIX)
-				{
-					Route::get('/offences/getRecords',  'OffencesController@getRecords');
-					Route::resource('offences', 'OffencesController', ['as' => $PREFIX]);
-				});*/
-
 				// Raw Material
 				Route::group(['middleware' => ['permission:store-manage-materials']], function () use($PREFIX)
 				{
@@ -135,15 +119,6 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::post('/production/bulkDelete',  'StoreProductionController@bulkDelete');
 					Route::resource('production', 'StoreProductionController', ['as' => $PREFIX]);
 				});
-
-				// StoreIssuedMaterialController
-				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
-				{*/
-					/*Route::post('/sales/getBatchMaterials',  'StoreIssuedMaterialController@getBatchMaterials');
-					Route::get('/sales/getRecords',  'StoreIssuedMaterialController@getRecords');
-					Route::post('/sales/bulkDelete',  'StoreIssuedMaterialController@bulkDelete');
-					Route::resource('sales', 'StoreIssuedMaterialController', ['as' => $PREFIX]);*/
-				/*});*/
 
 				// Return Material
 				Route::group(['middleware' => ['permission:store-manage-returned-material']], function () use($PREFIX)
@@ -242,15 +217,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::resource('wastage-material', 'StoreWasteStockController', ['as' => $PREFIX]);
 				/*});*/
 
-				// Review Batch card
-				/*Route::group(['middleware' => ['permission:manage-batches']], function () use($PREFIX)
-				{*/
-					/*Route::get('/review-batch-card',  'StoreReviewBatchCardController@index')->name($PREFIX.'.review-batch-card');
-					Route::get('/review-batch-card/getRecords',  'StoreReviewBatchCardController@getRecords');
-					Route::get('/review-batch-card/show/{id}',  'StoreReviewBatchCardController@show')->name($PREFIX.'.review-batch-card.show');
-					Route::post('/review-batch-card/send-to-billing/{id}','StoreReviewBatchCardController@sendToBilling')->name($PREFIX.'.review-batch-card.send-to-billing');*/
-				/*});*/
-
+				
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');
 				Route::post('/customers/update/{encodedCustomerId}',  'CustomersController@updateCustomerProfile')->name('admin.customers.updateCustomerProfile');
 
@@ -271,20 +238,6 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::resource('customers', 'CustomersController', ['as' => $PREFIX]);
 
 				});*/
-				
-				// Orders
-				/*
-				// Companies
-				Route::group(['middleware' => ['permission:manage-companies']], function () use($PREFIX)
-				{	
-
-					Route::get('/company/getRecords',  'CompanyController@getRecords');
-					Route::post('/company/bulkDelete',  'CompanyController@bulkDelete');
-					Route::resource('company', 'CompanyController', ['as' => $PREFIX]);
-
-				});	*/
-
-				
 
 			});
 
