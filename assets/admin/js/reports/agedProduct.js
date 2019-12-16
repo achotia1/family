@@ -1,6 +1,6 @@
 $(document).ready(function() 
 {
-    $("#interval-time").val(5);
+    $("#interval-time").val(10);
 
 
     var action = ADMINURL+'/aged-products/getAgedProductRecords'; 
@@ -21,6 +21,7 @@ $(document).ready(function()
             {
                 object.custom = {
                 	"interval-time" :  $('#interval-time').val(),
+                	"product-id" :  $('#product-id').val(),
                 }
             }
         },

@@ -30,14 +30,10 @@ $(document).ready(function()
             "url": action,
             "data": function (object) 
             {
-                object.custom = {
-                	// "batch_id" :  $('#batch-id').val(),
-                	// "product_code" :  $('#product-code').val(),
-                	// "sellable_qty" :  $('#sellable-qty').val(),
-                	// "loss_material" :  $('#loss-material').val(),
-                	// "yield" 	:  $('#yield').val(),
+                object.custom = {                	
                 	"from-date" :  $('#from-date').val(),
                     "to-date"   :  $('#to-date').val(),
+                    "product-id" :  $('#product-id').val(),
                 }
             }
         },

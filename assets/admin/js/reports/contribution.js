@@ -32,7 +32,8 @@ $(document).ready(function()
             {
                 object.custom = {
                 	"from-date" :  $('#from-date').val(),
-                    "to-date"   :  $('#to-date').val(),	
+                    "to-date"   :  $('#to-date').val(),
+                    "product-id" :  $('#product-id').val(),	
                 }
             }
         },

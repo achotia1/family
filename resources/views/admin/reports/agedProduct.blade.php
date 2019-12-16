@@ -18,10 +18,10 @@
         margin-right: 1%;
         margin-top: 10px !important;
     }
-    #interval-time{
+    /*#interval-time{
         width: 15%;
         display: inline-block;        
-    }
+    }*/
     .ltime-interval{
         /*width: 18%;*/
         display: inline-block;        
@@ -38,12 +38,27 @@
 
 <section class="content">
     <div class="box">
-        <div class="box-header align-right">
-        	<span class="ltime-interval interval-lable">Product not used for more than : </span>
-        	<input id="interval-time" type="number" class="form-control l-interval">
-        	
-        	<span class="interval-lable stime-interval"> days </span>
-        	<button type="button" class="btn btn-primary l-interval" onclick="doSearch(this)">Search</button>
+        <div class="row">
+        	<div class="col-md-12">
+        		<div class="col-md-2">Product not used for more than :
+        		</div>
+        		<div class="col-md-1"><input id="interval-time" type="number" class="form-control"></div>
+        		<div class="col-md-4">days
+        		<select class="form-control select2" 
+                         id="product-id"
+                         name="product_id" 
+                        >                    
+                        <option value="">Select Product</option>
+                        @foreach($products as $product)
+                            <option value="{{ $product->id }}">{{ $product->code }} ({{$product->name}})</option>
+                        @endforeach
+                    </select>
+        		</div>
+        		
+        		<div class="col-md-3">
+        		<button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
+        		</div>
+        	</div>
         </div>    
         <div class="box-body">
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >

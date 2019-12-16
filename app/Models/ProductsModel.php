@@ -25,6 +25,7 @@ class ProductsModel extends Model
         return ProductsModel::select('id','name','code')
                             ->where('status','1')
                             ->where('company_id',$companyId)
+                            ->orderBy('code', 'ASC')
                             ->get();
     }
 
