@@ -53,13 +53,13 @@ class StoreRawMaterialModel extends Model
         if($companyId > 0){
             $modelQuery = $modelQuery->where('company_id', $companyId);
             $modelQuery = $modelQuery->with(['hasInMaterials'=> function($q) use($companyId){
-                $q->where('status', 1);
+                /*$q->where('status', 1);*/
                 $q->where('lot_balance', '>', 0);
                 $q->where('company_id', $companyId);                 
             }]);  
         } else {            
             $modelQuery = $modelQuery->with(['hasInMaterials'=> function($q){
-                $q->where('status', 1);
+                /*$q->where('status', 1);*/
                 $q->where('lot_qty', '>', 0);                
             }]);  
         }

@@ -65,7 +65,7 @@ class StoreInMaterialModel extends Model
         $balanceMaterials = array();        
         $modelQuery = self::select('id','lot_no','lot_balance')
         ->where('material_id',$material_id)
-        ->where('status', 1)
+        /*->where('status', 1)*/
         ->where('lot_balance', '>', 0);
         if($companyId > 0){
             $modelQuery = $modelQuery->where('company_id', $companyId);
