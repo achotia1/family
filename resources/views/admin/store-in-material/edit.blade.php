@@ -86,8 +86,8 @@
                 <label class="theme-blue">Status</label>
                 <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="status" value="1" @if($material->status==1) checked @endif>
-                      Active
+                      <input type="checkbox" name="status" value="1" @if($material->status==0) checked @endif>
+                      Is Opening?
                     </label>
                 </div>  
             </div>
