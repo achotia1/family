@@ -297,6 +297,50 @@
         </div>
     </div>
 
+    {{-- Manage Wastage Materials --}}
+   <!--  <div class="panel panel-default">
+        <div class="panel-heading">
+            <div class="list-group-item d-flex">
+                <a href="#">Manage Wastage Materials </a>
+                <div class="label-anchor">
+                    <label class="switch ml-auto">
+                        <input type="checkbox" class="checkbox-permissions"
+                            id="permission-store-manage-wastage-material" name="store-manage-wastage-material"
+                            value="store-manage-wastage-material">
+                        <span class="knob"></span>
+                    </label>
+                    <a data-toggle="collapse" href="#permission8"
+                        class="theme-green ml-3 text-underline">details</a>
+                </div>
+            </div>
+        </div>
+        <div id="permission8" class="panel-collapse collapse">
+            <div class="panel-body border-0 py-0">
+                <ul class="list-group toggle-wrapper">
+                    <li class="list-group-item d-flex">
+                        <a href="#">View Wastage Material </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-wastage-material-listing" name="store-wastage-material-listing"
+                                value="store-wastage-material-listing">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Correct Wastage Material Balance </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-wastage-material-correct-balance" name="store-wastage-material-correct-balance"
+                                value="store-wastage-material-correct-balance">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div> -->
+
     {{-- Users --}}
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -347,10 +391,6 @@
                     
                     <li class="list-group-item d-flex">
                         <a href="#">Manage Permissions </a>
-                        <!-- <label class="switch ml-auto">
-                            <input type="checkbox" class="checkbox-permissions" id="permission-customer-listing-access" name="customer-listing-access" value="customer-listing-access" >
-                            <span class="knob"></span>
-                        </label> -->
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
                                 id="permission-store-manage-permissions" name="store-manage-permissions"
@@ -382,18 +422,63 @@
         </div>
         <div id="permission9" class="panel-collapse collapse">
             <div class="panel-body border-0 py-0">
-                <ul class="list-group toggle-wrapper">
-                    <!-- <li class="list-group-item d-flex">
-                        <a href="#">Vehicle History Report </a>
+                <!-- <ul class="list-group toggle-wrapper">
+                    <li class="list-group-item d-flex">
+                        <a href="#">Batch-Wise Report </a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
-                                id="permission-vehicle-history" name="vehicle-history"
-                                value="vehicle-history">
+                                id="permission-batch-wise-report" name="batch-wise-report"
+                                value="batch-wise-report">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
-                    </li> -->
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Aged Material Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-aged-material-report" name="aged-material-report"
+                                value="aged-material-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Material Deviation Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-material-deviation-report" name="material-deviation-report"
+                                value="material-deviation-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Contribution Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-contribution-report" name="contribution-report"
+                                value="contribution-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Aged Product Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-aged-product-report" name="aged-product-report"
+                                value="aged-product-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Stock Deviation Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-stock-deviation-report" name="stock-deviation-report"
+                                value="stock-deviation-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
                     
-                </ul>
+                </ul> -->
             </div>
         </div>
     </div>

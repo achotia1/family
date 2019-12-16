@@ -108,23 +108,29 @@ class StoreProductionController extends Controller
 
     public function store(StoreProductionRequest $request)
     {    
+        //dd($request->all());
         ##Validation for Wastage Material Stock quantity
         if (!empty($request->wastage) && count($request->wastage) > 0){
             foreach ($request->wastage as $wastage){
-                if($wastage['quantity']<=0){
+                if( !empty($wastage['batch_id']) && !empty($wastage['material_id']) && !empty($wastage['quantity']) ){
 
-                    $this->JsonData['status'] = __('admin.RESP_ERROR');
-                    $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
-                    return response()->json($this->JsonData);
-                    exit();
-                }
-                if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+                    if($wastage['quantity']<=0){
 
-                    $this->JsonData['status'] = __('admin.RESP_ERROR');
-                    $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
-                    return response()->json($this->JsonData);
-                    exit();
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                    if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+
                 }
+                
             }
         }
 
@@ -204,23 +210,29 @@ class StoreProductionController extends Controller
 
                 if (!empty($request->wastage) && sizeof($request->wastage) > 0) 
                 {
-                    $collectionReuse = new $this->StoreReuseWastageModel;
-                    $plan_id = $collection->id;
-                    $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                    if( !empty($request->wastage[0]['batch_id']) && !empty($request->wastage[0]['material_id']) && !empty($request->wastage[0]['quantity']) ){
+
+                        $collectionReuse = new $this->StoreReuseWastageModel;
+                        $plan_id = $collection->id;
+                        $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                    }
                     
-                    if($collectionReuse)
+                    if(!empty($collectionReuse))
                     {   
                         $batchWiseMaterial = array();
                         foreach ($request->wastage as $wastage) 
                         {
-                            $wastage_stock_material = explode("||", $wastage['material_id']);
-                            $wastage_stock_id = $wastage_stock_material[0];
-                            $wastage_material_id = $wastage_stock_material[1];
+                            if( !empty($wastage['batch_id']) && !empty($wastage['material_id']) && !empty($wastage['quantity']) ){
 
-                            $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
-                            $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
-                            $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
-                            $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+                                $wastage_stock_material = explode("||", $wastage['material_id']);
+                                $wastage_stock_id = $wastage_stock_material[0];
+                                $wastage_material_id = $wastage_stock_material[1];
+
+                                $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
+                                $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
+                                $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
+                                $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+                            }
 
                         }
                         
@@ -346,19 +358,22 @@ class StoreProductionController extends Controller
         ##Validation for Wastage Material Stock quantity
         if (!empty($request->wastage) && count($request->wastage) > 0){
             foreach ($request->wastage as $wastage){
-                if($wastage['quantity']<=0){
+                if( !empty($wastage['batch_id']) && !empty($wastage['material_id']) && !empty($wastage['quantity']) ){
 
-                    $this->JsonData['status'] = __('admin.RESP_ERROR');
-                    $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
-                    return response()->json($this->JsonData);
-                    exit();
-                }
-                if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+                    if($wastage['quantity']<=0){
 
-                    $this->JsonData['status'] = __('admin.RESP_ERROR');
-                    $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
-                    return response()->json($this->JsonData);
-                    exit();
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                    if($wastage['quantity']>$wastage['wastageQuantityLimit']){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['wastageQuantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
                 }
             }
         }
@@ -472,25 +487,31 @@ class StoreProductionController extends Controller
 
                         if (!empty($request->wastage) && count($request->wastage) > 0) 
                         {
-                            $reuse_wastage_id = $request->reuse_wastage_id;
-                            $plan_id = $productionId;
-                            $collectionReuse = $this->StoreReuseWastageModel->find($reuse_wastage_id);
-                            // dd($collectionReuse);
-                            $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                            if( !empty($request->wastage[0]['batch_id']) && !empty($request->wastage[0]['material_id']) && !empty($request->wastage[0]['quantity']) )
+                            {
+                                $reuse_wastage_id = $request->reuse_wastage_id;
+                                $plan_id = $productionId;
+                                $collectionReuse = $this->StoreReuseWastageModel->find($reuse_wastage_id);
+                                // dd($collectionReuse);
+                                $collectionReuse = self::_storeOrUpdateReuseWastage($collectionReuse,$request,$plan_id);
+                            }
                             
-                            if($collectionReuse)
+                            if(!empty($collectionReuse))
                             {   
                                 $batchWiseMaterial = array();
                                 foreach ($request->wastage as $wastage) 
                                 {
-                                    $wastage_stock_material = explode("||", $wastage['material_id']);
-                                    $wastage_stock_id = $wastage_stock_material[0];
-                                    $wastage_material_id = $wastage_stock_material[1];
+                                    if( !empty($wastage['batch_id']) && !empty($wastage['material_id']) && !empty($wastage['quantity']) ){
 
-                                    $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
-                                    $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
-                                    $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
-                                    $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+                                        $wastage_stock_material = explode("||", $wastage['material_id']);
+                                        $wastage_stock_id = $wastage_stock_material[0];
+                                        $wastage_material_id = $wastage_stock_material[1];
+
+                                        $batchWiseMaterial[$wastage['batch_id']]['reuse_wastage_id']=$collectionReuse->id;
+                                        $batchWiseMaterial[$wastage['batch_id']]['batch_id']=$wastage['batch_id'];
+                                        $batchWiseMaterial[$wastage['batch_id']]['waste_stock_id']=$wastage_stock_id;
+                                        $batchWiseMaterial[$wastage['batch_id']][$this->wastageMaterialRecords[$wastage_material_id]]=$wastage['quantity'];
+                                    }
 
                                 }
                                 
