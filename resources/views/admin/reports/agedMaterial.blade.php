@@ -38,13 +38,19 @@
 
 <section class="content">
     <div class="box">
-        <div class="row">
-        	<div class="col-md-12">
-        		<div class="col-md-2">Material not used for more than :
-        		</div>
-        		<div class="col-md-1"><input id="interval-time" type="number" class="form-control"></div>
-        		<div class="col-md-4">days
-        		<select class="form-control select2" 
+        <div class="container">
+            <div class="row">
+        		
+        		<div class="col-md-3">  
+                    <label class="theme-blue">Material not used for more than :</label>
+                    <input id="interval-time" type="number" class="form-control">
+                </div>
+                <div class="col-md-1" style="margin-top: 28px !important;">
+                    <label>days</label>
+                </div>
+        		<div class="col-md-4">
+                    <label class="theme-blue">Material</label>
+        		  <select class="form-control select2" 
                          id="material-id"
                          name="material_id" 
                         >                    
@@ -55,7 +61,7 @@
                     </select>
         		</div>
         		
-        		<div class="col-md-3">
+        		<div class="col-md-4" style="margin-top: 24px !important;">
         		<button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
         		</div>
         	</div>

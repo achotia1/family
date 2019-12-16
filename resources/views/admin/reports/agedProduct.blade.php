@@ -38,13 +38,18 @@
 
 <section class="content">
     <div class="box">
-        <div class="row">
-        	<div class="col-md-12">
-        		<div class="col-md-2">Product not used for more than :
-        		</div>
-        		<div class="col-md-1"><input id="interval-time" type="number" class="form-control"></div>
-        		<div class="col-md-4">days
-        		<select class="form-control select2" 
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">  
+                    <label class="theme-blue">Product not used for more than :</label>
+                    <input id="interval-time" type="number" class="form-control">
+                </div>
+                <div class="col-md-1" style="margin-top: 28px !important;">
+                    <label>days</label>
+                </div>
+                <div class="col-md-4">
+                    <label class="theme-blue">Product</label>
+                    <select class="form-control select2" 
                          id="product-id"
                          name="product_id" 
                         >                    
@@ -53,9 +58,10 @@
                             <option value="{{ $product->id }}">{{ $product->code }} ({{$product->name}})</option>
                         @endforeach
                     </select>
-        		</div>
+                </div>
         		
-        		<div class="col-md-3">
+        		
+        		<div class="col-md-4" style="margin-top: 24px !important;">
         		<button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
         		</div>
         	</div>

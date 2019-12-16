@@ -261,3 +261,15 @@ a.arrow span img {
     float: left;
 }
 /* End */
+
+/* Select box Start */
+.content-wrapper .select2-container .select2-selection--single {
+    height: 34px;    
+    border-radius: 0px;
+    border-color: #d2d6de;
+}
+.content-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow {    
+    top: 50%;
+    transform: translateY(-50%);
+}
+/* Select box End */

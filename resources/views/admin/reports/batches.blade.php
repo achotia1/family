@@ -18,8 +18,8 @@
 
 <section class="content">
     <div class="box">
-        <div class="row">
-            <div class="col-md-12">
+        <div class="container">
+            <div class="row">
                 <div class="col-md-3">
                     <label class="theme-blue f-14">From Date</label>
                     <input id="from-date" type="text" class="form-control">
