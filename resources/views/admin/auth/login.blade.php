@@ -79,7 +79,7 @@
 
     <!-- /.social-auth-links -->
 
-    <a href="{{ route('admin.auth.forgot.password') }}">I forgot my password</a><br>
+    <a href="{{ route('admin.auth.forgot.password',[$encodedCompanyId]) }}">I forgot my password</a><br>
     <!-- <a href="register.html" class="text-center">Register a new membership</a> -->
 
   </div>

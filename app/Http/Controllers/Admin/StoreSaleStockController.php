@@ -74,7 +74,7 @@ class StoreSaleStockController extends Controller
         return view($this->ModuleView.'create', $this->ViewData);
     }
     public function store(StoreOpeningStockRequest $request)
-    {        
+    {     
         DB::beginTransaction();
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create Batch, Something went wrong on server.';

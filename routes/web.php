@@ -35,8 +35,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::post('/login/{companyId?}', $BASECONTROLLER.'checkLogin')->name($PREFIX.'check.login');
 				
 				// Forgot password
-				Route::get('/forgot-password',  	$BASECONTROLLER.'forgotPassword')->name($PREFIX.'forgot.password');
-				Route::post('/forgot-password',  	$BASECONTROLLER.'forgotPasswordSubmit')->name($PREFIX.'forgot.password');
+				Route::get('/forgot-password/{companyId?}',  	$BASECONTROLLER.'forgotPassword')->name($PREFIX.'forgot.password');
+				Route::post('/forgot-password/{companyId?}',  	$BASECONTROLLER.'forgotPasswordSubmit')->name($PREFIX.'forgot.password');
 
 				// Reset password
 				Route::get('/reset-password/{id}', 	$BASECONTROLLER.'resetPassword')->name($PREFIX.'reset.password');

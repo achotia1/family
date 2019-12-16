@@ -75,11 +75,13 @@ class AuthController extends Controller
     |   LOGIN AND LOGOUT
     ------------------------------------------*/
 
-        public function login(Request $request)
+        public function login(Request $request,$encId=false)
         {
             $this->ViewData['moduleTitle']  = 'User Login';
             $this->ViewData['moduleAction'] = 'USER LOG IN';
             $this->ViewData['modulePath']   = $this->ModulePath.'login';
+            $this->ViewData['encodedCompanyId']   = $encId;
+            //dd($request->all(),$encId,$this->ViewData);
             
             /*if (!empty($_COOKIE[$this->rememberTitle])) 
             {
@@ -177,17 +179,20 @@ class AuthController extends Controller
     |   FORGOT PASSWORD 
     ------------------------------------------*/
 
-        public function forgotPassword()
+        public function forgotPassword($encId=false)
         {
+            // dd($encId);
             $this->ViewData['moduleTitle']  = 'Forgot Password';
             $this->ViewData['moduleAction'] = 'FORGOT PASSWORD';
             $this->ViewData['modulePath']   = $this->ModulePath.'forgot.password';
+            $this->ViewData['encId']   = $encId;
 
             return view($this->ModuleView.'forgot-password', $this->ViewData);
         }
         
-        public function forgotPasswordSubmit(ForgotPasswordRequest $request)
+        public function forgotPasswordSubmit(ForgotPasswordRequest $request,$encId=false)
         {
+           // dd($request->all(),$encId);//
 
             $this->JsonData['status'] = 'error';
             $this->JsonData['msg'] = 'User does not exist.';
@@ -211,7 +216,7 @@ class AuthController extends Controller
                 $token = $this->PasswordBroker->createToken($userCollection);
 
                 $userCollection->url = url('/admin/reset-password/'.$token);
-                // dd($userCollection->url);
+                 // dd($userCollection,$userCollection->url);
                 
                 if($userCollection->company_id>0){
 
@@ -223,6 +228,17 @@ class AuthController extends Controller
                     }else{
                         $company->logo = url('assets/admin/images/logo.jpg');
                     }
+                }elseif(!empty($encId)){
+
+                    $company = self::_getCompanyDetails(base64_decode($encId));
+                    $company->company_url = url('/');
+                    $company->adminmail = config('constants.ADMINEMAIL');
+                    if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
+                        $company->logo = url('storage/app/'.$company->logo);
+                    }else{
+                        $company->logo = url('assets/admin/images/logo.jpg');
+                    }
+
                 }
                  
                  $userCollection->company = $company;

@@ -13,10 +13,10 @@ class StoreOpeningStockRequest extends FormRequest
     }
 
 	public function rules()
-	{             
+	{          
 		return [                
 			'product_code'     => 'required',
-			'batch_card_no'     => 'required|unique:store_batch_cards,batch_card_no',
+			'batch_card_no'  => 'required|unique:store_batch_cards,batch_card_no,NULL,id,deleted_at,NULL',        
 			'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
 			'manufacturing_cost'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
 		];

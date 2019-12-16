@@ -11,7 +11,7 @@
                     {{ $moduleAction }}
                 </h1>
                
-                <form id="forgotPasswordForm" action="{{ route($modulePath) }}" data-toggle="validator">
+                <form id="forgotPasswordForm" action="{{ route($modulePath,[$encId]) }}" data-toggle="validator">
                     {{ csrf_field() }}
                     <div class="card-body d-flex flex-column">
                         <div class="form-group">

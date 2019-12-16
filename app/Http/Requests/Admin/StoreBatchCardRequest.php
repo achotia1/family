@@ -20,13 +20,14 @@ class StoreBatchCardRequest extends FormRequest
         {           
            return [                
                 'product_code'     => 'required',
-                'batch_card_no'     => 'required|unique:store_batch_cards,batch_card_no',
+                'batch_card_no'    => 'required|unique:store_batch_cards,batch_card_no,NULL,id,deleted_at,NULL',
+
                 'batch_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];
         }else{
              return [                
                 'product_code'     => 'required',
-                'batch_card_no'     => 'required|unique:store_batch_cards,batch_card_no,'.$id,
+                'batch_card_no'   => 'required|unique:store_batch_cards,batch_card_no,'.$id.',id,deleted_at,NULL',
                 'batch_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',     
             ];
         }            

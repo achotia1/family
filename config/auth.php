@@ -45,10 +45,10 @@ return [
             'provider' => 'admin',
         ],
 
-        'api' => [
+        /*'api' => [
             'driver' => 'token',
             'provider' => 'users',
-        ],
+        ],*/
     ],
 
     /*

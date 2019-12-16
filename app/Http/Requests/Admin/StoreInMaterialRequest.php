@@ -22,14 +22,14 @@ class StoreInMaterialRequest extends FormRequest
         {
            return [                 
                 'material_id'     => 'required',
-                'lot_no'     => 'required|unique:store_in_materials,lot_no',
+                'lot_no'     => 'required|unique:store_in_materials,lot_no,NULL,id,deleted_at,NULL',
                 'lot_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];
         }else{
              return [                
                 'material_id'     => 'required',
-                'lot_no'     => 'required|unique:store_in_materials,lot_no,'.$id,
+                'lot_no'      => 'required|unique:store_in_materials,lot_no,'.$id.',id,deleted_at,NULL',
                 'lot_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];
