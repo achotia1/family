@@ -14,15 +14,27 @@
     <div class="box">
         <div class="row">
             <div class="col-md-12">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label class="theme-blue f-14">From Date</label>
                     <input id="from-date" type="text" class="form-control">
                  </div>   
-                 <div class="col-md-4">
+                 <div class="col-md-3">
                      <label class="theme-blue f-14">To Date</label>
                      <input id="to-date" type="text" class="form-control">
                 </div>
-                 <div class="col-md-4" style="margin-top: 24px !important;">
+                <div class="col-md-3">
+                     <label class="theme-blue">Product</label>
+                    <select class="form-control select2" 
+                         id="product-id"
+                         name="product_id" 
+                        >                    
+                        <option value="">Select Product</option>
+                        @foreach($products as $product)
+                            <option value="{{ $product->id }}">{{ $product->code }} ({{$product->name}})</option>
+                        @endforeach
+                    </select>  
+                </div>
+                 <div class="col-md-3" style="margin-top: 24px !important;">
                     <button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
                 </div>
             </div>

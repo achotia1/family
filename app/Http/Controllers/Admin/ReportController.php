@@ -237,7 +237,12 @@ class ReportController extends Controller
         $this->ViewData['moduleTitle']  = 'Aged Material Report';
         $this->ViewData['moduleAction'] = 'Aged Material Report';
         $this->ViewData['modulePath']   = $this->ModulePath;        
-        //dd('aged report');
+        $companyId = self::_getCompanyId();
+
+        $objMaterial = new StoreRawMaterialModel;
+        $materials = $objMaterial->getMaterialNumbers($companyId);
+        //dd($materials);
+        $this->ViewData['materials']   = $materials; 
         // view file with data
         return view($this->ModuleView.'agedMaterial',$this->ViewData);
     }
@@ -295,20 +300,21 @@ class ReportController extends Controller
             {
                 $custom_search = true;
                 $key = $request->custom['interval-time'];
-                
-                /*$modelQuery = $modelQuery
-                ->where('store_in_materials.created_at', '<=', 'now() - INTERVAL '.$key.' DAY');                
-                $modelQuery = $modelQuery->where(function($query)use($key) {
-                $query->where('last_used_at', null)
-                    ->orWhere('last_used_at', '<=', 'NOW() - INTERVAL '.$key.' DAY'); 
-                    });*/
-                //$keyDate = '2019-11-30';
                 $modelQuery = $modelQuery
                 ->where('store_in_materials.created_at', '<=', Carbon::now()->subDays($key));                
                 $modelQuery = $modelQuery->where(function($query)use($key) {
                     $query->where('last_used_at', null)
                     ->orWhere('last_used_at', '<=', Carbon::now()->subDays($key)); 
                 });
+            }
+            if (!empty($request->custom['material-id'])) 
+            {
+                $custom_search = true;
+                $material_id = $request->custom['material-id'];
+                
+                $modelQuery = $modelQuery
+                            ->where('store_in_materials.material_id',$material_id);
+
             }
             
         }
@@ -394,27 +400,11 @@ class ReportController extends Controller
             $this->ViewData['moduleAction'] = 'Contribution Report';
             $this->ViewData['modulePath']   = $this->ModulePath;        
             
-            /*$model = new StoreSaleInvoiceHasProductsModel;
-            $modelQuery = $model
-                            ->with(['assignedInvoice'=>function($q){
-                                $q->with('hasCustomer');    
-                            }])
-                            ->with(['assignedProduct'])
-                            ->with(['assignedBatch']);*/
-            /*$companyId = 1;                
-            $model = new StoreSaleInvoiceHasProductsModel;
-            $modelQuery = $model
-            ->selectRaw('store_sale_invoice_has_products.id, store_sale_invoice_has_products.quantity,store_sale_invoice_has_products.returned_quantity,store_sale_invoice_has_products.rate, store_sale_invoice.invoice_no, store_sale_invoice.invoice_date, users.contact_name, users.company_name, products.name, products.code, store_batch_cards.batch_card_no, store_sales_stock.manufacturing_cost')
-            ->leftjoin('store_sale_invoice', 'store_sale_invoice.id' , '=', 'store_sale_invoice_has_products.sale_invoice_id')
-            ->leftjoin('users', 'users.id' , '=', 'store_sale_invoice.customer_id')
-            ->leftjoin('products', 'products.id' , '=', 'store_sale_invoice_has_products.product_id')
-            ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sale_invoice_has_products.batch_id')
-            ->leftjoin('store_sales_stock', 'store_sales_stock.batch_id' , '=', 'store_sale_invoice_has_products.batch_id')
-            ->where('store_sale_invoice.company_id', $companyId)
-            ->where('store_sale_invoice.deleted_at', null);
-            
-            //dd($modelQuery->toSql());
-            $object = $modelQuery->get();*/
+            $companyId = self::_getCompanyId();     
+            $objProduct = new ProductsModel;
+            $products = $objProduct->getProducts($companyId);
+           
+            $this->ViewData['products']   = $products;
 
             //dd($object);
             // view file with data
@@ -501,6 +491,33 @@ class ReportController extends Controller
                                         ->whereBetween('store_sale_invoice.invoice_date', 
                                         array($start_date,$end_date));
                     }            
+
+                } else if(!empty($request->custom['from-date']) && empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_sale_invoice.invoice_date','>=',$start_date);
+
+                }else if(empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_sale_invoice.invoice_date','<=',$end_date);
+                }
+
+                if (!empty($request->custom['product-id'])) 
+                {
+                    $custom_search = true;
+                    $product_id = $request->custom['product-id'];
+                    
+                    $modelQuery = $modelQuery
+                                        ->where('store_sale_invoice_has_products.product_id',$product_id);
 
                 }    
                 
@@ -592,7 +609,13 @@ class ReportController extends Controller
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Aged Product Report';
         $this->ViewData['moduleAction'] = 'Aged Product Report';
-        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $this->ViewData['modulePath']   = $this->ModulePath; 
+        
+        $companyId = self::_getCompanyId();     
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);           
+        $this->ViewData['products']   = $products;
+
         //dd('aged report');
         // view file with data
         return view($this->ModuleView.'agedProduct',$this->ViewData);
@@ -653,6 +676,7 @@ class ReportController extends Controller
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
 
+            //dd($request->custom);
             ## FILTER OPTIONS
             $custom_search = false;
             if (!empty($request->custom))
@@ -661,20 +685,22 @@ class ReportController extends Controller
                 {
                     $custom_search = true;
                     $key = $request->custom['interval-time'];
-                    
-                    /*$modelQuery = $modelQuery
-                    ->where('store_in_materials.created_at', '<=', 'now() - INTERVAL '.$key.' DAY');                
-                    $modelQuery = $modelQuery->where(function($query)use($key) {
-                    $query->where('last_used_at', null)
-                        ->orWhere('last_used_at', '<=', 'NOW() - INTERVAL '.$key.' DAY'); 
-                        });*/
-                    //$keyDate = '2019-11-30';
+                                       
                     $modelQuery = $modelQuery
                     ->where('store_sales_stock.created_at', '<=', Carbon::now()->subDays($key));                
                     $modelQuery = $modelQuery->where(function($query)use($key) {
                         $query->where('last_used_at', null)
                         ->orWhere('last_used_at', '<=', Carbon::now()->subDays($key)); 
                     });
+                }
+                if (!empty($request->custom['product-id'])) 
+                {
+                    $custom_search = true;
+                    $product_id = $request->custom['product-id'];
+                    
+                    $modelQuery = $modelQuery
+                                        ->where('products.id',$product_id);
+
                 }
                 
             }
