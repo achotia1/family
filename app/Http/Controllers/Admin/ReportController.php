@@ -56,7 +56,11 @@ class ReportController extends Controller
         $this->ViewData['moduleTitle']  = 'Batch-Wise Report';
         $this->ViewData['moduleAction'] = 'Batch-Wise Report';
         $this->ViewData['modulePath']   = $this->ModulePath;        
-
+        $companyId = self::_getCompanyId();     
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);
+           
+        $this->ViewData['products']   = $products;
         // view file with data
         return view($this->ModuleView.'batches',$this->ViewData);
     }
@@ -154,7 +158,16 @@ class ReportController extends Controller
 
                     $modelQuery = $modelQuery
                     ->whereDate('store_batch_cards.created_at','<=',$end_date);
-                }         
+                }
+                if (!empty($request->custom['product-id'])) 
+                {
+                    $custom_search = true;
+                    $product_id = $request->custom['product-id'];
+                    
+                    $modelQuery = $modelQuery
+                                        ->where('products.id',$product_id);
+
+                }        
                 
             }
 
