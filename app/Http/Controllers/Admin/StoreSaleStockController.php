@@ -14,9 +14,10 @@ use App\Models\StoreSaleInvoiceHasProductsModel;
 
 
 use App\Http\Requests\Admin\StoreCorrectStockRequest;
+use App\Http\Requests\Admin\StoreOpeningStockRequest;
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
-
+use DB;
 class StoreSaleStockController extends Controller
 {
 
@@ -52,6 +53,89 @@ class StoreSaleStockController extends Controller
 
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'index', $this->ViewData);
+    }
+    public function create()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Add Opening '.$this->ModuleTitle;
+        $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
+        $this->ViewData['moduleAction'] = 'Add Opening '.$this->ModuleTitle;
+        $this->ViewData['modulePath']   = $this->ModulePath;
+
+        $companyId = self::_getCompanyId();
+
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);
+        
+        //$this->ViewData['batchNo']   = $batchNo;
+        $this->ViewData['products']   = $products;
+        
+        ## VIEW FILE WITH DATA
+        return view($this->ModuleView.'create', $this->ViewData);
+    }
+    public function store(StoreOpeningStockRequest $request)
+    {        
+        DB::beginTransaction();
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to create Batch, Something went wrong on server.';
+        try {
+
+            $collection = new StoreBatchCardModel;
+            $collection = self::_storeOrUpdate($collection,$request);
+
+            if($collection){
+                $all_transactions = [];
+                $collStock = $this->BaseModel;
+                $collStock->company_id = self::_getCompanyId();
+                $collStock->user_id   = auth()->user()->id;
+                $collStock->product_id   = $collection->product_code;
+                $collStock->batch_id   = $collection->id;
+                $collStock->manufacturing_cost   = $request->manufacturing_cost;
+                $collStock->quantity   = $request->quantity;
+                $collStock->balance_quantity   = $request->quantity;
+                $collStock->status = 0;
+                
+                ## SAVE STOCK DATA DATA
+                if($collStock->save()){
+                    $all_transactions[] = 1;
+                } else {
+                    $all_transactions[] = 0;
+                }
+                if (!in_array(0,$all_transactions)) 
+                {
+                    $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                    $this->JsonData['url'] = route('admin.sale-stock.index');
+                    $this->JsonData['msg'] = 'Opening Stock is created successfully.'; 
+                    DB::commit();
+                }                
+            } else {
+                DB::rollback();
+            }
+
+        }
+        catch(\Exception $e) {
+            $this->JsonData['error_msg'] = $e->getMessage();
+            $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
+            DB::rollback();
+        }
+
+        return response()->json($this->JsonData);
+    }
+
+    public function _storeOrUpdate($collection, $request)
+    {
+        $collection->company_id        = self::_getCompanyId();
+        $collection->user_id        = auth()->user()->id;
+        $collection->product_code        = $request->product_code;
+        $collection->batch_card_no   = $request->batch_card_no;
+        $collection->batch_qty             = $request->quantity;
+        $collection->status             = 0;
+        $collection->review_status      = 'closed';
+        
+        ## SAVE DATA
+        $collection->save();
+        
+        return $collection;
     }
 
     public function show($encId)
@@ -122,7 +206,7 @@ class StoreSaleStockController extends Controller
             3 => 'store_sales_stock.quantity',
             4 => 'store_sales_stock.balance_quantity',
             5 => 'store_sales_stock.manufacturing_cost', 
-            6 => 'store_sales_stock.id'
+            6 => 'store_sales_stock.status'
         );
 
         /*--------------------------------------
@@ -132,7 +216,7 @@ class StoreSaleStockController extends Controller
         ## START MODEL QUERY         
         $companyId = self::_getCompanyId();
         $modelQuery =  $this->BaseModel        
-        ->selectRaw('store_sales_stock.id, store_sales_stock.manufacturing_cost, store_sales_stock.quantity, store_sales_stock.balance_quantity, store_batch_cards.batch_card_no, products.name, products.code')       
+        ->selectRaw('store_sales_stock.id, store_sales_stock.manufacturing_cost, store_sales_stock.quantity, store_sales_stock.balance_quantity, store_sales_stock.status, store_batch_cards.batch_card_no, products.name, products.code')       
         ->leftjoin('store_batch_cards', 'store_batch_cards.id' , '=', 'store_sales_stock.batch_id')
         ->leftjoin('products', 'products.id' , '=', 'store_sales_stock.product_id')
         ->where('store_sales_stock.company_id', $companyId);
@@ -182,6 +266,13 @@ class StoreSaleStockController extends Controller
                 $key = $request->custom['manufacturing_cost'];
                 $modelQuery = $modelQuery
                 ->where('store_sales_stock.manufacturing_cost', '>', $key);
+            }
+            if (isset($request->custom['status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['status'];
+                $modelQuery = $modelQuery
+                ->where('store_sales_stock.status', $key);
             }
         }
 
@@ -244,7 +335,11 @@ class StoreSaleStockController extends Controller
                 $data[$key]['quantity']  =  number_format($row->quantity, 2, '.', '');
                 $data[$key]['balance_quantity']  =  number_format($row->balance_quantity, 2, '.', '');
                 $data[$key]['manufacturing_cost']  =  number_format($row->manufacturing_cost, 2, '.', '');          
-
+                if($row->status==1){
+                    $data[$key]['status'] = 'No';
+                }elseif($row->status==0) {
+                 $data[$key]['status'] = 'Yes';
+                }
                 $view = '';
                 $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';               
                 $correctBalIcon = '<a href="'.route($this->ModulePath.'correct-balance',[ base64_encode(base64_encode($row->id))]).'" title="Correct Balance"><span class="glyphicon glyphicon-ok-circle"></a>';
@@ -282,6 +377,11 @@ class StoreSaleStockController extends Controller
     $searchHTML['balance_quantity']   =  '<input type="text" class="form-control" id="balance-quantity" value="'.($request->custom['balance_quantity']).'" placeholder="More than...">';
     $searchHTML['manufacturing_cost']   =  '<input type="text" class="form-control" id="manufacturing-cost" value="'.($request->custom['manufacturing_cost']).'" placeholder="More than...">';
 
+    $searchHTML['status']   =  '<select name="status" id="status" class="form-control my-select">
+            <option class="theme-black blue-select" value="">Select</option>
+            <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').' >Yes</option>
+            <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').'>No</option>            
+            </select>';
     // if ($custom_search) 
     // {
     //     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
@@ -304,7 +404,7 @@ class StoreSaleStockController extends Controller
 
     return response()->json($this->JsonData);
 }
-    public function bulkDelete(Request $request)
+    /*public function bulkDelete(Request $request)
     {
         //dd($request->all());
         $this->JsonData['status'] = 'error';
@@ -343,7 +443,7 @@ class StoreSaleStockController extends Controller
         }
 
     return response()->json($this->JsonData);   
-    }
+    }*/
     public function correctBalance($encID)
     {       
         $id = base64_decode(base64_decode($encID));

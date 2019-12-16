@@ -234,11 +234,14 @@ class StoreBatchCardController extends Controller
         |   MODEL QUERY AND FILTER
         ------------------------------*/
         $companyId = self::_getCompanyId();
-        ## START MODEL QUERY       
+        ## START MODEL QUERY 
+        ## ONLY LIST NORMAL BATCHES MEANS WITH STATUS 1
+        ## STATUS 0 BATCHES MEANS CREATED WHILE ADDING OPENING STOCK      
         $modelQuery =  $this->BaseModel        
         ->selectRaw('store_batch_cards.id, store_batch_cards.product_code, store_batch_cards.batch_card_no, store_batch_cards.batch_qty,store_batch_cards.status, store_batch_cards.review_status, store_batch_cards.plan_added, products.name, products.code')
         ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
-        ->where('store_batch_cards.company_id', $companyId);         
+        ->where('store_batch_cards.company_id', $companyId)
+        ->where('store_batch_cards.status', 1);         
 
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
@@ -319,16 +322,8 @@ class StoreBatchCardController extends Controller
         //dd($modelQuery->toSql());
         $object = $modelQuery->skip($start)
         ->take($length)
-        ->get();  
-        /*['store_batch_cards.id', 
-            'store_batch_cards.product_code', 
-            'store_batch_cards.batch_card_no', 
-            'store_batch_cards.batch_qty',
-            'store_batch_cards.status', 
-            'products.name',
-            'products.code',          
-        ]*/
-
+        ->get();
+        
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -406,14 +401,14 @@ class StoreBatchCardController extends Controller
     
 
     /*$seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';*/
-    if ($custom_search) 
+    /*if ($custom_search) 
     {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
     }
     else
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }    
+    {*/
+    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    /*}*/   
 
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);

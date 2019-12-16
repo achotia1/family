@@ -4,7 +4,12 @@
 {{ $moduleTitle }}
 @endsection
 
-@section('styles')
+@section('style')
+<style>
+.opening-stock{	
+	color:#1f7cef;
+}
+</style>
 @endsection
 
 @section('content')
@@ -14,7 +19,7 @@
         
         <div class="box-header align-right">    
         @can('store-material-in-add')         
-            <!--<a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add In Material</a>-->
+            <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Opening Stock</a>
         @endcan
         </div>
         
@@ -29,6 +34,7 @@
                         <th class="w-60-px">Quantity</th>
                         <th class="w-100-px">Stock Balance</th>
                         <th class="w-100-px">Manufacturing Cost</th>
+                        <th class="w-60-px">Is Opening Stock?</th>
                         <th class="w-180-px">Actions</th>
                     </tr>
                 </thead>

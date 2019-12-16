@@ -767,10 +767,10 @@ class StoreProductionController extends Controller
         ## FILTER COLUMNS
         $filter = array(
             0 => 'store_productions.id',
-            1 => 'store_productions.id',
-            2 => 'store_productions.batch_id',
-            3 => 'products.code', 
-            4 => 'total_qty',                   
+            1 => 'store_batch_cards.batch_card_no',
+            2 => 'products.code',
+            3 => 'total_qty', 
+            4 => 'review_status',                   
         );       
 
         /*--------------------------------------
@@ -809,6 +809,13 @@ class StoreProductionController extends Controller
                 $key = $request->custom['product_code'];               
                 $modelQuery = $modelQuery
                 ->where('store_batch_cards.product_code',  $key);               
+            }
+            if (isset($request->custom['review_status'])) 
+            {
+                $custom_search = true;
+                $key = $request->custom['review_status'];
+                $modelQuery = $modelQuery
+                ->where('store_batch_cards.review_status', $key);
             }
         }
 
@@ -855,7 +862,7 @@ class StoreProductionController extends Controller
             $custom_search = true;
             $key = $request->custom['quantity'];                
             $modelQuery = $modelQuery
-            ->havingRaw('sum(store_production_has_materials.quantity) = '.$key );
+            ->havingRaw('sum(store_production_has_materials.quantity) > '.$key );
         }
 
          $object = $modelQuery
@@ -925,20 +932,20 @@ class StoreProductionController extends Controller
     $product_code_string .='</select>';
     $searchHTML['batch_id'] = $batch_no_string;
     $searchHTML['product_code'] = $product_code_string;
-    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="Search...">';
+    $searchHTML['quantity']     =  '<input type="text" class="form-control" id="quantity" value="'.($request->custom['quantity']).'" placeholder="More than...">';
     $searchHTML['review_status']   =  '<select name="review_status" id="review-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Batch Status</option>
             <option class="theme-black blue-select" value="open" '.( $request->custom['review_status'] == "open" ? 'selected' : '').' >Open</option>
             <option class="theme-black blue-select" value="closed" '.( $request->custom['review_status'] == "closed" ? 'selected' : '').'>Closed</option>            
             </select>';  
-    if ($custom_search) 
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
-    }
-    else
-    {
+    // if ($custom_search) 
+    // {
+    //     $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
+    // }
+    // else
+    // {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }
+    /*}*/
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
 

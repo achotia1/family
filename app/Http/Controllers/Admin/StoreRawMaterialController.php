@@ -335,33 +335,11 @@ class StoreRawMaterialController extends Controller
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
-        //dd($modelQuery->toSql());
-        /*$modelQuery =  $modelQuery->skip($start)
-        ->take($length)
-        ->groupBy('store_in_materials.material_id');
-        if (!empty($request->custom['total_balance'])) 
-        {
-            $custom_search = true;
-            $key = $request->custom['total_balance'];                
-            $modelQuery = $modelQuery
-            ->havingRaw('sum(store_in_materials.lot_balance) > '.$key );
-        }*/
+        
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get(); 
-        //dd($modelQuery->toSql());
-        //$object = $modelQuery
-         //->get(); 
-
-        /*['store_raw_materials.id', 
-            'store_raw_materials.name', 
-            'store_raw_materials.moq',            
-            'store_raw_materials.unit',
-            'store_raw_materials.material_type',             
-            'store_raw_materials.balance_stock', 
-            'store_raw_materials.status',            
-        ]*/
-
+       
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -422,14 +400,14 @@ class StoreRawMaterialController extends Controller
             <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Inactive</option>            
             </select>';
    
-    if ($custom_search) 
+    /*if ($custom_search) 
     {
         $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return removeSearch(this)" class="btn btn-danger"><span class="fa  fa-remove"></span></a></div>';
     }
     else
-    {
-        $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
-    }
+    {*/
+    $seachAction  =  '<div class="text-center"><a style="cursor:pointer;" onclick="return doSearch(this)" class="btn btn-primary"><span class="fa  fa-search"></span></a></div>';
+    /*}*/
 
     $searchHTML['actions'] = $seachAction;
     array_unshift($data, $searchHTML);
