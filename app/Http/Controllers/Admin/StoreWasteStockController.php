@@ -9,19 +9,14 @@ use App\Http\Controllers\Controller;
 ## MODELS
 
 use App\Models\StoreWasteStockModel;
-use App\Models\StoreProductionModel;
+use App\Models\StoreWastageCorrectionModel;
 use App\Models\StoreBatchCardModel;
-use App\Models\StoreRawMaterialModel;
-use App\Models\StoreInMaterialModel;
-use App\Models\ProductionHasMaterialModel;
 use App\Models\ProductsModel;
-use App\Models\StoreOutMaterialModel;
-use App\Models\StoreReturnedMaterialModel;
 
-use App\Http\Requests\Admin\StoreProductionRequest;
+use App\Http\Requests\Admin\StoreCorrectWastageRequest;
 use App\Traits\GeneralTrait;
-
-use DB;
+use Carbon\Carbon;
+//use DB;
 class StoreWasteStockController extends Controller
 {
 
@@ -83,9 +78,11 @@ class StoreWasteStockController extends Controller
         $filter = array(
             0 => 'store_waste_stock.id',
             1 => 'store_batch_cards.batch_card_no',
-            2 => 'store_waste_stock.id',
-            3 => 'store_waste_stock.id', 
-            4 => 'store_waste_stock.id',                   
+            2 => 'products.code',
+            3 => 'store_waste_stock.balance_course', 
+            4 => 'store_waste_stock.balance_rejection',
+            5 => 'store_waste_stock.balance_dust',
+            6 => 'store_waste_stock.balance_loose',                   
         );       
 
         /*--------------------------------------
@@ -102,7 +99,7 @@ class StoreWasteStockController extends Controller
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
         
-        //dd($request->custom);
+        //dd($request->custom['balance_course']);
         ## FILTER OPTIONS
         $custom_search = false;
         if (!empty($request->custom))
@@ -122,8 +119,36 @@ class StoreWasteStockController extends Controller
                 $modelQuery = $modelQuery
                 ->where('store_waste_stock.product_id',  $key);               
             }
+            if (($request->custom['balance_course'] != null) && $request->custom['balance_course'] >= 0) 
+            {
+                $custom_search = true;
+                $key = $request->custom['balance_course'];                
+                $modelQuery = $modelQuery
+                ->where('store_waste_stock.balance_course', '>', $key);                
+            }            
+            if (($request->custom['balance_rejection'] != null) && $request->custom['balance_rejection'] >= 0) 
+            {
+                $custom_search = true;
+                $key = $request->custom['balance_rejection'];                
+                $modelQuery = $modelQuery
+                ->where('store_waste_stock.balance_rejection', '>', $key);                
+            }
+            if (($request->custom['balance_dust'] != null) && $request->custom['balance_dust'] >= 0) 
+            {
+                $custom_search = true;
+                $key = $request->custom['balance_dust'];                
+                $modelQuery = $modelQuery
+                ->where('store_waste_stock.balance_dust', '>', $key);                
+            }
+            if (($request->custom['balance_loose'] != null) && $request->custom['balance_loose'] >= 0) 
+            {
+                $custom_search = true;
+                $key = $request->custom['balance_loose'];                
+                $modelQuery = $modelQuery
+                ->where('store_waste_stock.balance_loose', '>', $key);                
+            }
         }
-
+        //dd($modelQuery->toSql());
         if (!empty($request->search))
         {
             if (!empty($request->search['value'])) 
@@ -180,7 +205,7 @@ class StoreWasteStockController extends Controller
                 $data[$key]['balance_dust']  =  number_format($row->balance_dust, 2, '.','');
                 $data[$key]['balance_loose']  =  number_format($row->balance_loose, 2, '.','');              
                 $edit = $delete = $view = '';               
-                
+                $view = '<a href="'.route($this->ModulePath.'correct-balance',[ base64_encode(base64_encode($row->id))]).'" title="Correct Balance"><span class="glyphicon glyphicon-ok-circle"></a>';
                 
                 $data[$key]['actions'] = '';
                 $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
@@ -236,6 +261,66 @@ class StoreWasteStockController extends Controller
     return response()->json($this->JsonData);
     }
 
-    
+public function correctBalance($encID)
+{       
+        $id = base64_decode(base64_decode($encID));
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Correct Balance';
+        $this->ViewData['moduleAction'] = 'Correct Balance';
+        $this->ViewData['moduleTitleInfo'] = "Balance Information";
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();
+        $data = $this->BaseModel->with([
+            'assignedBatch', 'assignedProduct'           
+        ])->where('company_id', $companyId)
+        ->find($id);
+        //dd($data);
+        if(empty($data)) {            
+            return redirect()->route('admin.wastage-material.index');
+        } 
+        $this->ViewData['material'] = $data;       
+        ## VIEW FILE WITH DATA
+        return view($this->ModuleView.'correct', $this->ViewData);
+       
+}
+public function updateBalance(StoreCorrectWastageRequest $request)
+    {
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';
+        try 
+        {           
+            $id = $request->id;
+            $collection = $this->BaseModel->find($id);
+            $collection->balance_course = $request->corrected_cbalance;
+            $collection->balance_rejection = $request->corrected_rbalance;
+            $collection->balance_dust = $request->corrected_dbalance;
+            $collection->balance_loose = $request->corrected_lbalance;
+            $collection->balance_corrected_at = Carbon::today();
+            $collection->save();
+            
+            $correctObj = new StoreWastageCorrectionModel;
+            $correctObj->user_id = auth()->user()->id;
+            $correctObj->wastage_id = $id;
+            $correctObj->previous_cbalance = $request->previous_cbalance;
+            $correctObj->corrected_cbalance = $request->corrected_cbalance;
+            $correctObj->previous_rbalance = $request->previous_rbalance;
+            $correctObj->corrected_rbalance = $request->corrected_rbalance;
+            $correctObj->previous_dbalance = $request->previous_dbalance;
+            $correctObj->corrected_dbalance = $request->corrected_dbalance;
+            $correctObj->previous_lbalance = $request->previous_lbalance;
+            $correctObj->corrected_lbalance = $request->corrected_lbalance;
+            //dd($correctObj);
+            if($correctObj->save()){
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route('admin.wastage-material.index');
+                $this->JsonData['msg'] = 'Wastage Balance updated successfully.';
+            }
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);        
+    }    
 
 }

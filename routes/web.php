@@ -236,7 +236,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
 				{*/
 				Route::get('/wastage-material/getRecords',  'StoreWasteStockController@getRecords');
-				//Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
+				Route::get('/wastage-material/correct-balance/{id}',  'StoreWasteStockController@correctBalance')->name($PREFIX.'.wastage-material.correct-balance');
+				Route::post('/wastage-material/updateBalance',  'StoreWasteStockController@updateBalance')->name($PREFIX.'.wastage-material.updateBalance');
 				Route::resource('wastage-material', 'StoreWasteStockController', ['as' => $PREFIX]);
 				/*});*/
 

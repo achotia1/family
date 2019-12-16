@@ -4,18 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-//use Carbon\Carbon;
 
-class StoreLotCorrectionModel extends Model
+class StoreWastageCorrectionModel extends Model
 {
         
-    protected $table = 'store_lot_corrections';
+    protected $table = 'store_wastage_corrections';
 	
     protected $fillable = [
         'user_id',
-		'lot_id',
-        'previous_balance',
-        'corrected_balance' 
+		'wastage_id',
+        'previous_cbalance',
+        'corrected_cbalance',
+        'previous_rbalance',
+        'corrected_rbalance',
+        'previous_dbalance',
+        'corrected_dbalance',
+        'previous_lbalance',
+        'corrected_lbalance' 
     ];
     
 	public $timestamps = false;
@@ -26,8 +31,8 @@ class StoreLotCorrectionModel extends Model
      * @var array
      */
     
-    public function hasLots()
+    /*public function hasLots()
     {
         return $this->belongsTo(StoreInMaterialModel::class, 'lot_id', 'id');
-    }    
+    }*/   
 }
