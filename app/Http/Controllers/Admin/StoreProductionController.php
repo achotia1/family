@@ -1125,9 +1125,10 @@ class StoreProductionController extends Controller
         $this->JsonData['msg'] = 'Failed to get wastage batches, Something went wrong on server.';
         try 
         {
-            $flag           = $request->flag;
+            $flag               = $request->flag;
             $batch_id           = $request->batch_id;
             $wastage_batch_id   = $request->wastage_batch_id;
+            
 
             $product_id         = $request->product_id;
             $company_id         = self::_getCompanyId();
@@ -1140,6 +1141,20 @@ class StoreProductionController extends Controller
                 $batchesHtml = self::_getWastageBatch($product_id,$company_id);
                 
             }elseif($flag=="loadmaterial"){
+
+                $batch_selected_val     = $request->batch_selected_val;
+                $material_selected_val  = $request->material_selected_val;
+
+                array_pop($batch_selected_val);
+            
+               // $batch_material = array_combine($batch_selected_val,$material_selected_val);
+
+                $batch_material = array();
+                foreach ($batch_selected_val as $batch_key=>$batch_value) {
+                   $batch_material[$batch_value][]=$material_selected_val[$batch_key];
+                }
+            
+                //dd($batch_selected_val,$material_selected_val,$batch_material);
 
                 $wastageBatchesMaterials = $this->StoreWasteStockModel
                             ->where('store_waste_stock.product_id',$product_id)
@@ -1156,10 +1171,19 @@ class StoreProductionController extends Controller
 
                 foreach($wastageBatchesMaterials as $batchMaterial){
 
-                    foreach ($this->wastageMaterialRecords as $materialKey=>$material) {
+                    foreach ($this->wastageMaterialRecords as $materialKey=>$material)
+                    {
                         // dd($material,$batchMaterial->$material);
                         if($batchMaterial->$material>0){
-                            $batchesMaterialHtml.="<option data-qty='".$batchMaterial->$material."' value='".$batchMaterial->waste_stock_id."||".$materialKey."'>".$material." (".$batchMaterial->$material.")</option>";
+                            // !empty($batch_material[$wastage_batch_id])
+                            if(array_key_exists($wastage_batch_id,$batch_material) && !in_array($materialKey, $batch_material[$wastage_batch_id]) ){
+
+                                $batchesMaterialHtml.="<option data-qty='".$batchMaterial->$material."' value='".$batchMaterial->waste_stock_id."||".$materialKey."'>".$material." (".$batchMaterial->$material.")</option>";
+                            }
+                            elseif(!array_key_exists($wastage_batch_id,$batch_material)){
+                                 $batchesMaterialHtml.="<option data-qty='".$batchMaterial->$material."' value='".$batchMaterial->waste_stock_id."||".$materialKey."'>".$material." (".$batchMaterial->$material.")</option>";
+                            }
+                            
                         }
                     }
 

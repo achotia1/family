@@ -162,7 +162,7 @@ class StoreSaleStockController extends Controller
         if($availableCount>0) 
         {
             $this->JsonData['status'] = __('admin.RESP_ERROR');
-            $this->JsonData['msg'] = 'Cant delete this stock recod which has beed used in sales invoce module.'; 
+            $this->JsonData['msg'] = 'Cant delete this stock recod which has been used in sales invoce module.'; 
             return response()->json($this->JsonData);
             exit();
         }
