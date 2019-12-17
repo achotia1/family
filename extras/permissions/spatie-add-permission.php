@@ -39,6 +39,12 @@ $arrAllPermissions[] = array('name' => 'company-list', 'module_slug'=>'manage-co
 $arrAllPermissions[] = array('name' => 'store-dashboard', 'module_slug'=>'store-dashboard', 'title' => 'Store Dashboard');
 $arrAllPermissions[] = array('name' => 'store-total-users', 'module_slug'=>'store-dashboard', 'title' => 'Store Total Users');
 
+$arrAllPermissions[] = array('name' => 'store-manage-users', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Users');
+$arrAllPermissions[] = array('name' => 'store-users-listing', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Listing');
+$arrAllPermissions[] = array('name' => 'store-users-add', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Add');
+$arrAllPermissions[] = array('name' => 'store-manage-roles', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Roles');
+$arrAllPermissions[] = array('name' => 'store-manage-permissions', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Permissions');
+
 $arrAllPermissions[] = array('name' => 'store-manage-materials', 'module_slug'=>'store-manage-materials', 'title' => 'Store Manage Materials');
 $arrAllPermissions[] = array('name' => 'store-material-listing', 'module_slug'=>'store-manage-materials', 'title' => 'Store Material Listing');
 $arrAllPermissions[] = array('name' => 'store-material-add', 'module_slug'=>'store-manage-materials', 'title' => 'Store Material Add');
@@ -64,11 +70,33 @@ $arrAllPermissions[] = array('name' => 'store-material-output-listing', 'module_
 $arrAllPermissions[] = array('name' => 'store-material-output-add', 'module_slug'=>'store-manage-material-output', 'title' => 'Store Material Output Add');
 
 
-$arrAllPermissions[] = array('name' => 'store-manage-users', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Users');
-$arrAllPermissions[] = array('name' => 'store-users-listing', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Listing');
-$arrAllPermissions[] = array('name' => 'store-users-add', 'module_slug'=>'store-manage-users', 'title' => 'Store Users Add');
-$arrAllPermissions[] = array('name' => 'store-manage-roles', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Roles');
-$arrAllPermissions[] = array('name' => 'store-manage-permissions', 'module_slug'=>'store-manage-users', 'title' => 'Store Manage Permissions');
+$arrAllPermissions[] = array('name' => 'store-manage-wastage-material', 'module_slug'=>'store-manage-wastage-material', 'title' => 'Store Manage Wastage Materials');
+$arrAllPermissions[] = array('name' => 'store-wastage-material-listing', 'module_slug'=>'store-manage-wastage-material', 'title' => 'Store Wastage Material  Listing');
+$arrAllPermissions[] = array('name' => 'store-wastage-material-correct-balance', 'module_slug'=>'store-manage-wastage-material', 'title' => 'Store Wastage Material Correct Balance');
+
+
+$arrAllPermissions[] = array('name' => 'store-manage-stock', 'module_slug'=>'store-manage-stock', 'title' => 'Store Manage Stock');
+$arrAllPermissions[] = array('name' => 'store-stock-add', 'module_slug'=>'store-manage-stock', 'title' => 'Store Add Opening Stock');
+$arrAllPermissions[] = array('name' => 'store-stock-correct-balance', 'module_slug'=>'store-manage-stock', 'title' => 'Store Stock Correct Balance');
+
+$arrAllPermissions[] = array('name' => 'store-manage-sales', 'module_slug'=>'store-manage-sales', 'title' => 'Store Manage Sales');
+$arrAllPermissions[] = array('name' => 'store-sales-listing', 'module_slug'=>'store-manage-sales', 'title' => 'Store Sale Listing');
+$arrAllPermissions[] = array('name' => 'store-sales-add', 'module_slug'=>'store-manage-sales', 'title' => 'Store Sale Add');
+
+$arrAllPermissions[] = array('name' => 'store-manage-returned-sales', 'module_slug'=>'store-manage-returned-sales', 'title' => 'Store Manage Returned Sales');
+$arrAllPermissions[] = array('name' => 'store-returned-sales-listing', 'module_slug'=>'store-manage-returned-sales', 'title' => 'Store Returned Sale Listing');
+$arrAllPermissions[] = array('name' => 'store-sales-returned-add', 'module_slug'=>'store-manage-returned-sales', 'title' => 'Store Returned Sale Add');
+
+
+$arrAllPermissions[] = array('name' => 'store-manage-reports', 'module_slug'=>'store-manage-reports', 'title' => 'Store Manage Reports');
+$arrAllPermissions[] = array('name' => 'store-batch-wise-report', 'module_slug'=>'store-manage-reports', 'title' => 'Batch-Wise Report');
+$arrAllPermissions[] = array('name' => 'store-aged-material-report', 'module_slug'=>'store-manage-reports', 'title' => 'Aged Material Report');
+$arrAllPermissions[] = array('name' => 'store-material-deviation-report', 'module_slug'=>'store-manage-reports', 'title' => 'Material Deviation Report');
+$arrAllPermissions[] = array('name' => 'store-contribution-report', 'module_slug'=>'store-manage-reports', 'title' => 'Contribution Report');
+$arrAllPermissions[] = array('name' => 'store-aged-product-report', 'module_slug'=>'store-manage-reports', 'title' => 'Aged Product Report');
+$arrAllPermissions[] = array('name' => 'store-stock-deviation-report', 'module_slug'=>'store-manage-reports', 'title' => 'Stock Deviation Report');
+
+
 
 // use commend : php artisan permission:cache-reset or below function to reset cache
     dump(app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions());

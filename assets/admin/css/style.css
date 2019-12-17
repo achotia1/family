@@ -266,10 +266,97 @@ a.arrow span img {
 .content-wrapper .select2-container .select2-selection--single {
     height: 34px;    
     border-radius: 0px;
-    border-color: #d2d6de;
+    border-color: #d2d6de;  
 }
 .content-wrapper .select2-container--default .select2-selection--single .select2-selection__arrow {    
     top: 50%;
     transform: translateY(-50%);
 }
 /* Select box End */
+
+.form-inline .form-control {
+    width: 100%;
+}
+section.content .box label {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+.add-more-btn {
+background-color: #3c8dbc;
+    display: flex;
+    width: 120px;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 10px;
+    color: #fff;
+    text-transform: capitalize;
+    border-radius: 7px;
+    transition: all 0.5s;
+}
+.add-more-btn:hover, .add-more-btn:focus{
+    background-color: #222d32;
+    color: #fff !important;
+}
+.add-more-btn span img {
+    width: 21px;
+    margin-right: 10px;
+}
+.box-footer {
+    display: inline-block;
+    width: 100%;
+    margin-top: 15px;
+    padding-top: 15px;
+}
+.with-border.col-md-12 {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 15px;
+    padding-top: 0;
+}
+span#spn_product {
+    background-color: #ecf0f5;
+    padding: 5px 20px;
+    font-size: 15px;
+    margin-left: 10px;
+    color: #000;
+    border-radius: 4px;
+}
+
+div#show-stock h4 {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+button.history-btn {
+    margin-top: 7px;
+    margin-bottom: 10px;
+}
+tr:nth-child(even){background: #f1f1f1;}
+tr:nth-child(odd) {background: #FFF}
+tr.inner-td.add_plan_area.plan td {
+    width: 33.33%;
+}
+.box-footer .col-md-12 {
+    padding: 0 6px !important;
+}
+.datepicker table.table-condensed th.prev, th.datepicker-switch, th.next {
+    background-color: #3c8dbc  !important;
+    color: #fff  !important;
+    border-radius: 0  !important;
+    border-color: #59c594 !important;
+}
+
+th.datepicker-switch {
+    border-right: 1px solid #fff;
+    border-left: 1px solid #fff;
+}
+
+.datepicker-days tbody td {
+    border: 1px solid #3c8dbc !important;
+    background-color: #fff;
+    border-radius: 0 !important;
+}
+
+th.dow {
+    border: 1px solid #3c8dbc;
+    background-color: #59c594;
+    border-radius: 0 !important;
+}

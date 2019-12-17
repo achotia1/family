@@ -34,7 +34,7 @@
                         @endforeach
                     </select>  
                 </div>
-                 <div class="col-md-3" style="margin-top: 24px !important;">
+                 <div class="col-md-3" style="margin-top: 36px !important;">
                     <button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
                 </div>
             </div>

@@ -145,58 +145,77 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 
 
 				//Batchwise Summary
-				Route::get('/batch-summary/materials-out/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
-				Route::get('batch-summary', 'ReportController@batchIndex')->name('admin.report.batch');
-				Route::get('batch-summary/getBatchRecords', 'ReportController@getBatchRecords');
+				Route::group(['prefix' => 'batch-summary','middleware' => ['permission:store-batch-wise-report']], function () use($PREFIX)
+				{
+					Route::get('materials-out/{encId}',  'StoreOutMaterialController@showBatchViewReport')->name('admin.report.showBatch');
+					Route::get('getBatchRecords', 'ReportController@getBatchRecords');
+					Route::get('/', 'ReportController@batchIndex')->name('admin.report.batch');
+				});
+
 
 				//Aged Material Report
-				Route::get('aged-materials', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
-				Route::get('aged-materials/getAgedMaterialRecords', 'ReportController@getAgedMaterialRecords');
+				Route::group(['prefix' => 'aged-materials','middleware' => ['permission:store-aged-material-report']], function () use($PREFIX)
+				{
+					Route::get('getAgedMaterialRecords', 'ReportController@getAgedMaterialRecords');
+					Route::get('/', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
+				});
 
 				//Contribution Report
-				Route::get('contribution-report', 'ReportController@contributionIndex')->name('admin.report.contribution');
-				Route::get('contribution-report/getContributionRecords', 'ReportController@getContributionRecords');
+				Route::group(['prefix' => 'contribution-report','middleware' => ['permission:store-contribution-report']], function () use($PREFIX)
+				{
+					Route::get('getContributionRecords', 'ReportController@getContributionRecords');
+					Route::get('/', 'ReportController@contributionIndex')->name('admin.report.contribution');
+				});
 
 				//Aged Product Report
-				Route::get('aged-products', 'ReportController@agedProductIndex')->name('admin.report.agedProducts');
-				Route::get('aged-products/getAgedProductRecords', 'ReportController@getAgedProductRecords');
+				Route::group(['prefix' => 'aged-products','middleware' => ['permission:store-aged-product-report']], function () use($PREFIX)
+				{
+					Route::get('getAgedProductRecords', 'ReportController@getAgedProductRecords');
+					Route::get('/', 'ReportController@agedProductIndex')->name('admin.report.agedProducts');
+				});
 
 				//Deviation Report
-				Route::get('deviation-material', 'ReportController@deviationMaterialIndex')->name('admin.report.deviationMaterial');
-				Route::get('deviation-material/getdeviationMaterialRecords', 'ReportController@getdeviationMaterialRecords');
+				Route::group(['prefix' => 'deviation-material','middleware' => ['permission:store-material-deviation-report']], function () use($PREFIX)
+				{
+					Route::get('lot-history/{encId}', 'ReportController@deviationLotHistoryIndex')->name('admin.report.deviationLotHistory');
+					Route::get('lot-history/getdeviationLotHistoryRecords/{encId}', 'ReportController@getdeviationLotHistoryRecords');
+					Route::get('getdeviationMaterialRecords', 'ReportController@getdeviationMaterialRecords');
+					Route::get('/', 'ReportController@deviationMaterialIndex')->name('admin.report.deviationMaterial');
+				});
 				
-				Route::get('deviation-material/lot-history/{encId}', 'ReportController@deviationLotHistoryIndex')->name('admin.report.deviationLotHistory');
-				Route::get('deviation-material/lot-history/getdeviationLotHistoryRecords/{encId}', 'ReportController@getdeviationLotHistoryRecords');
 
 				// Stock Deviation Report
-				Route::get('stock-deviation', 'ReportController@deviationStockIndex')->name('admin.report.stockDeviation');
-				Route::get('stock-deviation/getdeviationStockRecords', 'ReportController@getdeviationStockRecords');
-				Route::get('stock-deviation/stock-history/{encId}', 'ReportController@deviationStockHistoryIndex')->name('admin.report.deviationStockHistory');
-				Route::get('stock-deviation/stock-history/getdeviationStockHistoryRecords/{encId}', 'ReportController@getdeviationStockHistoryRecords');
+				Route::group(['prefix' => 'stock-deviation','middleware' => ['permission:store-stock-deviation-report']], function () use($PREFIX)
+				{
+					Route::get('getdeviationStockRecords', 'ReportController@getdeviationStockRecords');
+					Route::get('stock-history/{encId}', 'ReportController@deviationStockHistoryIndex')->name('admin.report.deviationStockHistory');
+					Route::get('stock-history/getdeviationStockHistoryRecords/{encId}', 'ReportController@getdeviationStockHistoryRecords');
+					Route::get('/', 'ReportController@deviationStockIndex')->name('admin.report.stockDeviation');
+				});
 				
 				//Sales Management
-				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
-				{*/
-				Route::get('/sales/getRecords',  'StoreSalesController@getRecords');
-				Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
-				Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
-				/*});*/
+				Route::group(['middleware' => ['permission:store-manage-sales']], function () use($PREFIX)
+				{
+					Route::get('/sales/getRecords',  'StoreSalesController@getRecords');
+					Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
+					Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
+				});
 
 
 				// Return Sale
-				/*Route::group(['prefix' => 'sale', function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-returned-sales']], function () use($PREFIX)
+				{
 					//,'middleware' => ['permission:store-manage-returned-sale']]
 					Route::post('/return-sale/checkExistingRecord',  'StoreReturnedSaleController@checkExistingRecord');
 					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
 					Route::post('/return-sale/getSaleProducts',  'StoreReturnedSaleController@getSaleProducts');
 					Route::get('/return-sale/getRecords',  'StoreReturnedSaleController@getRecords');
 					Route::resource('return-sale', 'StoreReturnedSaleController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				// Return Sale
-				/*Route::group(['prefix' => 'sale', function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-stock']], function () use($PREFIX)
+				{
 					//,'middleware' => ['permission:store-manage-returned-sale']]
 					/*Route::post('/sale-stock/checkExistingRecord',  'StoreReturnedSaleController@checkExistingRecord');
 					Route::post('/return-sale/getProductBatches',  'StoreReturnedSaleController@getProductBatches');
@@ -206,16 +225,16 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/sale-stock/show/{id}',  'StoreSaleStockController@show')->name($PREFIX.'.sale-stock.show');
 					Route::get('/sale-stock/getRecords',  'StoreSaleStockController@getRecords');
 					Route::resource('sale-stock', 'StoreSaleStockController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				//Wastage Material Management
-				/*Route::group(['middleware' => ['permission:manage-sales']], function () use($PREFIX)
-				{*/
+				Route::group(['middleware' => ['permission:store-manage-wastage-material']], function () use($PREFIX)
+				{
 				Route::get('/wastage-material/getRecords',  'StoreWasteStockController@getRecords');
 				Route::get('/wastage-material/correct-balance/{id}',  'StoreWasteStockController@correctBalance')->name($PREFIX.'.wastage-material.correct-balance');
 				Route::post('/wastage-material/updateBalance',  'StoreWasteStockController@updateBalance')->name($PREFIX.'.wastage-material.updateBalance');
 				Route::resource('wastage-material', 'StoreWasteStockController', ['as' => $PREFIX]);
-				/*});*/
+				});
 
 				
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');
