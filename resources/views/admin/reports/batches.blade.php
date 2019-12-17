@@ -40,8 +40,9 @@
                         @endforeach
                     </select>  
                 </div>
+
                  <div class="col-md-3" style="margin-top: 36px !important;">
-                    <button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
+                    <button type="button" class="btn btn-primary cls-show-result" onclick="doSearch(this)">Search</button>
                 </div>
             </div>
         </div>
@@ -50,14 +51,12 @@
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >
                 <thead class="blue-border-bottom">
                     <tr>
-                        <th style="display: none"></th>
-                        <!-- <th class="w-10">Select</th> -->
+                        <th style="display: none"></th>                        
                         <th class="w-10">Batch Code</th>
                         <th class="w-20">Product</th>                        
                         <th class="w-5">Sellable Quantity</th>
                         <th class="w-10">Loss Material</th>
-                        <th class="w-10">Yield</th>                        
-                       <!--  <th class="w-20">Actions</th> -->
+                        <th class="w-10">Yield</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,7 +67,7 @@
 </section>
 @endsection
 @section('scripts')
-
+<script type="text/javascript" src="{{ url('assets/common/js/jquery.cookie.min.js') }}"></script>
 <script type="text/javascript" src="{{ url('assets/admin/js/reports/batches.js') }}"></script>
 
 @endsection

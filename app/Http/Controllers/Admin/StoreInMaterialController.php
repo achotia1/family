@@ -373,7 +373,7 @@ class StoreInMaterialController extends Controller
     $objMaterial = new StoreRawMaterialModel;
     $materialIds = $objMaterial->getMaterialNumbers($companyId);
     
-    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Material</option>';
+    $material_id_string = '<select name="material_id" id="material-id" class="form-control my-select select2"><option class="theme-black blue-select" value="">Select Material</option>';
         foreach ($materialIds as $mval) {
         $material_id_string .='<option class="theme-black blue-select" value="'.$mval['id'].'" '.( $request->custom['material_id'] == $mval['id'] ? 'selected' : '').' >'.$mval['name'].'</option>';
         }

@@ -222,7 +222,8 @@ class ReportController extends Controller
 
                     $data[$key]['id'] = $row->id;
 
-                    $data[$key]['batch_id']     = "<a href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->id))]).">".$row->batch_card_no.'</a>';
+                    $data[$key]['batch_id']     = "<a class='cls-details' href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->id))]).">".$row->batch_card_no.'</a>';
+                    /*$data[$key]['batch_id']     = "<a class='cls-details'>".$row->batch_card_no.'</a>';*/
                     $data[$key]['product_code'] =  $row->code." (".$row->name.")";
                     $data[$key]['sellable_qty'] =  number_format($row->sellable_qty, 2, '.', '');
                     $data[$key]['loss_material']=  number_format($row->loss_material, 2, '.', '');
@@ -810,18 +811,6 @@ class ReportController extends Controller
                                 'store_raw_materials.name'
                                 ]);
 
-        /*$materials = $this->StoreInMaterialModel
-                            ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
-                            ->where('store_in_materials.company_id', $companyId)
-                            ->whereNotNull('store_in_materials.balance_corrected_at')
-                            ->groupBy('store_in_materials.material_id');
-                            ->get([
-                                'store_raw_materials.id',
-                                'store_raw_materials.name'
-                                ]);                           
-        dd($materials->toSql());*/
-        //dd($materials);
-
         $this->ViewData['materials']   = $materials;    
 
         // view file with data
@@ -1221,7 +1210,7 @@ class ReportController extends Controller
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
-
+            //dd($request->all());
             ## FILTER OPTIONS
             $custom_search = false;
             if (!empty($request->custom))

@@ -644,10 +644,7 @@ class StoreReturnedMaterialController extends Controller
         ->get(['store_returned_materials.id', 
             'store_batch_cards.batch_card_no',
             'store_batch_cards.review_status',
-            'store_returned_materials.return_date',
-           // 'store_returned_materials.material_id',
-            //'store_returned_materials.quantity',
-           // 'store_raw_materials.name',
+            'store_returned_materials.return_date',          
             'products.name as prod_name',
             'products.code as prod_code',            
         ]);    
@@ -704,7 +701,7 @@ class StoreReturnedMaterialController extends Controller
      $planBatch = $this->StoreProductionModel
                           ->getProductionPlans($companyId,false);
 
-    $batch_no_string = '<select name="batch_no" id="plan-id" class="form-control my-select"><option class="theme-black blue-select" value="">Select Batch</option>';
+    $batch_no_string = '<select name="batch_no" id="plan-id" class="form-control my-select select2"><option class="theme-black blue-select" value="">Select Batch</option>';
         foreach ($planBatch as $plan) {
             $batch_no_string .='<option class="theme-black blue-select" value="'.$plan->id.'" '.( $request->custom['plan_id'] == $plan['id'] ? 'selected' : '').' >'.$plan->assignedBatch->batch_card_no.'</option>';
         }
@@ -713,7 +710,7 @@ class StoreReturnedMaterialController extends Controller
 
     $objProduct = new ProductsModel;
     $products = $objProduct->getProducts($companyId);
-    $product_code_string = '<select name="product_name" id="product-name" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
+    $product_code_string = '<select name="product_name" id="product-name" class="form-control my-select select2"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
             $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_name'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';
         }

@@ -16,7 +16,7 @@
             <div class="form-group col-md-8">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" 
+                <select class="form-control my-select select2" 
                         id="batch_id" 
                         name="batch_id"
                         required="" 

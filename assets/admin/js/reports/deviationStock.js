@@ -13,7 +13,23 @@ $(document).ready(function()
             autoclose: true,
         });
 
-
+	/* SET COKKIES TO PRESERVE PREVIOUS STATE */
+	if (typeof $.cookie('ds-fdate') != 'undefined'){
+ 		$('#from-date').val($.cookie("ds-fdate")); 		
+	} 
+	if (typeof $.cookie('ds-tdate') != 'undefined'){
+ 		$('#to-date').val($.cookie("ds-tdate"));		
+	}
+	if (typeof $.cookie('ds-pid') != 'undefined'){
+ 		$('#product-id').val($.cookie("ds-pid"));	
+	}
+	
+	$('.cls-show-result').click(function() {
+		$.cookie("ds-fdate", $('#from-date').val());
+		$.cookie("ds-tdate", $('#to-date').val());
+		$.cookie("ds-pid", $('#product-id').val());
+	});	
+	/* END SET COOKIES TO PRESERVE PREVIOUS STATE */
     var action = ADMINURL+'/stock-deviation/getdeviationStockRecords'; 
 
     const table = $('#listingTable').DataTable( 

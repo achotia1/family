@@ -374,7 +374,7 @@ class StoreBatchCardController extends Controller
      }
     $objProduct = new ProductsModel;
     $products = $objProduct->getProducts($companyId);;
-    $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select"><option class="theme-black blue-select" value="">Select Product</option>';
+    $product_code_string = '<select name="product_code" id="product-code" class="form-control my-select select2"><option class="theme-black blue-select" value="">Select Product</option>';
         foreach ($products as $product) {
             $product_code_string .='<option class="theme-black blue-select" value="'.$product['id'].'" '.( $request->custom['product_code'] == $product['id'] ? 'selected' : '').' >'.$product['code'].' ('.$product['name'].' )</option>';
         }

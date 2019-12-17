@@ -15,7 +15,7 @@
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" 
+                <select class="form-control my-select select2" 
                         id="plan_id" 
                         name="plan_id"
                         onchange="checkPlan(this);"                        

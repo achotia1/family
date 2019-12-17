@@ -69,53 +69,7 @@ $(document).ready(function()
 
     function setCustomPagingSigns() 
     {
-        /*$('.my-select').selectbox();
-
-        var wrapper = this.parent();
-
-        // set global class
-        wrapper.find('.dataTables_info').addClass('card-subtitle pb-0');
-
-        // entries info class
-        wrapper.find('tbody tr').addClass('inner-td');
-        
-        // for each tr td
-        wrapper.find('tbody tr').each(function(index, element)
-        {
-          if (index != '0') 
-          {
-             if($(element).find('td:nth-child(4)').text()=="Inactive"){
-                  $(element).addClass('bg-light-gray');
-              }
-             // $(element).find('td:nth-child(3)').addClass('text-center');            
-             $(element).find('td:nth-child(5)').addClass('text-center');            
-          }
-        })
-
-        // for search only
-        wrapper.find('tbody tr').first().addClass('inner-td theme-bg-blue-light vertical-align-middle');
-        wrapper.find('tbody tr').first().find('td').last().addClass('text-center');
-
-        // pagination 
-        if(wrapper.find("a.first").hasClass("disabled"))
-        {
-          wrapper.find("a.first").html(`<a href="#" class="arrow hover-img"><span><img src="${BASEURL}/assets/admin/images/icons/left_arrow.svg" alt=" view"></span></a>`);
-        }
-
-        if(wrapper.find("a.previous").hasClass("disabled"))
-        {
-          wrapper.find("a.previous").html(`<a href="#" class="arrow hover-img"><span><img src="${BASEURL}/assets/admin/images/icons/left_double_arrow.svg" alt=" view"></span></a>`);
-        }
-
-        if(wrapper.find("a.last").hasClass("disabled"))
-        {
-          wrapper.find("a.last").html(`<a href="#" class="arrow hover-img"><span><img src="${BASEURL}/assets/admin/images/icons/right_arrow.svg" alt=" view"></span></a>`);
-        }
-
-        if(wrapper.find("a.next").hasClass("disabled"))
-        {
-          wrapper.find("a.next").html(`<a href="#" class="arrow hover-img"><span><img src="${BASEURL}/assets/admin/images/icons/right_double_arrow.svg" alt=" view"></span></a>`);
-        } */
+        $('.select2').select2();
     }
 });
 
