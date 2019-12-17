@@ -221,8 +221,8 @@
                         @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td class="text-right"><b>{{$packFinalTotal}} Kg</b></td>
-	                    	<td class="text-right"><b>{{$packTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$packFinalTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$packTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>                    	
 	                    	<td class="text-right"><b>{{$pamountTotal}}</b></td>
 	                    </tr>

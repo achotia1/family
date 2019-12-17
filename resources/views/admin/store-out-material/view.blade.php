@@ -209,8 +209,8 @@
 	                    	<td>{{$oKey}}</td>
 	                    	<td>{{$oMaterial['name']}} ({{$oMaterial['lot_no']}})</td>
 	                    	<td class="text-right">{{$oMaterial['price_per_unit']}}</td>
-	                    	<td class="text-right">{{$oMaterial['final_weight']}} Kg</td>     	
-	                    	<td class="text-right">{{$oMaterial['quantity']}} Kg</td>
+	                    	<td class="text-right">{{$oMaterial['final_weight']}}</td>     	
+	                    	<td class="text-right">{{$oMaterial['quantity']}}</td>
 	                    	<td class="text-right">{{$oMaterial['returned_quantity']}}</td>
 	                    	<td class="text-right">{{$oMaterial['pamount']}}</td>
 	                    </tr>
