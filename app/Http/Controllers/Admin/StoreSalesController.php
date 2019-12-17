@@ -134,6 +134,15 @@ class StoreSalesController extends Controller
                                 return response()->json($this->JsonData);
                                 exit();
                             }
+
+                            if($sale['rate']<0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add rate less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
                             
                             if($sale['quantity']>$sale['quantityLimit']){
 
@@ -300,6 +309,15 @@ class StoreSalesController extends Controller
 
                         $this->JsonData['status'] = __('admin.RESP_ERROR');
                         $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+
+                    if($sale['rate']<0){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add rate less than one'; 
+                        DB::rollback();
                         return response()->json($this->JsonData);
                         exit();
                     }
