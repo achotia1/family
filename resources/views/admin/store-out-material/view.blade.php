@@ -223,10 +223,10 @@
                         @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td><b>{{$packFinalTotal}}</b></td>
-	                    	<td><b>{{$packTotal}}</b></td>
-	                    	<td><b>{{$returnedTotal}}</b></td>                    	
-	                    	<td><b>{{$pamountTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$packFinalTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$packTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>                    	
+	                    	<td class="text-right"><b>{{$pamountTotal}}</b></td>
 	                    </tr>
 	                    @php
 	                    }
