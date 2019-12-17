@@ -25,9 +25,9 @@ $(document).ready(function()
  		$('#product-id').val($.cookie("batch-pid"));	
 	}
 	/* ERASE COOKIE */
-	$.removeCookie("batch-fdate");
+	/*$.removeCookie("batch-fdate");
 	$.removeCookie("batch-tdate");
-	$.removeCookie("batch-pid");
+	$.removeCookie("batch-pid");*/
 	
 	$('.cls-show-result').click(function() {
 		$.cookie("batch-fdate", $('#from-date').val());
