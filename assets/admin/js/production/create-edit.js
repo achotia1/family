@@ -255,6 +255,14 @@ function loadWastageBatchMaterial(element)
     var product_id = $("#batch_id").find('option:selected').attr('data-pid');
     var flag = 'loadmaterial';
 
+    var batch_selected_val=[];
+    $(".wastage_batch").each(function(){
+        var str = this.value;
+        if(str){
+            batch_selected_val.push(str);
+        }
+    }); 
+
     var material_selected_val=[];
     $(".wastage_material").each(function(){
         var str = this.value;
@@ -263,10 +271,18 @@ function loadWastageBatchMaterial(element)
             material_selected_val.push(res[1]);
         }
     }); 
+
+   // console.log(batch_selected_val);
    // console.log(material_selected_val);
 
     var action = ADMINURL + '/production/getWastageBatchesOrMaterials';
-    axios.post(action, {wastage_batch_id:wastage_batch_id,product_id:product_id,flag:flag,material_selected_val:material_selected_val})
+    axios.post(action, {
+                        wastage_batch_id:wastage_batch_id,
+                        product_id:product_id,
+                        flag:flag,
+                        material_selected_val:material_selected_val,
+                        batch_selected_val:batch_selected_val
+                })
     .then(response => 
     {
 
