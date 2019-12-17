@@ -17,7 +17,7 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Product Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="product_code" name="product_code" required="" data-error="Product Code field is required.">
+                <select class="form-control my-select select2" id="product_code" name="product_code" required="" data-error="Product Code field is required.">
                     <option value="">Select Product</option>
                     @foreach($products as $product){
                     <option value="{{$product['id']}}">{{$product['code']}}  ( {{$product['name']}} )</option>
