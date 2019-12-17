@@ -7,12 +7,11 @@
 <section class="content">
     <div class="box box-primary">
         <div class="box-body">
-        <form id="materialForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
-            <div class="box-header with-border">
+        	<div class="box-header with-border">
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
-            
+        <form id="materialForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Material Name <span class="required">*</span></label>
