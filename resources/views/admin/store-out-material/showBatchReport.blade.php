@@ -65,11 +65,12 @@
     <div class="box">
         <div class="box-body">
         	<div class="table-responsive"  id="tblPrint">
+        		<button class="btn btn-primary mt-5 history-btn pull-right" onclick="window.history.back()">Back</button>
                 <table class="table" border="1px;">
                     <tbody>
 	                    <tr class="trExpense">
 	                        <td colspan="7" class="title"><b>Batch Card Details</b>
-	                        <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+	                        
 	                        </td>
 	                    </tr>
 	                    <tr>	                    	

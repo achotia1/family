@@ -331,9 +331,9 @@ button.history-btn {
 }
 tr:nth-child(even){background: #f1f1f1;}
 tr:nth-child(odd) {background: #FFF}
-tr.inner-td.add_plan_area.plan td {
+/*tr.inner-td.add_plan_area.plan td {
     width: 33.33%;
-}
+}*/
 .box-footer .col-md-12 {
     padding: 0 6px !important;
 }
@@ -359,4 +359,14 @@ th.dow {
     border: 1px solid #3c8dbc;
     background-color: #59c594;
     border-radius: 0 !important;
+}
+.deletebtn {
+    background-color: #dd4b39;
+    text-align: center;
+    color: #fff;
+    margin: 4px 0 0 0;
+    padding: 5px 0;
+    border-radius: 5px;
+    font-size: 12px;
+    width: 60px;
 }
