@@ -61,7 +61,7 @@
                     </select>  
                 </div>
                  <div class="col-md-3" style="margin-top: 24px !important;">
-                    <button type="button" class="btn btn-primary" onclick="doSearch(this)">Search</button>
+                    <button type="button" class="btn btn-primary cls-show-result" onclick="doSearch(this)">Search</button>
                 </div>
             </div>
         </div>   
@@ -83,7 +83,7 @@
 </section>
 @endsection
 @section('scripts')
-
+<script type="text/javascript" src="{{ url('assets/common/js/jquery.cookie.min.js') }}"></script>
 <script type="text/javascript" src="{{ url('assets/admin/js/reports/deviationStock.js') }}"></script>
 
 @endsection

@@ -14,6 +14,9 @@
 
 <section class="content">
     <div class="box">
+    	<div class="box-header with-border">              
+        	<button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
+        </div>
         <div class="box-body">
             <table id="listingTable" class="table table-bordered table-striped" style="width:100%" >
                 <thead class="blue-border-bottom">
