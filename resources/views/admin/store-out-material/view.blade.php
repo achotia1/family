@@ -180,7 +180,7 @@
 	                    	<td colspan="3"></td>
 	                    	<td class="text-right"><b>{{$finalTotal}} Kg</b></td>
 	                    	<td class="text-right"><b>{{$plannedTotal}} Kg</b></td>
-	                    	<td class="text-right"><b>{{$returnedTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$amountTotal}}</b></td>
 	                    </tr>
 
@@ -211,7 +211,7 @@
 	                    	<td class="text-right">{{$oMaterial['price_per_unit']}}</td>
 	                    	<td class="text-right">{{$oMaterial['final_weight']}} Kg</td>     	
 	                    	<td class="text-right">{{$oMaterial['quantity']}} Kg</td>
-	                    	<td class="text-right">{{$oMaterial['returned_quantity']}} Kg</td>
+	                    	<td class="text-right">{{$oMaterial['returned_quantity']}}</td>
 	                    	<td class="text-right">{{$oMaterial['pamount']}}</td>
 	                    </tr>
                         @endforeach
