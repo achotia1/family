@@ -55,7 +55,7 @@ $(document).ready(function()
 
     function setCustomPagingSigns() 
     {
-        
+        $('.select2').select2();
     }
 });
 
