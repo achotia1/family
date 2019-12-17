@@ -99,7 +99,7 @@
                 </div>
             </div>
         </form>
-        <div class="col-md-12">			
+        <div class="col-md-6">			
           		<h4>Available Stock for: <span id="spn_product"><b>{{$productName}}</b></span></h4>        	
 				<div class="table-responsive"  id="tblProduct">
 					<table class="table" border="1px;">
@@ -112,16 +112,25 @@
 			            <tbody>
 			            @php
 			            if(!$stockData->isEmpty()){
+			            	$total = 0;
 			            @endphp
 			            @foreach($stockData as $data)
 			            @php
 			            $balanceQty = number_format($data->balance_quantity, 2, '.', '');
+			            $total = $total + $balanceQty;
 			            @endphp
 			            <tr>                          
                             <td>{{$data->assignedBatch->batch_card_no}}</td>
-                            <td>{{$balanceQty}}</td>
+                            <td class="text-right">{{$balanceQty}}</td>
                         </tr>
 			            @endforeach
+			            @php
+			            $total = number_format($total, 2, '.', '');
+			            @endphp
+			            <tr>                          
+                            <td class="text-right"><b>Total</b></td>
+                            <td class="text-right"><b>{{$total}}</b></td>
+                        </tr>
 			            @php
 			            } else {
 			            @endphp

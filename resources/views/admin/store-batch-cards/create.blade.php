@@ -90,7 +90,7 @@
                 </div>
             </div>
         </form>
-        	<div class="col-md-12" id="show-stock">			
+        	<div class="col-md-6" id="show-stock">			
           		<h4>Available Stock for: <span id="spn_product"></span></h4>        	
 				<div class="table-responsive"  id="tblProduct">
 					<table class="table" border="1px;">

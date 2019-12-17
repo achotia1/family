@@ -475,13 +475,21 @@ public function getAvailableStock(Request $request)
         $stockData = $objStock->getProductStock($product_id, $companyId);
                   
         if(!empty($stockData->toArray())){
+            $total = 0;
             foreach($stockData as $data){
                 $balanceQty = number_format($data->balance_quantity, 2, '.', '');
+                $total = $total + $balanceQty;
                 $html .= '<tr>                          
                             <td>'.$data->assignedBatch->batch_card_no.'</td>
-                            <td>'.$balanceQty.'</td>
-                        </tr>';     
-            }    
+                            <td class="text-right">'.$balanceQty.'</td>
+                        </tr>';
+
+            }
+            $total = number_format($total, 2, '.', '');
+            $html .=  '<tr>                          
+                            <td class="text-right"><b>Total</b></td>
+                            <td class="text-right"><b>'.$total.'</b></td>
+                        </tr>';  
         } else {
             $html = '<tr><td colspan="2">No Stock Available.</td></tr>';   
         }
