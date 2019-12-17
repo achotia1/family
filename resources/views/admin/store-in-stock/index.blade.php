@@ -18,7 +18,7 @@
     <div class="box">
         
         <div class="box-header align-right">    
-        @can('store-material-in-add')         
+        @can('store-stock-add')         
             <a href="{{ route($modulePath.'create') }}" class="btn btn-primary pull-right" >Add Opening Stock</a>
         @endcan
         </div>

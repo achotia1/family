@@ -184,7 +184,7 @@
                     </tbody>
                 </table>
                 <div class="col-md-8">
-                <a href="javascript:void(0)" class="theme-green bold f-16 text-underline"
+                <a href="javascript:void(0)" class="add-more-btn theme-green bold f-16 text-underline"
                                 onclick="return addPlan()" style="cursor: pointer;">
                                 <span class="mr-2"><img src="{{ url('/assets/admin/images') }}/icons/green_plus.svg"
                                         alt=" view"></span> Add More

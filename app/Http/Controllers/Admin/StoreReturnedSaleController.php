@@ -51,8 +51,8 @@ class StoreReturnedSaleController extends Controller
         $this->ModulePath = 'admin.return-sale.';
 
         ## PERMISSION MIDDELWARE
-        // $this->middleware(['permission:store-sale-listing'], ['only' => ['getRecords']]);
-        // $this->middleware(['permission:store-sale-add'], ['only' => ['edit','update','create','store','destroy']]);
+        $this->middleware(['permission:store-returned-sales-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-sales-returned-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -654,11 +654,11 @@ class StoreReturnedSaleController extends Controller
                     $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></span></a>&nbsp';
                     $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
 
-                    //$data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
-                    //if(auth()->user()->can('store-returned-material-add'))
-                    //{
+                    $data[$key]['actions'] =  '<div class="text-center">'.$view.'</div>';
+                    if(auth()->user()->can('store-sales-returned-add'))
+                    {
                         $data[$key]['actions'] =  '<div class="text-center">'.$view.$edit.$delete.'</div>';
-                    //}
+                    }
 
                    
 

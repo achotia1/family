@@ -44,6 +44,13 @@ class ReportController extends Controller
         $this->ModuleTitle = 'Reports';
         $this->ModuleView  = 'admin.reports.';
         $this->ModulePath  = 'admin.reports.';
+
+        $this->middleware(['permission:store-batch-wise-report'], ['only' => ['batchIndex','getBatchRecords']]);
+        $this->middleware(['permission:store-aged-material-report'], ['only' => ['agedMaterialIndex','getAgedMaterialRecords']]);
+        $this->middleware(['permission:store-material-deviation-report'], ['only' => ['deviationMaterialIndex','getdeviationMaterialRecords','deviationLotHistoryIndex','getdeviationLotHistoryRecords']]);
+        $this->middleware(['permission:store-contribution-report'], ['only' => ['contributionIndex','getContributionRecords']]);
+        $this->middleware(['permission:store-aged-product-report'], ['only' => ['agedProductIndex','getAgedProductRecords']]);
+        $this->middleware(['permission:store-stock-deviation-report'], ['only' => ['deviationStockIndex','getdeviationStockRecords']]);
         
     }
 
