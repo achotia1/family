@@ -30,7 +30,7 @@ class ProductsModel extends Model
     }
 
     public function getDeviatedProducts($companyId=false) {        
-        $modelQuery = ProductsModel::select('product_id','name','code')
+        $modelQuery = ProductsModel::select('products.id','name','code')
                     ->leftjoin('store_sales_stock','store_sales_stock.product_id', '=', 'products.id');
         if($companyId){
            $modelQuery = $modelQuery

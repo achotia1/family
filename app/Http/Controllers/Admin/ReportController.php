@@ -1210,7 +1210,7 @@ class ReportController extends Controller
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
-
+            //dd($request->all());
             ## FILTER OPTIONS
             $custom_search = false;
             if (!empty($request->custom))
