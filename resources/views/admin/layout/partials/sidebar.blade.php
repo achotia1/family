@@ -251,7 +251,7 @@
         <!-- end output material -->
         
         <!-- wastage material -->
-        
+        @can('store-manage-wastage-material')
         <li class="treeview {{ active(['admin/wastage-material', 'admin/wastage-material/*']) }}">
           <a href="#">
             <i class="fa fa-inbox"></i>
@@ -261,15 +261,19 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            @can('store-wastage-material-listing') 
             <li class="{{ active('admin/wastage-material') }}">
               <a href="{{ route('admin.wastage-material.index') }}"><i class="fa fa-hand-o-right"></i> View Wastage Material</a>
-            </li>            
+            </li>  
+            @endcan           
           </ul>
         </li>
+         @endcan 
          
         <!-- end wastage material -->
         
         <!-- stock -->
+        @can('store-manage-stock')
         <li class="treeview {{ active(['admin/sale-stock', 'admin/sale-stock/*']) }}">
           <a href="#">
             <i class="fa fa-inbox"></i>
@@ -279,11 +283,14 @@
             </span>
           </a>
           <ul class="treeview-menu">
+           @can('store-stock-listing')
             <li class="{{ active('admin/sale-stock') }}">
               <a href="{{ route('admin.sale-stock.index') }}"><i class="fa fa-hand-o-right"></i> View Stock</a>
             </li>            
+            @endcan 
           </ul>
         </li>
+         @endcan 
         <!-- end stock -->
         
         <!-- Review Batch card -->
@@ -294,7 +301,7 @@
           </a>
           
         </li> -->
-         
+        @can('store-manage-sales')
         <li class="treeview {{ active(['admin/sales', 'admin/sales/*']) }}">
           <a href="#">
             <i class="ion ion-bag"></i>
@@ -304,15 +311,21 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            @can('store-sales-listing')
             <li class="{{ active('admin/sales') }}">
               <a href="{{ route('admin.sales.index') }}"><i class="fa fa-hand-o-right"></i> View Sales</a>
             </li>
+            @endcan 
+            @can('store-sales-add')
             <li class="{{ active('admin/sales/create') }}">
               <a href="{{ route('admin.sales.create') }}"><i class="fa fa-hand-o-right"></i> Add Sale</a>
             </li>
+            @endcan 
           </ul>
         </li>
+        @endcan 
 
+        @can('store-manage-returned-sales')
         <li class="treeview {{ active(['admin/return-sale', 'admin/return-sale/*']) }}">
           <a href="#">
             <i class="fa fa-share"></i>
@@ -322,15 +335,22 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            @can('store-returned-sales-listing')
             <li class="{{ active('admin/return-sale') }}">
               <a href="{{ route('admin.return-sale.index') }}"><i class="fa fa-hand-o-right"></i> View Returned Sale</a>
             </li>
+            @endcan 
+            @can('store-sales-returned-add')
             <li class="{{ active('admin/return-sale/create') }}">
               <a href="{{ route('admin.return-sale.create') }}"><i class="fa fa-hand-o-right"></i> Add Returned Sale</a>
             </li>
+            @endcan 
           </ul>
         </li>
-        <!-- Manage Reports -->        
+        @endcan 
+
+        <!-- Manage Reports --> 
+        @can('store-manage-reports')       
         <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*']) }}">
           <a href="#">
             <i class="fa fa-file"></i>
@@ -340,26 +360,39 @@
             </span>
           </a>
           <ul class="treeview-menu">
+            @can('store-batch-wise-report')  
             <li class="{{ active(['admin/batch-summary', 'admin/batch-summary/*']) }}">
               <a href="{{ route('admin.report.batch') }}"><i class="fa fa-hand-o-right"></i> Batch-Wise Report</a>
             </li>
+            @endcan 
+            @can('store-aged-material-report')  
             <li class="{{ active('admin/aged-materials') }}">
               <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
             </li>
+            @endcan 
+            @can('store-material-deviation-report')  
             <li class="{{ active(['admin/deviation-material','admin/deviation-material/*']) }}">
               <a href="{{ route('admin.report.deviationMaterial') }}"><i class="fa fa-hand-o-right"></i> Material Deviation Report</a>
             </li>
+            @endcan 
+            @can('store-contribution-report')  
             <li class="{{ active('admin/contribution-report') }}">
               <a href="{{ route('admin.report.contribution') }}"><i class="fa fa-hand-o-right"></i> Contribution Report</a>
             </li>  
+            @endcan 
+            @can('store-aged-product-report')  
             <li class="{{ active('admin/aged-products') }}">
               <a href="{{ route('admin.report.agedProducts') }}"><i class="fa fa-hand-o-right"></i> Aged Product Report</a>
             </li>
+            @endcan 
+            @can('store-stock-deviation-report')  
             <li class="{{ active(['admin/stock-deviation','admin/stock-deviation/*']) }}">
               <a href="{{ route('admin.report.stockDeviation') }}"><i class="fa fa-hand-o-right"></i> Stock Deviation Report</a>
-            </li>         
+            </li> 
+            @endcan         
           </ul>
         </li>
+        @endcan 
         <!-- End Manage Reports -->
       
       </ul>

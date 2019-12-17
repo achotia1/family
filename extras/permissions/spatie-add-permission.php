@@ -76,6 +76,7 @@ $arrAllPermissions[] = array('name' => 'store-wastage-material-correct-balance',
 
 
 $arrAllPermissions[] = array('name' => 'store-manage-stock', 'module_slug'=>'store-manage-stock', 'title' => 'Store Manage Stock');
+$arrAllPermissions[] = array('name' => 'store-stock-listing', 'module_slug'=>'store-manage-stock', 'title' => 'Store Stock Listing');
 $arrAllPermissions[] = array('name' => 'store-stock-add', 'module_slug'=>'store-manage-stock', 'title' => 'Store Add Opening Stock');
 $arrAllPermissions[] = array('name' => 'store-stock-correct-balance', 'module_slug'=>'store-manage-stock', 'title' => 'Store Stock Correct Balance');
 
