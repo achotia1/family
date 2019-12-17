@@ -12,8 +12,30 @@ $(document).ready(function()
             format: 'dd-mm-yyyy',
             autoclose: true,
         });
-
-
+	
+	
+	/* SET COKKIES TO PRESERVE PREVIOUS STATE */
+	if (typeof $.cookie('batch-fdate') != 'undefined'){
+ 		$('#from-date').val($.cookie("batch-fdate")); 		
+	} 
+	if (typeof $.cookie('batch-tdate') != 'undefined'){
+ 		$('#to-date').val($.cookie("batch-tdate"));		
+	}
+	if (typeof $.cookie('batch-pid') != 'undefined'){
+ 		$('#product-id').val($.cookie("batch-pid"));	
+	}
+	/* ERASE COOKIE */
+	$.removeCookie("batch-fdate");
+	$.removeCookie("batch-tdate");
+	$.removeCookie("batch-pid");
+	
+	$('.cls-show-result').click(function() {
+		$.cookie("batch-fdate", $('#from-date').val());
+		$.cookie("batch-tdate", $('#to-date').val());
+		$.cookie("batch-pid", $('#product-id').val());
+	});	
+	/* END SET COOKIES TO PRESERVE PREVIOUS STATE */
+	
     var action = ADMINURL+'/batch-summary/getBatchRecords'; 
 
     const table = $('#listingTable').DataTable( 
