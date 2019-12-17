@@ -13,7 +13,24 @@ $(document).ready(function()
             autoclose: true,
         });
 
-
+	/* SET COKKIES TO PRESERVE PREVIOUS STATE */
+	if (typeof $.cookie('dm-fdate') != 'undefined'){
+ 		$('#from-date').val($.cookie("dm-fdate")); 		
+	} 
+	if (typeof $.cookie('dm-tdate') != 'undefined'){
+ 		$('#to-date').val($.cookie("dm-tdate"));		
+	}
+	if (typeof $.cookie('dm-mid') != 'undefined'){
+ 		$('#material-id').val($.cookie("dm-mid"));	
+	}
+	
+	$('.cls-show-result').click(function() {
+		$.cookie("dm-fdate", $('#from-date').val());
+		$.cookie("dm-tdate", $('#to-date').val());
+		$.cookie("dm-mid", $('#material-id').val());
+	});	
+	/* END SET COOKIES TO PRESERVE PREVIOUS STATE */
+	
     var action = ADMINURL+'/deviation-material/getdeviationMaterialRecords'; 
 
     const table = $('#listingTable').DataTable( 

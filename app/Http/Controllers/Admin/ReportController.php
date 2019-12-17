@@ -811,18 +811,6 @@ class ReportController extends Controller
                                 'store_raw_materials.name'
                                 ]);
 
-        /*$materials = $this->StoreInMaterialModel
-                            ->leftjoin('store_raw_materials', 'store_raw_materials.id' , '=', 'store_in_materials.material_id')
-                            ->where('store_in_materials.company_id', $companyId)
-                            ->whereNotNull('store_in_materials.balance_corrected_at')
-                            ->groupBy('store_in_materials.material_id');
-                            ->get([
-                                'store_raw_materials.id',
-                                'store_raw_materials.name'
-                                ]);                           
-        dd($materials->toSql());*/
-        //dd($materials);
-
         $this->ViewData['materials']   = $materials;    
 
         // view file with data
