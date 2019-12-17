@@ -137,11 +137,11 @@
 	                    <tr>
 	                    	<td>{{$key}}</td>
 	                    	<td>{{$material->mateialName->name}} ({{$material->hasLot->lot_no}})</td>
-	                    	<td>{{$pricePerUnit}}</td>
-	                    	<td>{{$finalWeight}}</td>      	
-	                    	<td>{{$planned}}</td>
-	                    	<td>{{$returned}}</td>	                    	
-	                    	<td>{{$formattedAmount}}</td>
+	                    	<td class="text-right">{{$pricePerUnit}}</td>
+	                    	<td class="text-right">{{$finalWeight}}</td>      	
+	                    	<td class="text-right">{{$planned}}</td>
+	                    	<td class="text-right">{{$returned}}</td>	                    	
+	                    	<td class="text-right">{{$formattedAmount}}</td>
 	                    </tr>
 	                    @php
 	                    } else {
@@ -178,10 +178,10 @@
 	                    @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td><b>{{$finalTotal}}</b></td>
-	                    	<td><b>{{$plannedTotal}}</b></td>
-	                    	<td><b>{{$returnedTotal}}</b></td>
-	                    	<td><b>{{$amountTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$finalTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$plannedTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$amountTotal}}</b></td>
 	                    </tr>
 
 	                    @php 
@@ -208,11 +208,11 @@
                         <tr>
 	                    	<td>{{$oKey}}</td>
 	                    	<td>{{$oMaterial['name']}} ({{$oMaterial['lot_no']}})</td>
-	                    	<td>{{$oMaterial['price_per_unit']}}</td>
-	                    	<td>{{$oMaterial['final_weight']}}</td>     	
-	                    	<td>{{$oMaterial['quantity']}}</td>
-	                    	<td>{{$oMaterial['returned_quantity']}}</td>
-	                    	<td>{{$oMaterial['pamount']}}</td>
+	                    	<td class="text-right">{{$oMaterial['price_per_unit']}}</td>
+	                    	<td class="text-right">{{$oMaterial['final_weight']}}</td>     	
+	                    	<td class="text-right">{{$oMaterial['quantity']}}</td>
+	                    	<td class="text-right">{{$oMaterial['returned_quantity']}}</td>
+	                    	<td class="text-right">{{$oMaterial['pamount']}}</td>
 	                    </tr>
                         @endforeach
                         @php
