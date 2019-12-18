@@ -31,5 +31,5 @@
 <body class="hold-transition login-page">
   <div class="login-box">
   <div class="login-logo">
-    <a href="javascript:void(0)"><b>Orchid</b>Store</a>
+    <a href="javascript:void(0)"><b>{{ $company->name ?? 'Orchid' }}</b>Store</a>
   </div>
