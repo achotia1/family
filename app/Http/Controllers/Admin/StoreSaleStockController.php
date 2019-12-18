@@ -39,8 +39,8 @@ class StoreSaleStockController extends Controller
         $this->ModulePath = 'admin.sale-stock.';
 
         ## PERMISSION MIDDELWARE
-        //$this->middleware(['permission:store-material-in-listing'], ['only' => ['getRecords']]);
-        //$this->middleware(['permission:store-material-in-add'], ['only' => ['edit','update','create','store','bulkDelete']]);
+        $this->middleware(['permission:store-stock-listing'], ['only' => ['getRecords']]);
+        $this->middleware(['permission:store-stock-add'], ['only' => ['edit','update','create','store','destroy']]);
     }
     
 
@@ -344,11 +344,11 @@ class StoreSaleStockController extends Controller
                 $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';               
                 $correctBalIcon = '<a href="'.route($this->ModulePath.'correct-balance',[ base64_encode(base64_encode($row->id))]).'" title="Correct Balance"><span class="glyphicon glyphicon-ok-circle"></a>';
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
-                $data[$key]['actions'] = '';
-                /*if(auth()->user()->can('store-material-in-add'))
-                {*/
+                $data[$key]['actions'] = '<div class="text-center">'.$view.'</div>';
+                if(auth()->user()->can('store-stock-add'))
+                {
                     $data[$key]['actions'] =  '<div class="text-center">'.$view.' '.$correctBalIcon.' '.$delete.'</div>';
-                /*}*/
+                }
 
         }
     }
