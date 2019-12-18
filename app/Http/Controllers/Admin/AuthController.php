@@ -81,6 +81,12 @@ class AuthController extends Controller
             $this->ViewData['moduleAction'] = 'USER LOG IN';
             $this->ViewData['modulePath']   = $this->ModulePath.'login';
             $this->ViewData['encodedCompanyId']   = $encId;
+
+            $this->ViewData['company'] = $this->CompanyModel
+                                            ->where('id', base64_decode($encId))
+                                            ->whereStatus(1)
+                                            ->first();
+           // dd($company);
             //dd($request->all(),$encId,$this->ViewData);
             
             /*if (!empty($_COOKIE[$this->rememberTitle])) 
