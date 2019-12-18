@@ -152,16 +152,20 @@ function loadBatches(sel)
             selected_val.push(this.value);
         }
     });  
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
 
     var action = ADMINURL + '/sales/getProductBatches';
     axios.post(action, {sale_invoice_id:sale_invoice_id,editFlag:editFlag,product_id:product_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#batches_"+id).html(response.data.html); 
+        $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
-
+        $('.box-body').LoadingOverlay("hide");
     })
     return false;
 }

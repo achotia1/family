@@ -1071,7 +1071,8 @@ class StoreProductionController extends Controller
         try 
         {
             $material_id   = $request->material_id;
-            $selected_val      = $request->selected_val;      
+            $selected_val      = $request->selected_val;    
+            $html = "";  
             if(!empty($material_id)){
                 $html       = self::_getMaterialLots($material_id, $selected_val);
             }
