@@ -3,10 +3,11 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Traits\GeneralTrait;
 
 class UsersRequest extends FormRequest
 {
-
+    use GeneralTrait;
     public function authorize()
     {
         return true;
@@ -14,15 +15,14 @@ class UsersRequest extends FormRequest
 
     public function rules()
     {
-        // print_r($this->route('user'));
-        // exit;
+        $companyId = self::_getCompanyId();
         $id = base64_decode(base64_decode($this->route('user'))) ?? null;
-        if ($id === null) 
+        if ($id == null) 
         {
             return [
                 'name'     => 'required|regex:/^[a-zA-Z0-9\s]+$/u',
-                'email'     => 'required|unique:store_users,email',
-                'username'     => 'required|unique:store_users,username',
+                'email'     => 'required|unique:store_users,email,NULL,id,company_id,'.$companyId,      
+                'username'     => 'required|unique:store_users,username,NULL,id,company_id,'.$companyId,       
                 'password'  => 'required|min:6',
                 'confirm_password'  => 'required|same:password',
                 'role'      => 'required',
@@ -32,8 +32,8 @@ class UsersRequest extends FormRequest
         {
             return [
                 'name'     => 'required|regex:/^[a-zA-Z0-9\s]+$/u',
-                'email'     => 'required|unique:store_users,email,'.$id,
-                'username'     => 'required|unique:store_users,username,'.$id,
+                'email'     => 'required|unique:store_users,email,'.$id.',id,company_id,'.$companyId,
+                'username'     => 'required|unique:store_users,username,'.$id.',id,company_id,'.$companyId,
                 'password'  => 'nullable|min:6',
                 'confirm_password'  => 'same:password'
             ];

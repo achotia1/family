@@ -81,7 +81,7 @@
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>{{ substr($company->name,0,1) }}</b>S</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg" style="@if(strlen($company->name)>8) font-size:15px @endif"><b>{{ $company->name }}</b>Store</span>
+      <span class="logo-lg" style="@if(strlen($company->name)>8) font-size:14px @endif"><b>{{ str_replace(" ","",$company->name) }}</b>Store</span>
 
     </a>
     <!-- Header Navbar: style can be found in header.less -->

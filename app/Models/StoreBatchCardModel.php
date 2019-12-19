@@ -49,8 +49,12 @@ class StoreBatchCardModel extends Model
         return $this->hasMany(StoreSaleStockModel::class, 'batch_id', 'id');
     }
 
-    public function getBatchCardNo() {
-        $todaysRecords = self::where('status', 1)->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')->first();
+    public function getBatchCardNo($companyId) {
+        
+        $todaysRecords = self::where('status', 1)
+                            ->where('company_id', $companyId)
+                            ->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')
+                            ->first();
         $cardNoArr[0] = 0;
         $numRecord = sprintf("%02d", 1);
         if(!empty($todaysRecords)){
