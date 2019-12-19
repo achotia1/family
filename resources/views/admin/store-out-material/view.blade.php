@@ -240,7 +240,10 @@
                         @php
                         
                         $sellableQty = number_format($object->sellable_qty, 2, '.', '');
-                        $cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+                        $cost_per_unit = 0;
+                        if($sellableQty > 0){
+							$cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+						}                        
                         $cost_per_unit = number_format($cost_per_unit, 2, '.', '');
                         $coursePowder = number_format($object->course_powder, 2, '.', '');
 	                    $rejection = number_format($object->rejection, 2, '.', '');
@@ -248,22 +251,24 @@
 	                    $looseProduct = number_format($object->loose_material, 2, '.', '');                    
 	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product + $object->loose_material;
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
-            			$lossPer = ($lossMaterial/$finalTotal) * 100;
-						$lossPer = number_format($lossPer, 2, '.', '');
-						
-            			$yield = ($object->sellable_qty/$finalTotal) * 100;
-            			$lossMaterial = number_format($lossMaterial, 2, '.', '');
+            			
+            			$lossPer = $yield = $coursePer = $rejectionPer = $dustPer = $loosePer = 0;
+            			if($finalTotal > 0){
+							$lossPer = ($lossMaterial/$finalTotal) * 100;
+	            			$yield = ($object->sellable_qty/$finalTotal) * 100;
+							$coursePer = ($object->course_powder/$finalTotal) * 100;
+							$rejectionPer = ($object->rejection/$finalTotal) * 100;
+							$dustPer = ($object->dust_product/$finalTotal) * 100;
+							$loosePer = ($object->loose_material/$finalTotal) * 100;	
+						}
+            									
 						$yield = number_format($yield, 2, '.', '');
-						
-						$coursePer = ($object->course_powder/$finalTotal) * 100;
+						$lossPer = number_format($lossPer, 2, '.', '');
 						$coursePer = number_format($coursePer, 2, '.', '');
-						$rejectionPer = ($object->rejection/$finalTotal) * 100;
 						$rejectionPer = number_format($rejectionPer, 2, '.', '');
-						$dustPer = ($object->dust_product/$finalTotal) * 100;
 						$dustPer = number_format($dustPer, 2, '.', '');
-						
-						$loosePer = ($object->loose_material/$finalTotal) * 100;
 						$loosePer = number_format($loosePer, 2, '.', '');
+						$lossMaterial = number_format($lossMaterial, 2, '.', '');
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
@@ -344,8 +349,11 @@
                 </table>
             </div>
                  
-            @php
-            if(!isset($object->hasStock)){
+            @php            
+            if($object->status == 0){
+            	$btnLable = 'Send To Sale';
+            	$batchStatus = 'send';
+            if($sellableQty > 0){
             @endphp
             <div class="form-group col-md-9" id="send-chk">                
                 <div class="checkbox">
@@ -355,8 +363,24 @@
                     </label>
                 </div>  
             </div>
+            @php
+            } else {
+            	$btnLable = 'Close';
+            	$batchStatus = 'close';
+			@endphp
+			<div class="form-group col-md-9" id="send-chk">                
+                <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="status" value="1" id="chk-status">
+                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to close it. After closing, you can not edit this batch records again.</b></span>
+                    </label>
+                </div>  
+            </div>
+			@php	
+			}
+            @endphp
             <div class="form-group col-md-3" id="send-section">            	
-            	<a href="javascript:void(0)" class="btn btn-primary pull-right" data-batch = "{{$object->assignedPlan->batch_id}}" id = "{{$object->id}}" data-product = "{{$object->assignedPlan->assignedBatch->product_code}}" data-cost = "{{$cost_per_unit}}" data-quantity = "{{$object->sellable_qty}}" data-course = "{{$object->course_powder}}" data-rejection = "{{$object->rejection}}" data-dust = "{{$object->dust_product}}" data-loose = "{{$object->loose_material}}" onclick="return sendToBilling(this)">Send To Sale</a>
+            	<a href="javascript:void(0)" class="btn btn-primary pull-right" data-batch = "{{$object->assignedPlan->batch_id}}" id = "{{$object->id}}" data-product = "{{$object->assignedPlan->assignedBatch->product_code}}" data-cost = "{{$cost_per_unit}}" data-quantity = "{{$object->sellable_qty}}" data-course = "{{$object->course_powder}}" data-rejection = "{{$object->rejection}}" data-dust = "{{$object->dust_product}}" data-loose = "{{$object->loose_material}}" data-bstatus = "{{$batchStatus}}" onclick="return sendToBilling(this)">{{$btnLable}}</a>
             </div>
             @php
             }

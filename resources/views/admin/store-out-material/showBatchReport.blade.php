@@ -239,7 +239,10 @@
                         @php
                         
                         $sellableQty = number_format($object->sellable_qty, 2, '.', '');
-                        $cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+                        $cost_per_unit = 0;
+                        if($sellableQty > 0){
+                        	$cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+                        }
                         $cost_per_unit = number_format($cost_per_unit, 2, '.', '');
                         $coursePowder = number_format($object->course_powder, 2, '.', '');
 	                    $rejection = number_format($object->rejection, 2, '.', '');
@@ -247,21 +250,23 @@
 	                    
 	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product + $object->loose_material;
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
-            			$lossPer = ($lossMaterial/$finalTotal) * 100;
-						$lossPer = number_format($lossPer, 2, '.', '');
+            			$lossPer = $yield = $coursePer = $rejectionPer = $dustPer = $loosePer = 0;
+            			if($finalTotal > 0){
+	            			$lossPer = ($lossMaterial/$finalTotal) * 100;
+	            			$yield = ($object->sellable_qty/$finalTotal) * 100;	
+							$coursePer = ($object->course_powder/$finalTotal) * 100;
+							$rejectionPer = ($object->rejection/$finalTotal) * 100;
+							$dustPer = ($object->dust_product/$finalTotal) * 100;
+							$loosePer = ($object->loose_material/$finalTotal) * 100;
+						}
 						
-            			$yield = ($object->sellable_qty/$finalTotal) * 100;
-            			$lossMaterial = number_format($lossMaterial, 2, '.', '');
 						$yield = number_format($yield, 2, '.', '');
-						
-						$coursePer = ($object->course_powder/$finalTotal) * 100;
+						$lossPer = number_format($lossPer, 2, '.', '');
 						$coursePer = number_format($coursePer, 2, '.', '');
-						$rejectionPer = ($object->rejection/$finalTotal) * 100;
 						$rejectionPer = number_format($rejectionPer, 2, '.', '');
-						$dustPer = ($object->dust_product/$finalTotal) * 100;
 						$dustPer = number_format($dustPer, 2, '.', '');
-						$loosePer = ($object->loose_material/$finalTotal) * 100;
 						$loosePer = number_format($loosePer, 2, '.', '');
+						$lossMaterial = number_format($lossMaterial, 2, '.', '');
                         @endphp
                         <tr>	                    	
 	                    	<td class="w-90-px"><b>Sellable Quantity :</b></td>
