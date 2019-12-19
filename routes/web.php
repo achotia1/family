@@ -134,6 +134,8 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				// Material Out
 				Route::group(['middleware' => ['permission:store-manage-material-output']], function () use($PREFIX)
 				{
+					Route::get('/materials-out/rc-add',  'StoreOutMaterialController@rcCreate');
+					Route::post('/materials-out/rcStore',  'StoreOutMaterialController@rcStore')->name($PREFIX.'.materials-out.rcStore');
 					Route::get('/materials-out/getRecords',  'StoreOutMaterialController@getRecords');
 					Route::post('/materials-out/bulkDelete',  'StoreOutMaterialController@bulkDelete');
 					Route::post('/materials-out/getExistingPlan',  'StoreOutMaterialController@getExistingPlan');
@@ -141,7 +143,11 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					/*Route::post('/materials-out/send-to-billing/{id}','StoreOutMaterialController@sendToBilling')->name($PREFIX.'.materials-out.send-to-billing');*/
 					Route::post('/materials-out/send-to-sale',  'StoreOutMaterialController@sendToSale');
 					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
+					// RC EASTER MATERIAL OUT
+					
 				});
+
+				
 
 
 				//Batchwise Summary

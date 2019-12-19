@@ -14,6 +14,7 @@ use App\Models\StoreSaleStockModel;
 use App\Models\StoreWasteStockModel;
 
 use App\Http\Requests\Admin\StoreOutMaterialRequest;
+use App\Http\Requests\Admin\StoreRcOutMaterialRequest;
 use App\Traits\GeneralTrait;
 
 use DB;
@@ -72,7 +73,24 @@ class StoreOutMaterialController extends Controller
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
-
+    ## CREATE METHOD FOR RC EASTER
+    public function rcCreate()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
+        $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
+        $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
+        $this->ViewData['modulePath']   = $this->ModulePath;
+        
+        $companyId = self::_getCompanyId();
+        $objPlan = new StoreProductionModel;
+        $plans = $objPlan->getProductionPlans($companyId,true);
+        
+        $this->ViewData['plans']   = $plans;
+        
+        ## VIEW FILE WITH DATA
+        return view($this->ModuleView.'rcCreate', $this->ViewData);
+    }
     public function store(StoreOutMaterialRequest $request)
     {        
         
@@ -103,20 +121,36 @@ class StoreOutMaterialController extends Controller
 
         return response()->json($this->JsonData);
     }
+    ## RC EASTER STORE
+    public function rcStore(StoreRcOutMaterialRequest $request)
+    {  
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to create Material, Something went wrong on server.'; 
 
-   /* public function show($encID)
-    {
-        ## DEFAULT SITE SETTINGS
-        $this->ViewData['moduleTitle']  = 'View '.$this->ModuleTitle;
-        $this->ViewData['moduleAction'] = 'View '.$this->ModuleTitle;
-        $this->ViewData['modulePath']   = $this->ModulePath;
+        try {           
+            $collection = new $this->BaseModel;
+            $collection = self::_storeOrUpdate($collection,$request);
 
-        // All data
-        $this->ViewData['vehicle'] = $this->BaseModel->find(base64_decode(base64_decode($encID)));
+            if($collection){
+                ## CALCULATE LOSS MATERIAL AND YEILD
+                $id = $collection->id;
+                $companyId = self::_getCompanyId();
+                $output = $this->BaseModel->rcUpdateMadeByMaterial($id, $companyId);
+                //dd($collection);
+                ## ADD Lot Quantity in material balance                
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route('admin.materials-out.index');
+                $this->JsonData['msg'] = $this->ModuleTitle.' created successfully.'; 
+            }
 
-        // view file with data
-        return view($this->ModuleView.'view', $this->ViewData);
-    }*/
+        }
+        catch(\Exception $e) {
+            $this->JsonData['error_msg'] = $e->getMessage();
+            $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
+        }
+
+        return response()->json($this->JsonData);
+    }   
 
     public function edit($encID)
     {
@@ -195,10 +229,11 @@ class StoreOutMaterialController extends Controller
         $collection->sellable_qty   = $request->sellable_qty;
         $collection->course_powder  = $request->course_powder;
         $collection->rejection       = $request->rejection;
-        $collection->dust_product          = $request->dust_product;
-        $collection->loose_material             = $request->loose_material;
-        /*$collection->yield             = $request->yield;*/
-        $collection->status         = 0;      
+        $collection->dust_product    = $request->dust_product;
+        $collection->loose_material  = $request->loose_material;
+        $collection->unfiltered      = $request->unfiltered;        
+        $collection->status         = 0;
+        //dd($collection);     
         ## SAVE DATA
         $collection->save();
         
@@ -206,7 +241,7 @@ class StoreOutMaterialController extends Controller
     }
 
     public function show($encId)
-    {
+    {        
         $id = base64_decode(base64_decode($encId));
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);

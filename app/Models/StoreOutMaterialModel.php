@@ -20,6 +20,8 @@ class StoreOutMaterialModel extends Model
         'dust_product',
         'loose_material',
         'loss_material',
+        'unfiltered',
+        'rejection_water',
         'yield',
         'status'             
     ];
@@ -87,6 +89,55 @@ class StoreOutMaterialModel extends Model
         return $outputDetails;
     }
 	
+    public function rcUpdateMadeByMaterial($id, $companyId) {
+        $outputDetails = self::with([
+            'assignedPlan' => function($q)
+            {  
+                $q->with(['hasProductionMaterials' => function($q){
+                    $q->with('mateialName');    
+                }]);
+                $q->with(['assignedBatch'=> function($q){
+                    $q->with('assignedProduct');
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);                
+            }
+        ])->where('company_id', $companyId)
+        ->find($id);
+        $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
+        if($outputDetails){
+            $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->unfiltered + $outputDetails->rejection;
+            ## FOR RC ONLY WATER OF REJECTION IS UNSELLABLE
+            $totalSellable = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->unfiltered ;
+            if(isset($outputDetails->assignedPlan->hasProductionMaterials)){
+                foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
+                    if($detail->mateialName->material_type == 'Raw'){
+                        $returned = 0;
+                        if(isset($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials)){
+                            foreach($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+                                if( $detail->lot_id == $returnedMaterial->lot_id)
+                                    $returned = $returnedMaterial->quantity;                     
+                            }
+                        }                    
+                        $finalWeight = $finalWeight + ($detail->quantity - $returned);
+                    }
+                }
+            }
+            // dd($finalWeight,$wasteageWeight);
+            if($finalWeight>0){
+                //$wasteageWeight." >> ". $finalWeight;
+                $loss_material = $finalWeight - $wasteageWeight;
+                
+                $yield = ($totalSellable/$finalWeight) * 100;
+                //$loss_material. " >> ".$yeild;
+                $outputDetails->loss_material = $loss_material;
+                $outputDetails->yield = $yield;
+                $outputDetails->save();
+            }
+        }
+        return $outputDetails;
+    }
     public function getOutputRec($planId) {
         return self::select('id')->where('plan_id', $planId)->first();         
     }

@@ -63,32 +63,50 @@
                             </ul>
                         </span>
                     </div>
+                     
                     <div class="form-group col-md-6">
-                        <label class="theme-blue">Course Powder
-                            <span class="required">*</span></label>
-                        <input 
-                            type="number" 
-                            name="course_powder" 
-                            class="form-control" 
-                            required
-                            maxlength="20"
-                            step="any"                  
-                            data-error="Course Powder should be number." 
-                        >
-                        <span class="help-block with-errors">
-                            <ul class="list-unstyled">
-                                <li class="err_course_powder"></li>
-                            </ul>
-                        </span>
-                    </div> 
-                    
+		                <label class="theme-blue">Loose Material
+		                    <span class="required">*</span></label>
+		                <input 
+		                    type="number" 
+		                    name="loose_material"                    
+		                    class="form-control" 
+		                    required
+		                    maxlength="20"
+		                    step="any"                  
+		                    data-error="Loose Material should be number." 
+		                >
+		                <span class="help-block with-errors">
+		                    <ul class="list-unstyled">
+		                        <li class="err_loose_material"></li>
+		                    </ul>
+		                </span>
+		            </div>
                 </div>
             </div>
 
             <div class="row"> 
                 <div class="col-md-12">
+	                 <div class="form-group col-md-6">
+	                    <label class="theme-blue">Unfiltered
+	                        <span class="required">*</span></label>
+	                    <input 
+	                        type="number" 
+	                        name="unfiltered" 
+	                        class="form-control" 
+	                        required
+	                        maxlength="20"
+	                        step="any"                  
+	                        data-error="Unfiltered Material should be number." 
+	                    >
+	                    <span class="help-block with-errors">
+	                        <ul class="list-unstyled">
+	                            <li class="err_unfiltered"></li>
+	                        </ul>
+	                    </span>
+	                </div>
                 <div class="form-group col-md-6">
-                    <label class="theme-blue">Rejection
+                    <label class="theme-blue">Water Of Rejection
                         <span class="required">*</span></label>
                     <input 
                         type="number" 
@@ -105,44 +123,10 @@
                         </ul>
                     </span>
                 </div>
-                <div class="form-group col-md-6">
-                    <label class="theme-blue">Dust Product
-                        <span class="required">*</span></label>
-                    <input 
-                        type="number" 
-                        name="dust_product" 
-                        class="form-control" 
-                        required
-                        maxlength="20"
-                        step="any"                  
-                        data-error="Dust Product should be number." 
-                    >
-                    <span class="help-block with-errors">
-                        <ul class="list-unstyled">
-                            <li class="err_dust_product"></li>
-                        </ul>
-                    </span>
-                </div>
+               
             </div>
             </div>
-            <div class="form-group col-md-6">
-                <label class="theme-blue">Loose Material
-                    <span class="required">*</span></label>
-                <input 
-                    type="number" 
-                    name="loose_material"                    
-                    class="form-control" 
-                    required
-                    maxlength="20"
-                    step="any"                  
-                    data-error="Loose Material should be number." 
-                >
-                <span class="help-block with-errors">
-                    <ul class="list-unstyled">
-                        <li class="err_loose_material"></li>
-                    </ul>
-                </span>
-            </div>
+            
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="submit" class="btn btn-success">Save</button>
