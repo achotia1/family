@@ -24,15 +24,19 @@ function getBatchMaterials(batch_id){
     // console.log(batch_id);
     // return false;
     var action = ADMINURL + '/production/getBatchMaterials';
-
+     $('.box-body').LoadingOverlay("show", {
+            background: "rgba(165, 190, 100, 0.4)",
+        });
     axios.post(action, {batch_id:batch_id,material_id:material_id})
     .then(response => 
     {       
         // $("#material_id").empty(); 
         $("#material_id").html(response.data.html); 
+        $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
+        $('.box-body').LoadingOverlay("hide");
 
     })
     return false;
@@ -171,17 +175,21 @@ function loadLot(sel)
 	var selected_val=[];
     $(".production_lot").each(function(){
         selected_val.push(this.value);
-    });    
+    });  
+     $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });  
 	/* END PASS PREVIOUS DROPDOWN SELECTED LOT NOs */
     axios.post(action, {material_id:material_id, selected_val:selected_val})
     .then(response => 
     {         
         //console.log(response.data.html);
         $("#l_"+id).html(response.data.html);
-        
+        $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
+        $('.box-body').LoadingOverlay("hide");
 
     })
     return false;
@@ -230,6 +238,10 @@ function getWastageBatches(element)
     var product_id = $(element).find('option:selected').attr('data-pid');
     var flag = 'loadbatch';
 
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    }); 
+
     var action = ADMINURL + '/production/getWastageBatchesOrMaterials';
     axios.post(action, {batch_id:batch_id,product_id:product_id,flag:flag})
     .then(response => 
@@ -237,12 +249,13 @@ function getWastageBatches(element)
 
         wastage_batch_options = response.data.batchesHtml;
         $("#wastage_0").html(response.data.batchesHtml); 
-
+         $('.box-body').LoadingOverlay("hide");
         return false;
        
     })
     .catch(error =>
     {
+         $('.box-body').LoadingOverlay("hide");
          return false;
     })
     return false;
@@ -272,8 +285,10 @@ function loadWastageBatchMaterial(element)
         }
     }); 
 
-   // console.log(batch_selected_val);
-   // console.log(material_selected_val);
+  
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    }); 
 
     var action = ADMINURL + '/production/getWastageBatchesOrMaterials';
     axios.post(action, {
@@ -287,12 +302,13 @@ function loadWastageBatchMaterial(element)
     {
 
         $("#m_"+id).html(response.data.batchesMaterialHtml); 
-
+         $('.box-body').LoadingOverlay("hide");
         return false;
        
     })
     .catch(error =>
     {
+         $('.box-body').LoadingOverlay("hide");
          return false;
     })
     return false;

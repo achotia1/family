@@ -1071,7 +1071,8 @@ class StoreProductionController extends Controller
         try 
         {
             $material_id   = $request->material_id;
-            $selected_val      = $request->selected_val;      
+            $selected_val      = $request->selected_val;    
+            $html = "";  
             if(!empty($material_id)){
                 $html       = self::_getMaterialLots($material_id, $selected_val);
             }
@@ -1151,7 +1152,9 @@ class StoreProductionController extends Controller
 
                 $batch_material = array();
                 foreach ($batch_selected_val as $batch_key=>$batch_value) {
-                   $batch_material[$batch_value][]=$material_selected_val[$batch_key];
+                    if(!empty($material_selected_val)){
+                        $batch_material[$batch_value][]=$material_selected_val[$batch_key];
+                    }
                 }
             
                 //dd($batch_selected_val,$material_selected_val,$batch_material);

@@ -40,6 +40,10 @@ function checkExistingRecord(sale_invoice_id)
 }
 
 function getSaleProducts(sale_invoice_id){
+
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
     var action = ADMINURL + '/return-sale/getSaleProducts';
     axios.post(action, {sale_invoice_id:sale_invoice_id})
     .then(response => 
@@ -50,10 +54,11 @@ function getSaleProducts(sale_invoice_id){
         if(response.data.customerHtml){
             $("#customer_id").html(response.data.customerHtml); 
         }
+         $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
-
+         $('.box-body').LoadingOverlay("hide");
     })
     return false;
 }
@@ -172,15 +177,20 @@ function loadBatches(sel)
         }
     });  
 
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
+
     var action = ADMINURL + '/return-sale/getProductBatches';
     axios.post(action, {editFlag:editFlag,sale_invoice_id:sale_invoice_id,product_id:product_id,selected_val:selected_val})
     .then(response => 
     { 
         $("#batches_"+id).html(response.data.html); 
+         $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
-
+         $('.box-body').LoadingOverlay("hide");
     })
     return false;
 }

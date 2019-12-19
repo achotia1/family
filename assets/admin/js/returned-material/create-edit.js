@@ -24,16 +24,20 @@ $(document).ready(function ()
 
 function getPlanMaterials(plan_id){
     var action = ADMINURL + '/return/getPlanMaterials';
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
     axios.post(action, {plan_id:plan_id})
     .then(response => 
     {       
         // $("#material_id").empty(); 
         plan_options=response.data.html;
         $("#material_"+index).html(response.data.html); 
+        $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>
     {
-
+        $('.box-body').LoadingOverlay("hide");
     })
     return false;
 }
@@ -147,6 +151,9 @@ function loadLot(sel)
             selected_val.push(this.value);
         }
     });  
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
 
     var action = ADMINURL + '/return/getMaterialLots';
 
@@ -154,12 +161,12 @@ function loadLot(sel)
     .then(response => 
     { 
         $("#lot_"+id).html(response.data.html); 
-
+        $('.box-body').LoadingOverlay("hide");
         //$("#lot_"+id).html(response.data.html); 
     })
     .catch(error =>
     {
-
+        $('.box-body').LoadingOverlay("hide");
     })
     return false;
 }
