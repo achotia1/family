@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-
 ## MODELS
-
 use App\Models\StoreWasteStockModel;
 use App\Models\StoreWastageCorrectionModel;
 use App\Models\StoreBatchCardModel;
@@ -46,6 +44,13 @@ class StoreWasteStockController extends Controller
 
     public function index()
     {
+        $companyId = self::_getCompanyId();
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $showWastage = true;
+        if($companyId==$rcester_companyId){
+            $showWastage = false;
+            return redirect()->route('admin.dashboard');
+        }
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
@@ -270,6 +275,14 @@ public function correctBalance($encID)
         $this->ViewData['moduleTitleInfo'] = "Balance Information";
         $this->ViewData['modulePath']   = $this->ModulePath;        
         $companyId = self::_getCompanyId();
+
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $showWastage = true;
+        if($companyId==$rcester_companyId){
+            $showWastage = false;
+            return redirect()->route('admin.dashboard');
+        }
+        
         $data = $this->BaseModel->with([
             'assignedBatch', 'assignedProduct'           
         ])->where('company_id', $companyId)

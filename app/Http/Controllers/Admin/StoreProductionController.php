@@ -90,7 +90,14 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+
         $companyId = self::_getCompanyId();
+        
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $showWastage = true;
+        if($companyId==$rcester_companyId){
+            $showWastage = false;
+        }
         // $objStore = new StoreBatchCardModel();
         //$batchNos  = $objStore->getBatchNumbers($companyId,true);
         $batchNos  = $this->StoreBatchCardModel->getBatchNumbers($companyId,true);
@@ -101,6 +108,7 @@ class StoreProductionController extends Controller
 
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
+        $this->ViewData['showWastage'] = $showWastage;
         
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
@@ -343,13 +351,21 @@ class StoreProductionController extends Controller
        // dd($batchesHtml);
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getLotMaterials($companyId);
-        //d($materialIds);
+
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $showWastage = true;
+        if($companyId==$rcester_companyId){
+            $showWastage = false;
+        }
+
+        ## VIEW FILE WITH DATA
         $this->ViewData['materialIds']   = $materialIds;        
         $this->ViewData['production'] = $data;
         $this->ViewData['wastages'] = $this->wastageMaterialRecords;
         $this->ViewData['batchesHtml'] = $batchesHtml;
+        $this->ViewData['showWastage'] = $showWastage;
 
-        ## VIEW FILE WITH DATA
+        
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 

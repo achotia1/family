@@ -127,6 +127,7 @@
                             </a>
             	</div>
             </div>
+            @if(!empty($showWastage) && $showWastage==true)
             @if(!empty($production->hasReuseWastage))
             <div class="with-border col-md-12">
                 <h4 class="">Wastage Material Stock</h4>
@@ -246,7 +247,7 @@
                             </a>
                 </div>
             </div>
-            
+            @endif
             @endif
 
 

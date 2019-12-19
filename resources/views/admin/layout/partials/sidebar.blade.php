@@ -249,7 +249,14 @@
         </li>
          @endcan 
         <!-- end output material -->
-        
+        @php
+         $rcester_companyId = config('constants.RCESTERCOMPANY');
+         $showWastage = true;
+          if($company->id==$rcester_companyId){
+              $showWastage = false;
+          }
+        @endphp
+        @if(!empty($showWastage) && $showWastage==true)
         <!-- wastage material -->
         @can('store-manage-wastage-material')
         <li class="treeview {{ active(['admin/wastage-material', 'admin/wastage-material/*']) }}">
@@ -269,6 +276,7 @@
           </ul>
         </li>
          @endcan 
+         @endif
          
         <!-- end wastage material -->
         

@@ -3,10 +3,11 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Traits\GeneralTrait;
 
 class StoreInMaterialRequest extends FormRequest
 {
-
+    use GeneralTrait;
     public function authorize()
     {
         return true;
@@ -14,22 +15,21 @@ class StoreInMaterialRequest extends FormRequest
 
     public function rules()
     {       
-        /*print($this->route('{materials_in'));
-        exit;*/
+        $companyId = self::_getCompanyId();
         $id = base64_decode(base64_decode($this->route('materials_in'))) ?? null;
           
         if ($id == null) 
         {
            return [                 
                 'material_id'     => 'required',
-                'lot_no'     => 'required|unique:store_in_materials,lot_no,NULL,id,deleted_at,NULL',
+                'lot_no'     => 'required|unique:store_in_materials,lot_no,NULL,id,deleted_at,NULL,company_id,'.$companyId,
                 'lot_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];
         }else{
              return [                
                 'material_id'     => 'required',
-                'lot_no'      => 'required|unique:store_in_materials,lot_no,'.$id.',id,deleted_at,NULL',
+                'lot_no'      => 'required|unique:store_in_materials,lot_no,'.$id.',id,deleted_at,NULL,company_id,'.$companyId,
                 'lot_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
                 'price_per_unit'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
             ];

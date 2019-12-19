@@ -3,10 +3,11 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Traits\GeneralTrait;
 
 class StoreOpeningStockRequest extends FormRequest
 {
-
+    use GeneralTrait;
     public function authorize()
     {
         return true;
@@ -16,7 +17,7 @@ class StoreOpeningStockRequest extends FormRequest
 	{          
 		return [                
 			'product_code'     => 'required',
-			'batch_card_no'  => 'required|unique:store_batch_cards,batch_card_no,NULL,id,deleted_at,NULL',        
+			'batch_card_no'  => 'required|unique:store_batch_cards,batch_card_no,NULL,id,deleted_at,NULL,company_id,'.$companyId,        
 			'quantity'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
 			'manufacturing_cost'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
 		];

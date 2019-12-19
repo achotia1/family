@@ -69,11 +69,10 @@ class StoreBatchCardController extends Controller
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
 
+        $companyId = self::_getCompanyId();
        
         $objStore = new StoreBatchCardModel;
-        $batchNo = $objStore->getBatchCardNo();
-
-        $companyId = self::_getCompanyId();
+        $batchNo = $objStore->getBatchCardNo($companyId);
 
         $objProduct = new ProductsModel;
         $products = $objProduct->getProducts($companyId);

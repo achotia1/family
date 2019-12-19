@@ -13,6 +13,7 @@ return [
 		'ADMINEMAIL' 		=> 'eluminous_se42@eluminoustechnologies.com',
 		//'COMPANYURL' 		=> 'http://dev.eluminousdev.com/orchid/',
 		'COMPANYURL' 		=> 'https://shop.orchidpolycoats.com/',
+		'RCESTERCOMPANY'    =>  1,//Set database companyid for rcester company
 		// 'ACCOUNTEMAIL' 		=> 'eluminous.se47@gmail.com',
 
 
