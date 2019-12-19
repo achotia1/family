@@ -13,28 +13,14 @@ class StoreRcOutMaterialRequest extends FormRequest
     }
 
     public function rules()
-    {       
-        /*print($this->route('{materials_in'));
-        exit;*/            
-        $id = base64_decode(base64_decode($this->route('materials_out'))) ?? null;
-        if ($id == null) 
-        {
-           return [                 
-                'plan_id'     => 'required',
-                'sellable_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'loose_material'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'unfiltered'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'rejection'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-            ];
-        }else{
-             return [                
-                'plan_id'     => 'required',
-                'sellable_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'loose_material'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'unfiltered'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-                'rejection'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
-            ];
-        }     
+    { 
+       return [                 
+            'plan_id'     => 'required',
+            'sellable_qty'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+            'loose_material'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+            'unfiltered'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+            'rejection'     => 'required|regex:/^\d+(\.\d{0,4})?$/u',
+        ];
     }
     public function messages()
     {
