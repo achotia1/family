@@ -65,6 +65,7 @@ function sendToBilling(element)
 		var rejection = $(element).attr("data-rejection");
 		var dust = $(element).attr("data-dust");
 		var loose = $(element).attr("data-loose");
+		var bstatus = $(element).attr("data-bstatus");
 		
 		action = ADMINURL+'/materials-out/send-to-sale';
 		
@@ -80,7 +81,7 @@ function sendToBilling(element)
 	    }, 
 	    function () 
 	    { 
-	        axios.post(action, {id:material_out_id, batch_id:batch_id, product_id:product_id,quantity:quantity, cost:cost, course:course, rejection:rejection, dust:dust, loose:loose})
+	        axios.post(action, {id:material_out_id, batch_id:batch_id, product_id:product_id,quantity:quantity, cost:cost, course:course, rejection:rejection, dust:dust, loose:loose, bstatus:bstatus})
 	        .then(function (response) 
 	        {
 	          if (response.data.status == 'success') 

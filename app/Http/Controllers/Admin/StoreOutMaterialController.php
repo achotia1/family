@@ -563,6 +563,8 @@ public function sendToSale(Request $request)
             $productId = $request->product_id;
             $quantity = $request->quantity;
             $cost = $request->cost;
+            $bstatus = $request->bstatus;
+            //dd($request->all());
             ## MARK OUTPUT MATERIAL STATUS TO 1 THAT MEANS REVIEWED            
             $collection = $this->BaseModel->find($id);
             $collection->status   = 1;            
@@ -570,52 +572,59 @@ public function sendToSale(Request $request)
             $collection->save();
             if($collection){
                 $all_transactions = [];
-                if($batchId > 0 && $productId > 0 && $quantity > 0 && $cost > 0) {
-                    ## ADD THE ENTRY IN SALES STOCK 
+                
+                if($batchId > 0 && $productId > 0) {
                     $data['company_id'] = $wasteData['company_id'] = self::_getCompanyId();
                     $data['user_id'] = $wasteData['user_id'] = auth()->user()->id;
                     $data['material_out_id'] = $wasteData['material_out_id'] = $id;
                     $data['product_id'] = $wasteData['product_id'] = $productId;
                     $data['batch_id'] = $wasteData['batch_id'] = $batchId;
-                    $data['manufacturing_cost'] = $cost;
-                    $data['quantity'] = $quantity;
-                    $data['balance_quantity'] = $quantity;
-                    $objStock = new StoreSaleStockModel;
-
-                    if($objStock->addSalesStock($data)){
-                        //dd($objStock);  
-                        ## ADD WASTAGE STOCK
-                        $wasteData['course'] = $request->course;
-                        $wasteData['balance_course'] = $request->course;
-                        $wasteData['rejection'] = $request->rejection;
-                        $wasteData['balance_rejection'] = $request->rejection;
-                        $wasteData['dust'] = $request->dust;
-                        $wasteData['balance_dust'] = $request->dust;
-                        $wasteData['loose'] = $request->loose;
-                        $wasteData['balance_loose'] = $request->loose;
-                        $objWasteStock = new StoreWasteStockModel;
-                        if($objWasteStock->addWasteStock($wasteData)){
-                            ## MARK BATCH AS CLOSED
-                            $objBatch = new StoreBatchCardModel;
-                            $batchCollection = $objBatch->find($batchId);
-                            $batchCollection->review_status = "closed";                       
-                            if($batchCollection->save()){
-                                $all_transactions[] = 1;
-                            } else {
-                                $all_transactions[] = 0;
-                            } 
-                        } else{
-                            $all_transactions[] = 0;
-                        }                       
-                            
-                    } else {                       
-                        $all_transactions[] = 0;
-                        $this->JsonData['msg'] = 'This Batch is already sent to Sale Stock.'; 
-                    }
                     
+                    if($bstatus == 'send'){
+                        ## ADD THE ENTRY IN SALES STOCK                        
+                        $data['manufacturing_cost'] = $cost;
+                        $data['quantity'] = $quantity;
+                        $data['balance_quantity'] = $quantity;
+                        $objStock = new StoreSaleStockModel;
+                        //dd($data);
+                        if($objStock->addSalesStock($data)){
+                            //dd($data);
+                            $all_transactions[] = 1;
+                        } else {
+                            $all_transactions[] = 0;
+                            $this->JsonData['msg'] = 'This Batch is already sent to Sale Stock.';
+                        }
+                    }
+
+                    ## ADD WASTAGE STOCK
+                    $wasteData['course'] = $request->course;
+                    $wasteData['balance_course'] = $request->course;
+                    $wasteData['rejection'] = $request->rejection;
+                    $wasteData['balance_rejection'] = $request->rejection;
+                    $wasteData['dust'] = $request->dust;
+                    $wasteData['balance_dust'] = $request->dust;
+                    $wasteData['loose'] = $request->loose;
+                    $wasteData['balance_loose'] = $request->loose;
+                    $objWasteStock = new StoreWasteStockModel;   
+                    if($objWasteStock->addWasteStock($wasteData)){
+                        //dd($wasteData);
+                        ## MARK BATCH AS CLOSED
+                        $objBatch = new StoreBatchCardModel;
+                        $batchCollection = $objBatch->find($batchId);
+                        $batchCollection->review_status = "closed";                       
+                        if($batchCollection->save()){
+                            $all_transactions[] = 1;
+                        } else {
+                            $all_transactions[] = 0;
+                        } 
+                    } else{
+                        $all_transactions[] = 0;
+                        $this->JsonData['msg'] = 'Unsellable material is already added in wastage stock.';
+                    }
                 } else {
                      $all_transactions[] = 0;
                 }
+
                 if (!in_array(0,$all_transactions)) 
                 {
                     $this->JsonData['status'] = __('admin.RESP_SUCCESS');

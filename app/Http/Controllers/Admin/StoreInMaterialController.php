@@ -353,7 +353,7 @@ class StoreInMaterialController extends Controller
                 $data[$key]['lot_balance']  =  number_format($row->lot_balance, 2, '.', '');           
 
                 if($row->status==1){
-                    $data[$key]['status'] = 'Normal';
+                    $data[$key]['status'] = 'Received';
                 }elseif($row->status==0) {
                  $data[$key]['status'] = 'Opening';
                 }
@@ -389,7 +389,7 @@ class StoreInMaterialController extends Controller
     //$searchHTML['status']   =  '';  
     $searchHTML['status']   =  '<select name="status" id="search-status" class="form-control my-select">
             <option class="theme-black blue-select" value="">Status</option>
-            <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Normal</option>
+            <option class="theme-black blue-select" value="1" '.( $request->custom['status'] == "1" ? 'selected' : '').' >Received</option>
             <option class="theme-black blue-select" value="0" '.( $request->custom['status'] == "0" ? 'selected' : '').'>Opening</option>            
             </select>';
     
