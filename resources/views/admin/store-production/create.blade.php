@@ -136,7 +136,7 @@
             	</div>
             </div>   
 			
-            @if(!empty($showWastage) && $showWastage==true)
+           
             <div class="with-border col-md-12">
                 <h4 class="">Wastage Material Stock</h4>
             </div>
@@ -227,8 +227,7 @@
                             </a>
                 </div>
             </div>
-            @endif
-
+           
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>

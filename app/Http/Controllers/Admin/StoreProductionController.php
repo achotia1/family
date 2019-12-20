@@ -108,7 +108,7 @@ class StoreProductionController extends Controller
 
         $this->ViewData['batchNos']   = $batchNos;
         $this->ViewData['materialIds']   = $materialIds;
-        $this->ViewData['showWastage'] = $showWastage;
+       // $this->ViewData['showWastage'] = $showWastage;
         
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
