@@ -68,29 +68,20 @@ class StoreOutMaterialController extends Controller
         $objPlan = new StoreProductionModel;
         $plans = $objPlan->getProductionPlans($companyId,true);
         // dd($plans);
-        $this->ViewData['plans']   = $plans;
-        
+
         ## VIEW FILE WITH DATA
-        return view($this->ModuleView.'create', $this->ViewData);
-    }
-    ## CREATE METHOD FOR RC EASTER
-    public function rcCreate()
-    {
-        ## DEFAULT SITE SETTINGS
-        $this->ViewData['moduleTitle']  = 'Add New '.$this->ModuleTitle;
-        $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
-        $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
-        $this->ViewData['modulePath']   = $this->ModulePath;
-        
-        $companyId = self::_getCompanyId();
-        $objPlan = new StoreProductionModel;
-        $plans = $objPlan->getProductionPlans($companyId,true);
-        
         $this->ViewData['plans']   = $plans;
+
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+             ## CREATE METHOD FOR RC EASTER
+            return view($this->ModuleView.'rc-create', $this->ViewData);
+        }else{
+            return view($this->ModuleView.'create', $this->ViewData);
+        }
         
-        ## VIEW FILE WITH DATA
-        return view($this->ModuleView.'rcCreate', $this->ViewData);
     }
+    
     public function store(StoreOutMaterialRequest $request)
     {        
         
@@ -181,15 +172,53 @@ class StoreOutMaterialController extends Controller
         if(empty($data) || $data->assignedPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.materials-out.index');
         }
-        ## ALL DATA        
+        ## VIEW FILE WITH DATA
         $this->ViewData['material'] = $data;
           
-        ## VIEW FILE WITH DATA
-        return view($this->ModuleView.'edit', $this->ViewData);
+
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+             ## EDIT METHOD FOR RC EASTER
+            return view($this->ModuleView.'rc-edit', $this->ViewData);
+        }else{
+            return view($this->ModuleView.'edit', $this->ViewData);
+        }
+
+        
+    }
+    ## RC EASTER UPDATE
+    public function rcUpdate(StoreRcOutMaterialRequest $request, $encID)
+    {
+        dd('test',$request->all());
+        $this->JsonData['status'] = __('admin.RESP_ERROR');
+        $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';        
+        $id = base64_decode(base64_decode($encID));
+        //dd($id);
+        try {
+            $collection = $this->BaseModel->find($id);                 
+            $collection = self::_storeOrUpdate($collection,$request);
+            if($collection){
+                ## CALCULATE LOSS MATERIAL AND YEILD
+                $companyId = self::_getCompanyId();
+                $output = $this->BaseModel->rcUpdateMadeByMaterial($id, $companyId); 
+                //dd($output);
+                $this->JsonData['status'] = __('admin.RESP_SUCCESS');
+                $this->JsonData['url'] = route('admin.materials-out.index');
+                $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 
+            }
+        }
+        catch(\Exception $e) {
+
+            $this->JsonData['msg'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);
+
     }
 
     public function update(StoreOutMaterialRequest $request, $encID)
     {
+        dd('update',$request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';        
         $id = base64_decode(base64_decode($encID));
