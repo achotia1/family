@@ -11,7 +11,7 @@
               <h1 class="box-title">{{ $moduleTitleInfo }}</h1>
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>
-        <form id="materialOutForm" method="post" data-toggle="validator" action="{{ route($modulePath.'rcStore') }}">            
+        <form id="materialOutForm" method="post" data-toggle="validator" action="{{ route($modulePath.'store') }}">            
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
