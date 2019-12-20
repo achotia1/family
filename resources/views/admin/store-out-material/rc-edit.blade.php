@@ -12,7 +12,6 @@
               <button class="btn btn-primary pull-right" onclick="window.history.back()">Back</button>
             </div>       
         <form id="materialOutForm" data-toggle="validator" action="{{ route($modulePath.'rcUpdate', [base64_encode(base64_encode($material->id))]) }}" method="post">
-            <input type="hidden" name="_method" value="PUT">                        
             <div class="form-group col-md-12">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
@@ -73,8 +72,8 @@
                     <span class="required">*</span></label>
                 <input 
                     type="number" 
-                    name="unfiltered" 
-                    value="{{$material->unfiltered}}"
+                    name="course_powder" 
+                    value="{{$material->course_powder}}"
                     class="form-control" 
                     required
                     maxlength="20"

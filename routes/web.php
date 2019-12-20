@@ -135,23 +135,17 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::group(['middleware' => ['permission:store-manage-material-output']], function () use($PREFIX)
 				{
 					// RC EASTER MATERIAL OUT
-					// Route::get('/materials-out/rc-add',  'StoreOutMaterialController@rcCreate');
+					Route::post('/materials-out/rc-update/{encId}',  'StoreOutMaterialController@rcUpdate')->name($PREFIX.'.materials-out.rcUpdate');
 					Route::post('/materials-out/rcStore',  'StoreOutMaterialController@rcStore')->name($PREFIX.'.materials-out.rcStore');
-					Route::get('/materials-out/rcUpdate/{encId}',  'StoreOutMaterialController@rcUpdate')->name($PREFIX.'.materials-out.rcUpdate');
-
+					
+					Route::get('/materials-out/show/{id}',  'StoreOutMaterialController@show')->name($PREFIX.'.materials-out.show');
 					Route::get('/materials-out/getRecords',  'StoreOutMaterialController@getRecords');
 					Route::post('/materials-out/bulkDelete',  'StoreOutMaterialController@bulkDelete');
 					Route::post('/materials-out/getExistingPlan',  'StoreOutMaterialController@getExistingPlan');
-					Route::get('/materials-out/show/{id}',  'StoreOutMaterialController@show')->name($PREFIX.'.materials-out.show');
-					/*Route::post('/materials-out/send-to-billing/{id}','StoreOutMaterialController@sendToBilling')->name($PREFIX.'.materials-out.send-to-billing');*/
 					Route::post('/materials-out/send-to-sale',  'StoreOutMaterialController@sendToSale');
 					Route::resource('materials-out', 'StoreOutMaterialController', ['as' => $PREFIX]);
-					
-					
+
 				});
-
-				
-
 
 				//Batchwise Summary
 				Route::group(['prefix' => 'batch-summary','middleware' => ['permission:store-batch-wise-report']], function () use($PREFIX)
