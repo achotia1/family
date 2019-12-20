@@ -332,7 +332,14 @@ class StoreOutMaterialController extends Controller
         ])->where('company_id', $companyId)
         ->find($id);
         $this->ViewData['object'] = $outputDetails;
-        return view($this->ModuleView.'showBatchReport', $this->ViewData);
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+             ## CREATE METHOD FOR RC EASTER
+            return view($this->ModuleView.'rcShowBatchReport', $this->ViewData);
+        }else{
+            return view($this->ModuleView.'showBatchReport', $this->ViewData);
+        }
+        //return view($this->ModuleView.'showBatchReport', $this->ViewData);
     }
     public function getRecords(Request $request)
     {

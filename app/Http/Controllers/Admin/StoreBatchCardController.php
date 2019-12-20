@@ -147,8 +147,7 @@ class StoreBatchCardController extends Controller
         $id = base64_decode(base64_decode($encID));
         try {
 
-            $collection = $this->BaseModel->find($id);   
-            
+            $collection = $this->BaseModel->find($id);            
             $collection = self::_storeOrUpdate($collection,$request);
 
             if($collection){

@@ -118,12 +118,13 @@
 									if( $material->lot_id == $returnedMaterial->lot_id)
 										$returned = $returnedMaterial->quantity;								}
 							}
+	                    	
 	                    	$finalWeight = $material->quantity - $returned;	                    	
 	                    	$finalTotal = $finalTotal + $finalWeight;
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
 	                    	$returnedTotal = $returnedTotal + $returned;
-	                    	$returned =  number_format($returned, 2, '.', '');
+	                    	$returned =  number_format($returned, 2, '.', '')." ".$material->mateialName->unit;
 	                    	$amount = ($finalWeight * $material->hasLot->price_per_unit);
 	                    	$amountTotal = $amountTotal + $amount;
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
@@ -175,11 +176,12 @@
 	                    $plannedTotal = number_format($plannedTotal, 2, '.', '');
 	                    $returnedTotal = number_format($returnedTotal, 2, '.', '');
 	                    $amountTotal = number_format($amountTotal, 2, '.', '');
+	                    
 	                    @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td class="text-right"><b>{{$finalTotal}} Kg</b></td>
-	                    	<td class="text-right"><b>{{$plannedTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$finalTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$plannedTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$amountTotal}}</b></td>
 	                    </tr>
@@ -389,6 +391,7 @@
     </div>
 </section>
 @endsection
-@section('scripts')    
+@section('scripts')
+	   
     <script type="text/javascript" src="{{ url('assets/admin/js/materials-out/view.js') }}"></script>
 @endsection
