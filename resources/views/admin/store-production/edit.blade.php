@@ -127,7 +127,6 @@
                             </a>
             	</div>
             </div>
-            @if(!empty($showWastage) && $showWastage==true)
             @if(!empty($production->hasReuseWastage))
             <div class="with-border col-md-12">
                 <h4 class="">Wastage Material Stock</h4>
@@ -178,6 +177,10 @@
                             $balanceVar = 'balance_'.$wastage;
                             $total_balance_qty= $reuseMaterial->$wastage + $reuseMaterial->assignedWastageStock->$balanceVar;
                         }
+                        $wastageLabel = ucfirst($wastage);
+                        if(!empty($rcEsterCompany) && $rcEsterCompany==true && $wastageKey==0){
+                            $wastageLabel = "Unfiltered";
+                        }
 
                     @endphp
                     <td>
@@ -190,7 +193,7 @@
                             onchange="setQuantityLimit({{$k1}});"
                             data-error="Material field is required." 
                         >
-                          <option data-qty="{{ $total_balance_qty }}" value="{{ $reuseMaterial->waste_stock_id.'||'.$wastageKey }}" selected>{{ ucfirst($wastage) }} ({{ $total_balance_qty }})</option>
+                          <option data-qty="{{ $total_balance_qty }}" value="{{ $reuseMaterial->waste_stock_id.'||'.$wastageKey }}" selected>{{ ucfirst($wastageLabel) }} ({{ $total_balance_qty }})</option>
                         </select>
                         <span class="help-block with-errors">
                             <ul class="list-unstyled">
@@ -248,7 +251,7 @@
                 </div>
             </div>
             @endif
-            @endif
+            
 
 
             <div class="box-footer">

@@ -58,6 +58,7 @@ class StoreProductionController extends Controller
         $this->ModuleTitle = 'Production';
         $this->ModuleView  = 'admin.store-production.';
         $this->ModulePath = 'admin.production.';
+
         $this->wastageMaterialRecords = array(
                                                 0=>'Course',
                                                 1=>'Rejection',
@@ -93,11 +94,11 @@ class StoreProductionController extends Controller
 
         $companyId = self::_getCompanyId();
         
-        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        /*$rcester_companyId = config('constants.RCESTERCOMPANY');
         $showWastage = true;
         if($companyId==$rcester_companyId){
             $showWastage = false;
-        }
+        }*/
         // $objStore = new StoreBatchCardModel();
         //$batchNos  = $objStore->getBatchNumbers($companyId,true);
         $batchNos  = $this->StoreBatchCardModel->getBatchNumbers($companyId,true);
@@ -218,6 +219,12 @@ class StoreProductionController extends Controller
 
                 if (!empty($request->wastage) && sizeof($request->wastage) > 0) 
                 {
+                    /*$rcester_companyId = config('constants.RCESTERCOMPANY');
+                    $companyId = self::_getCompanyId();
+                    if($companyId==$rcester_companyId){
+                        $this->wastageMaterialRecords[0] = 'Unfiltered';
+                    }*/
+
                     if( !empty($request->wastage[0]['batch_id']) && !empty($request->wastage[0]['material_id']) && !empty($request->wastage[0]['quantity']) ){
 
                         $collectionReuse = new $this->StoreReuseWastageModel;
@@ -353,9 +360,10 @@ class StoreProductionController extends Controller
         $materialIds = $objMaterial->getLotMaterials($companyId);
 
         $rcester_companyId = config('constants.RCESTERCOMPANY');
-        $showWastage = true;
+        $rcEsterCompany = false;
         if($companyId==$rcester_companyId){
-            $showWastage = false;
+            $rcEsterCompany = true;
+           // $this->wastageMaterialRecords[0] = 'Unfiltered';
         }
 
         ## VIEW FILE WITH DATA
@@ -363,7 +371,8 @@ class StoreProductionController extends Controller
         $this->ViewData['production'] = $data;
         $this->ViewData['wastages'] = $this->wastageMaterialRecords;
         $this->ViewData['batchesHtml'] = $batchesHtml;
-        $this->ViewData['showWastage'] = $showWastage;
+        $this->ViewData['rcEsterCompany'] = $rcEsterCompany;
+        //dd($this->ViewData);
 
         
         return view($this->ModuleView.'edit', $this->ViewData);
@@ -371,6 +380,7 @@ class StoreProductionController extends Controller
 
     public function update(StoreProductionRequest $request, $encID)    
     {
+        //dd($request->all());
         ##Validation for Wastage Material Stock quantity
         if (!empty($request->wastage) && count($request->wastage) > 0){
             foreach ($request->wastage as $wastage){
@@ -399,6 +409,7 @@ class StoreProductionController extends Controller
         $this->JsonData['msg'] = 'Failed to update Branch, Something went wrong on server.';       
 
         $id = base64_decode(base64_decode($encID));
+        $companyId = self::_getCompanyId();
         try {
 
             $collection = $this->BaseModel->find($id);            
@@ -491,7 +502,6 @@ class StoreProductionController extends Controller
                         $outputRec = $materialOutObj->getOutputRec($productionId);
                         if($outputRec){                            
                             $outPutId =  $outputRec->id;
-                            $companyId = self::_getCompanyId();
                             $updateOutput = $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
                             if($updateOutput) 
                             {                            
@@ -503,6 +513,10 @@ class StoreProductionController extends Controller
 
                         if (!empty($request->wastage) && count($request->wastage) > 0) 
                         {
+                            /*$rcester_companyId = config('constants.RCESTERCOMPANY');
+                            if($companyId==$rcester_companyId){
+                                $this->wastageMaterialRecords[0] = 'Unfiltered';
+                            }*/
                             if( !empty($request->wastage[0]['batch_id']) && !empty($request->wastage[0]['material_id']) && !empty($request->wastage[0]['quantity']) )
                             {
                                 $reuse_wastage_id = $request->reuse_wastage_id;
@@ -1174,6 +1188,12 @@ class StoreProductionController extends Controller
                 }
             
                 //dd($batch_selected_val,$material_selected_val,$batch_material);
+                $rcester_companyId = config('constants.RCESTERCOMPANY');
+                $companyCourseOrUnfiltered = 'Course';
+                if($company_id==$rcester_companyId){
+                    $this->wastageMaterialRecords[0] = 'Unfiltered';
+                    $companyCourseOrUnfiltered = 'Unfiltered';
+                }
 
                 $wastageBatchesMaterials = $this->StoreWasteStockModel
                             ->where('store_waste_stock.product_id',$product_id)
@@ -1181,12 +1201,14 @@ class StoreProductionController extends Controller
                             ->where('store_waste_stock.company_id',$company_id)
                             ->get([
                                     'store_waste_stock.id as waste_stock_id',
-                                    'store_waste_stock.balance_course as Course',
+                                    'store_waste_stock.balance_course as '.$companyCourseOrUnfiltered,
                                     'store_waste_stock.balance_rejection as Rejection',
                                     'store_waste_stock.balance_dust as Dust',
                                     'store_waste_stock.balance_loose as Loose',
                                 ]);
 
+                
+                //dd($wastageBatchesMaterials,$this->wastageMaterialRecords,$batch_material);
 
                 foreach($wastageBatchesMaterials as $batchMaterial){
 
@@ -1227,6 +1249,12 @@ class StoreProductionController extends Controller
 
     public function _getWastageBatch($product_id,$company_id){
 
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $companyCourseOrUnfiltered = 'Course';
+        if($company_id==$rcester_companyId){
+            $companyCourseOrUnfiltered = 'Unfiltered';
+        }
+
         $wastageBatchesMaterials = $this->StoreBatchCardModel
                             ->join('store_waste_stock','store_waste_stock.batch_id','=','store_batch_cards.id')
                             ->where('store_waste_stock.product_id',$product_id)
@@ -1235,7 +1263,7 @@ class StoreProductionController extends Controller
                                     'store_batch_cards.id',
                                     'store_batch_cards.batch_card_no',
                                     'store_waste_stock.id as waste_stock_id',
-                                    'store_waste_stock.balance_course as Course',
+                                    'store_waste_stock.balance_course as '.$companyCourseOrUnfiltered,
                                     'store_waste_stock.balance_rejection as Rejection',
                                     'store_waste_stock.balance_dust as Dust',
                                     'store_waste_stock.balance_loose as Loose',
