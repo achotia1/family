@@ -167,7 +167,7 @@ class StoreOutMaterialController extends Controller
             }
         ])->where('company_id', $companyId)
         ->find($id);
-        //dd($data);
+        // dd($data);
         // END ASHVINI
         if(empty($data) || $data->assignedPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.materials-out.index');
@@ -189,7 +189,7 @@ class StoreOutMaterialController extends Controller
     ## RC EASTER UPDATE
     public function rcUpdate(StoreRcOutMaterialRequest $request, $encID)
     {
-        dd('test',$request->all());
+        // dd('test',$request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';        
         $id = base64_decode(base64_decode($encID));
@@ -218,11 +218,11 @@ class StoreOutMaterialController extends Controller
 
     public function update(StoreOutMaterialRequest $request, $encID)
     {
-        dd('update',$request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update record, Something went wrong on server.';        
         $id = base64_decode(base64_decode($encID));
-        //dd($id);
+        // dump('update',$request->all());
+        // dd($id);
         try {
             $collection = $this->BaseModel->find($id);                 
             $collection = self::_storeOrUpdate($collection,$request);
