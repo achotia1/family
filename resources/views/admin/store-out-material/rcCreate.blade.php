@@ -92,7 +92,7 @@
 	                        <span class="required">*</span></label>
 	                    <input 
 	                        type="number" 
-	                        name="unfiltered" 
+	                        name="course_powder" 
 	                        class="form-control" 
 	                        required
 	                        maxlength="20"
@@ -101,12 +101,12 @@
 	                    >
 	                    <span class="help-block with-errors">
 	                        <ul class="list-unstyled">
-	                            <li class="err_unfiltered"></li>
+	                            <li class="err_course_powder"></li>
 	                        </ul>
 	                    </span>
 	                </div>
                 <div class="form-group col-md-6">
-                    <label class="theme-blue">Water Of Rejection
+                    <label class="theme-blue">Water Of Reaction
                         <span class="required">*</span></label>
                     <input 
                         type="number" 
@@ -115,7 +115,7 @@
                         required
                         maxlength="20"
                         step="any"                  
-                        data-error="Rejection should be number." 
+                        data-error="Water Of Reaction should be number." 
                     >
                     <span class="help-block with-errors">
                         <ul class="list-unstyled">

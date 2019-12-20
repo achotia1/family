@@ -231,7 +231,7 @@ class StoreOutMaterialController extends Controller
         $collection->rejection       = $request->rejection;
         $collection->dust_product    = $request->dust_product;
         $collection->loose_material  = $request->loose_material;
-        $collection->unfiltered      = $request->unfiltered;        
+        /*$collection->unfiltered      = $request->unfiltered;*/        
         $collection->status         = 0;
         //dd($collection);     
         ## SAVE DATA

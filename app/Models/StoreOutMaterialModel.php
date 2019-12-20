@@ -107,9 +107,9 @@ class StoreOutMaterialModel extends Model
         ->find($id);
         $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
         if($outputDetails){
-            $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->unfiltered + $outputDetails->rejection;
+            $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->course_powder + $outputDetails->rejection;
             ## FOR RC ONLY WATER OF REJECTION IS UNSELLABLE
-            $totalSellable = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->unfiltered ;
+            $totalSellable = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->course_powder ;
             if(isset($outputDetails->assignedPlan->hasProductionMaterials)){
                 foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
                     if($detail->mateialName->material_type == 'Raw'){
