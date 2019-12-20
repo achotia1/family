@@ -19,7 +19,7 @@
                         id="plan_id" 
                         name="plan_id"
                         >                    
-                    <option value="{{$material->id}}">{{$material->assignedPlan->assignedBatch->batch_card_no}} ({{$material->assignedPlan->assignedBatch->assignedProduct->code}} - {{$material->assignedPlan->assignedBatch->assignedProduct->name}})</option>
+                    <option value="{{$material->plan_id}}">{{$material->assignedPlan->assignedBatch->batch_card_no}} ({{$material->assignedPlan->assignedBatch->assignedProduct->code}} - {{$material->assignedPlan->assignedBatch->assignedProduct->name}})</option>
                     
                 </select>                
                 <span class="help-block with-errors">
