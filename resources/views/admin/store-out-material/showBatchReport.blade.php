@@ -65,12 +65,13 @@
     <div class="box">
         <div class="box-body">
         	<div class="table-responsive"  id="tblPrint">
-        		<button class="btn btn-primary mt-5 history-btn pull-right" onclick="window.history.back()">Back</button>
+        		<button class="btn btn-primary mt-5 history-btn pull-right" onclick="window.history.back()">Back</button> 
+        		
                 <table class="table" border="1px;">
-                    <tbody>
-	                    <tr class="trExpense">
+                    <tbody> 
+	                    <tr class="trExpense" style="text-align: center;">
 	                        <td colspan="7" class="title"><b>Batch Card Details</b>
-	                        
+	                       
 	                        </td>
 	                    </tr>
 	                    <tr>	                    	
@@ -82,7 +83,7 @@
 	                    	<td colspan="4">	                    	
 	                    	{{$object->assignedPlan->assignedBatch->assignedProduct->code}} ({{$object->assignedPlan->assignedBatch->assignedProduct->name}})	
 	                    	</td>
-	                    </tr>	                                     
+	                    </tr>	               	                    
 	                    <tr>
                             <td colspan="7"></td>
                         </tr>
@@ -117,12 +118,13 @@
 									if( $material->lot_id == $returnedMaterial->lot_id)
 										$returned = $returnedMaterial->quantity;								}
 							}
+	                    	
 	                    	$finalWeight = $material->quantity - $returned;	                    	
 	                    	$finalTotal = $finalTotal + $finalWeight;
 	                    	
 	                    	$plannedTotal = $plannedTotal + $material->quantity;
 	                    	$returnedTotal = $returnedTotal + $returned;
-	                    	$returned =  number_format($returned, 2, '.', '');
+	                    	$returned =  number_format($returned, 2, '.', '')." ".$material->mateialName->unit;
 	                    	$amount = ($finalWeight * $material->hasLot->price_per_unit);
 	                    	$amountTotal = $amountTotal + $amount;
 	                    	$finalWeight = number_format($finalWeight, 2, '.', '')." ".$material->mateialName->unit;
@@ -174,11 +176,12 @@
 	                    $plannedTotal = number_format($plannedTotal, 2, '.', '');
 	                    $returnedTotal = number_format($returnedTotal, 2, '.', '');
 	                    $amountTotal = number_format($amountTotal, 2, '.', '');
+	                    
 	                    @endphp
                         <tr>	                    	
 	                    	<td colspan="3"></td>
-	                    	<td class="text-right"><b>{{$finalTotal}} Kg</b></td>
-	                    	<td class="text-right"><b>{{$plannedTotal}} Kg</b></td>
+	                    	<td class="text-right"><b>{{$finalTotal}}</b></td>
+	                    	<td class="text-right"><b>{{$plannedTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$returnedTotal}}</b></td>
 	                    	<td class="text-right"><b>{{$amountTotal}}</b></td>
 	                    </tr>
@@ -241,25 +244,26 @@
                         $sellableQty = number_format($object->sellable_qty, 2, '.', '');
                         $cost_per_unit = 0;
                         if($sellableQty > 0){
-                        	$cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
-                        }
+							$cost_per_unit = ($amountTotal + $pamountTotal)/$sellableQty;
+						}                        
                         $cost_per_unit = number_format($cost_per_unit, 2, '.', '');
                         $coursePowder = number_format($object->course_powder, 2, '.', '');
 	                    $rejection = number_format($object->rejection, 2, '.', '');
-	                    $dustProduct = number_format($object->dust_product, 2, '.', '');	                    $looseProduct = number_format($object->loose_material, 2, '.', '');
-	                    
+	                    $dustProduct = number_format($object->dust_product, 2, '.', '');
+	                    $looseProduct = number_format($object->loose_material, 2, '.', '');                    
 	                    $wasteageWeight = $object->sellable_qty + $object->course_powder + $object->rejection + $object->dust_product + $object->loose_material;
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
+            			
             			$lossPer = $yield = $coursePer = $rejectionPer = $dustPer = $loosePer = 0;
             			if($finalTotal > 0){
-	            			$lossPer = ($lossMaterial/$finalTotal) * 100;
-	            			$yield = ($object->sellable_qty/$finalTotal) * 100;	
+							$lossPer = ($lossMaterial/$finalTotal) * 100;
+	            			$yield = ($object->sellable_qty/$finalTotal) * 100;
 							$coursePer = ($object->course_powder/$finalTotal) * 100;
 							$rejectionPer = ($object->rejection/$finalTotal) * 100;
 							$dustPer = ($object->dust_product/$finalTotal) * 100;
-							$loosePer = ($object->loose_material/$finalTotal) * 100;
+							$loosePer = ($object->loose_material/$finalTotal) * 100;	
 						}
-						
+            									
 						$yield = number_format($yield, 2, '.', '');
 						$lossPer = number_format($lossPer, 2, '.', '');
 						$coursePer = number_format($coursePer, 2, '.', '');
@@ -317,7 +321,7 @@
 	                    	{{$dustPer}}%
 	                    	</td>
 	                    </tr>
-	                     <tr>	                    	
+	                    <tr>	                    	
 	                    	<td class="w-90-px"><b>Loose Material :</b></td>
 	                    	<td>	                    	
 	                    	{{$looseProduct}}
@@ -350,6 +354,7 @@
     </div>
 </section>
 @endsection
-@section('scripts')    
+@section('scripts')
+	   
     <script type="text/javascript" src="{{ url('assets/admin/js/materials-out/view.js') }}"></script>
 @endsection

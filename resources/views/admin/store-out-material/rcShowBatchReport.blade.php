@@ -331,43 +331,6 @@
                     </tbody>
                 </table>
             </div>
-                 
-            @php            
-            if($object->status == 0){
-            	$btnLable = 'Send To Sale';
-            	$batchStatus = 'send';
-            if($sellableQty > 0){
-            @endphp
-            <div class="form-group col-md-9" id="send-chk">                
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="status" value="1" id="chk-status">
-                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to send to Sales Stock. After sending this to sales stock you can not edit this batch records again.</b></span>
-                    </label>
-                </div>  
-            </div>
-            @php
-            } else {
-            	$btnLable = 'Close';
-            	$batchStatus = 'close';
-			@endphp
-			<div class="form-group col-md-9" id="send-chk">                
-                <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="status" value="1" id="chk-status">
-                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to close it. After closing, you can not edit this batch records again.</b></span>
-                    </label>
-                </div>  
-            </div>
-			@php	
-			}
-            @endphp
-            <div class="form-group col-md-3" id="send-section">            	
-            	<a href="javascript:void(0)" class="btn btn-primary pull-right" data-batch = "{{$object->assignedPlan->batch_id}}" id = "{{$object->id}}" data-product = "{{$object->assignedPlan->assignedBatch->product_code}}" data-cost = "{{$cost_per_unit}}" data-quantity = "{{$object->sellable_qty}}" data-course = "{{$object->course_powder}}" data-rejection = "0" data-dust = "0" data-loose = "{{$object->loose_material}}" data-bstatus = "{{$batchStatus}}" onclick="return sendToBilling(this)">{{$btnLable}}</a>
-            </div>
-            @php
-            }
-            @endphp    
         </div>
     </div>
 </section>
