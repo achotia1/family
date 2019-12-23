@@ -62,7 +62,8 @@ class DashboardController extends Controller
                                 /*->whereHas('roles', function($query) {
                                     $query->where('name', '=','customer');
                                 })*/
-                             // ->where('users.company_id',$company_id)
+                             ->where('store_users.company_id',$company_id)
+                             ->Orwhere('store_users.company_id',0)
                              ->whereStatus(1)
                              ->count();
         // dd($usersCount);
