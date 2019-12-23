@@ -29,9 +29,17 @@
                         <th style="display: none"></th>                        
                         <th class="w-160-px">Batch Code</th>
                         <th class="w-160-px">Product</th>
-                        <th class="w-100-px">Course Stock</th>
-                        <th class="w-100-px">Rejection Stock</th>
-                        <th class="w-100-px">Dust Stock</th>
+                        <th class="w-100-px">
+                            @if(!empty($rcesterCompany) && $rcesterCompany==true)
+                                Unfiltered Stock
+                            @else
+                                Course Stock
+                            @endif
+                        </th>
+                        <th class="w-100-px" style="@if(!empty($rcesterCompany) && $rcesterCompany==true) display: none; @endif">
+                                Rejection Stock
+                        </th>
+                        <th class="w-100-px" style="@if(!empty($rcesterCompany) && $rcesterCompany==true) display: none; @endif">Dust Stock</th>
                         <th class="w-100-px">Loose Stock</th>                        
                         <th class="w-180-px">Actions</th>                        
                     </tr>
