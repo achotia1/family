@@ -67,7 +67,7 @@ class StoreInMaterialController extends Controller
         $company_id = self::_getCompanyId();
 
         //$objLot = new StoreBatchCardModel;
-        $lotNo = $this->BaseModel->geLotNo();
+        $lotNo = $this->BaseModel->geLotNo($company_id);
         $this->ViewData['lotNo']   = $lotNo;
 
         $objMaterial = new StoreRawMaterialModel;
