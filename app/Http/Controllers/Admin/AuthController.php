@@ -218,7 +218,7 @@ class AuthController extends Controller
             
             $userCollection = $this->BaseModel->where('email',$email)->first();
              //dd($userCollection);
-            
+            $company = "";
             if (!empty($userCollection)) 
             {
                 if (!$userCollection->status) 
@@ -257,7 +257,7 @@ class AuthController extends Controller
                     }
 
                 }
-                 
+                // dd($company);
                  $userCollection->company = $company;
                 // dd($request->all(),$userCollection,$company);
 

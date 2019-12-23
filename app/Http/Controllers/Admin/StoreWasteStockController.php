@@ -44,13 +44,13 @@ class StoreWasteStockController extends Controller
 
     public function index()
     {
-        $companyId = self::_getCompanyId();
+        /*$companyId = self::_getCompanyId();
         $rcester_companyId = config('constants.RCESTERCOMPANY');
         $showWastage = true;
         if($companyId==$rcester_companyId){
             $showWastage = false;
             return redirect()->route('admin.dashboard');
-        }
+        }*/
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
@@ -276,12 +276,12 @@ public function correctBalance($encID)
         $this->ViewData['modulePath']   = $this->ModulePath;        
         $companyId = self::_getCompanyId();
 
-        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        /*$rcester_companyId = config('constants.RCESTERCOMPANY');
         $showWastage = true;
         if($companyId==$rcester_companyId){
             $showWastage = false;
             return redirect()->route('admin.dashboard');
-        }
+        }*/
         
         $data = $this->BaseModel->with([
             'assignedBatch', 'assignedProduct'           
