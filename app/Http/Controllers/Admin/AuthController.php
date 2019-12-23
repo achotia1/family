@@ -81,11 +81,14 @@ class AuthController extends Controller
             $this->ViewData['moduleAction'] = 'USER LOG IN';
             $this->ViewData['modulePath']   = $this->ModulePath.'login';
             $this->ViewData['encodedCompanyId']   = $encId;
+            $this->ViewData['company'] = "";
+            if(!empty($encId)){
 
-            $this->ViewData['company'] = $this->CompanyModel
-                                            ->where('id', base64_decode($encId))
-                                            ->whereStatus(1)
-                                            ->first();
+                $this->ViewData['company'] = $this->CompanyModel
+                                                ->where('id', base64_decode($encId))
+                                                ->whereStatus(1)
+                                                ->first();
+            }
            // dd($company);
             //dd($request->all(),$encId,$this->ViewData);
             
@@ -192,6 +195,14 @@ class AuthController extends Controller
             $this->ViewData['moduleAction'] = 'FORGOT PASSWORD';
             $this->ViewData['modulePath']   = $this->ModulePath.'forgot.password';
             $this->ViewData['encId']   = $encId;
+            $this->ViewData['company'] = "";
+            if(!empty($encId)){
+
+                $this->ViewData['company'] = $this->CompanyModel
+                                                ->where('id', base64_decode($encId))
+                                                ->whereStatus(1)
+                                                ->first();
+            }
 
             return view($this->ModuleView.'forgot-password', $this->ViewData);
         }
