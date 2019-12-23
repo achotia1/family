@@ -15,6 +15,7 @@ class StoreOpeningStockRequest extends FormRequest
 
 	public function rules()
 	{          
+		$companyId = self::_getCompanyId();
 		return [                
 			'product_code'     => 'required',
 			'batch_card_no'  => 'required|unique:store_batch_cards,batch_card_no,NULL,id,deleted_at,NULL,company_id,'.$companyId,        
