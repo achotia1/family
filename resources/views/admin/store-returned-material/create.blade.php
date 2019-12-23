@@ -15,7 +15,7 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" 
+                <select class="form-control my-select select2" 
                  id="plan_id"
                  name="plan_id" 
                  required="" 
@@ -83,7 +83,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_material" 
+                            class="form-control my-select select2 production_material" 
                             placeholder="All Materials"
                             name="returned[0][material_id]"
                             id="material_0"
@@ -108,7 +108,7 @@
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_lot" 
+                            class="form-control my-select select2 production_lot" 
                             placeholder="Material Lots"
                             name="returned[0][lot_id]"
                             onchange="setQuantityLimit(0);"

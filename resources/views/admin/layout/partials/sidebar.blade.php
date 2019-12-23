@@ -296,6 +296,11 @@
               <a href="{{ route('admin.sale-stock.index') }}"><i class="fa fa-hand-o-right"></i> View Stock</a>
             </li>            
             @endcan 
+            @can('store-stock-add')
+            <li class="{{ active('admin/sale-stock/create') }}">
+              <a href="{{ route('admin.sale-stock.create') }}"><i class="fa fa-hand-o-right"></i> Add Opening Stock</a>
+            </li>            
+            @endcan 
           </ul>
         </li>
          @endcan 

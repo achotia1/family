@@ -97,7 +97,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select products" 
+                            class="form-control my-select select2 products" 
                             placeholder="All Products"
                             name="sales[0][product_id]"
                             id="product_0"
@@ -122,7 +122,7 @@
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select batch_id" 
+                            class="form-control my-select select2 batch_id" 
                             placeholder="All Batches"
                             name="sales[0][batch_id]"
                             onchange="setQuantityLimit(0);"

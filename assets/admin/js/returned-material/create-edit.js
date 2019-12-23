@@ -52,7 +52,7 @@ function addPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_material" 
+                            class="form-control my-select select2 production_material" 
                             placeholder="All Materials"                            
                             name="returned[${counter}][material_id]"
                             id="material_${counter}"
@@ -70,7 +70,7 @@ function addPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_lot" 
+                            class="form-control my-select select2 production_lot" 
                             placeholder="Material Lots"
                             name="returned[${counter}][lot_id]"
                             required
@@ -118,6 +118,7 @@ function addPlan()
     } else {        
         $(plan_area).insertAfter($(".heading-tr:last"));    
     }
+    $('.select2').select2();
     $(".add_plan_area").validator();
 }
 

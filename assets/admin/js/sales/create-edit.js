@@ -29,7 +29,7 @@ function addPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select products" 
+                            class="form-control my-select select2 products" 
                             placeholder="All Products"
                             name="sales[${counter}][product_id]"
                             id="product_${counter}"
@@ -49,7 +49,7 @@ function addPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select batch_id" 
+                            class="form-control my-select select2 batch_id" 
                             placeholder="All Batches"
                             name="sales[${counter}][batch_id]"
                             onchange="setQuantityLimit(${counter});"
@@ -118,6 +118,7 @@ function addPlan()
     } else {        
         $(plan_area).insertAfter($(".heading-tr:last"));    
     }
+    $('.select2').select2();
     $(".add_plan_area").validator();
     
 }

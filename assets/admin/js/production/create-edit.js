@@ -98,7 +98,7 @@ function addPlan()
                     <td>
                     	<div class="form-group"> 
                         <select 
-                            class="form-control my-select production_material" 
+                            class="form-control my-select select2 production_material" 
                             placeholder="All Materials"                            
                             name="production[${counter}][material_id]"
                             id="${counter}"
@@ -117,7 +117,7 @@ function addPlan()
                     <td>
                     	<div class="form-group"> 
                         <select 
-                            class="form-control my-select production_lot" 
+                            class="form-control my-select select2 production_lot" 
                             placeholder="Material Lots"
                             name="production[${counter}][lot_id]"
                             required
@@ -158,6 +158,7 @@ function addPlan()
 	} else {		
 		$(plan_area).insertAfter($(".heading-tr:last"));	
 	}
+    $('.select2').select2();
         
 }
 function deletePlan(element,className)
@@ -335,7 +336,7 @@ function addWastageStockPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_batch" 
+                            class="form-control my-select select2 wastage_batch" 
                             placeholder="All Batches"             
                             name="wastage[${counter}][batch_id]"
                             id="wastage_${counter}"
@@ -351,7 +352,7 @@ function addWastageStockPlan()
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_material" 
+                            class="form-control my-select select2 wastage_material" 
                             placeholder="Material"
                             name="wastage[${counter}][material_id]"
                             id="m_wastage_${counter}"
@@ -401,6 +402,7 @@ function addWastageStockPlan()
     } else {        
         $(add_wastage_area).insertAfter($(".heading-wastage-tr:last"));    
     }
+    $('.select2').select2();
     $(".add_wastage_area").validator();   
 }
 

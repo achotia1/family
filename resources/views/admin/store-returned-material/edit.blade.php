@@ -16,7 +16,7 @@
             <div class="form-group col-md-6">
                 <label class="theme-blue"> 
                 Batch Code <span class="required">*</span></label>
-                <select class="form-control my-select" id="plan_id" name="plan_id" required="" data-error="Batch Code field is required.">  
+                <select class="form-control my-select select2" id="plan_id" name="plan_id" required="" data-error="Batch Code field is required.">  
                 <option value="{{$return_material->plan_id}}">{{ $return_material->assignedProductionPlan->assignedBatch->batch_card_no." (".$return_material->assignedProductionPlan->assignedBatch->assignedProduct->code." - ".$return_material->assignedProductionPlan->assignedBatch->assignedProduct->name.")" }}</option>                  
                 </select>                
                 <span class="help-block with-errors">
@@ -73,7 +73,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_material" 
+                            class="form-control my-select select2 production_material" 
                             placeholder="All Materials"
                             name="returned[{{$k}}][material_id]"
                             id="material_{{$k}}"
@@ -110,7 +110,7 @@
 
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_lot" 
+                            class="form-control my-select select2 production_lot" 
                             placeholder="Material Lots"
                             name="returned[{{$k}}][lot_id]"
                             onchange="setQuantityLimit({{$k}});"

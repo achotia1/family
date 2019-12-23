@@ -53,7 +53,7 @@
                         <input type="hidden" class="production-id" name="production[{{$k}}][id]" value="{{ $material->id }}" >
                         	<div class="form-group"> 
 	                        <select 
-	                            class="form-control my-select production_material" 
+	                            class="form-control my-select select2 production_material" 
 	                            placeholder="All Materials"
 	                            name="production[{{$k}}][material_id]"
 	                            id="{{$k}}"	                            
@@ -74,7 +74,7 @@
                         <td>
                         	<div class="form-group"> 
 	                        <select 
-	                            class="form-control my-select production_lot" 
+	                            class="form-control my-select select2 production_lot" 
 	                            placeholder="Material Lots"
 	                            name="production[{{$k}}][lot_id]"
 	                            id="l_{{$k}}"	                            
@@ -152,7 +152,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_batch" 
+                            class="form-control my-select select2 wastage_batch" 
                             placeholder="All Batches"
                             name="wastage[{{$k1}}][batch_id]"
                             id="wastage_{{$k1}}"
@@ -186,7 +186,7 @@
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_material" 
+                            class="form-control my-select select2 wastage_material" 
                             placeholder="Material"
                             name="wastage[{{$k1}}][material_id]"
                             id="m_wastage_{{$k1}}"
