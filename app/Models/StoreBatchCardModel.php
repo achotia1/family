@@ -51,13 +51,13 @@ class StoreBatchCardModel extends Model
 
     public function getBatchCardNo($companyId) {
         
-        /*$todaysRecords = self::where('status', 1)
+        $todaysRecords = self::where('status', 1)
                             ->where('company_id', $companyId)
                             ->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')
-                            ->first();*/
-        $todaysRecords = self::where('company_id', $companyId)
-                            ->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')
                             ->first();
+        /*$todaysRecords = self::where('company_id', $companyId)
+                            ->whereDate('created_at', Carbon::today())->orderBy('id', 'desc')
+                            ->first();*/
         $cardNoArr[0] = 0;
         $numRecord = sprintf("%02d", 1);
         if(!empty($todaysRecords)){
