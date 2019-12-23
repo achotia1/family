@@ -206,6 +206,11 @@ class AuthController extends Controller
 
             return view($this->ModuleView.'forgot-password', $this->ViewData);
         }
+
+        public function exist_image($url){
+            $result=get_headers($url);
+            return stripos($result[0],"200 OK")?true:false; //check if $result[0] has 200 OK
+         }
         
         public function forgotPasswordSubmit(ForgotPasswordRequest $request,$encId=false)
         {
@@ -240,20 +245,27 @@ class AuthController extends Controller
                     $company = self::_getCompanyDetails($userCollection->company_id);
                     $company->company_url = url('/');
                     $company->adminmail = config('constants.ADMINEMAIL');
-                    if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
+                   /* if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
                         $company->logo = url('storage/app/'.$company->logo);
                     }else{
                         $company->logo = url('assets/admin/images/logo.jpg');
+                    }*/
+                    if(!empty($company->logo) && self::exist_image(config('constants.COMPANYURL').'storage/app/'.$company->logo))
+                    {
+                       $company->logo = config('constants.COMPANYURL').'storage/app/'.$company->logo;
+                    }else{
+                       $company->logo = url('assets/admin/images/logo.jpg');
                     }
                 }elseif(!empty($encId)){
 
                     $company = self::_getCompanyDetails(base64_decode($encId));
                     $company->company_url = url('/');
                     $company->adminmail = config('constants.ADMINEMAIL');
-                    if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
-                        $company->logo = url('storage/app/'.$company->logo);
+                    if(!empty($company->logo) && self::exist_image(config('constants.COMPANYURL').'storage/app/'.$company->logo))
+                    {
+                       $company->logo = config('constants.COMPANYURL').'storage/app/'.$company->logo;
                     }else{
-                        $company->logo = url('assets/admin/images/logo.jpg');
+                       $company->logo = url('assets/admin/images/logo.jpg');
                     }
 
                 }

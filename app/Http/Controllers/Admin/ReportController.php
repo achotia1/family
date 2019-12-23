@@ -140,10 +140,14 @@ class ReportController extends Controller
                                             ->whereDate('store_batch_cards.created_at','=',$start_date);
 
                     }else{
+                        // $modelQuery = $modelQuery
+                        //                 ->whereBetween('store_batch_cards.created_at', 
+                        //                 array($start_date,$end_date));
+
                         $modelQuery = $modelQuery
-                                        ->whereBetween('store_batch_cards.created_at', 
-                                        array($start_date,$end_date));
-                    }
+                                        ->whereDate('store_batch_cards.created_at','>=',$start_date)
+                                        ->whereDate('store_batch_cards.created_at','<=',$end_date);
+                    }                       
 
                 
 
@@ -507,9 +511,12 @@ class ReportController extends Controller
                                             ->whereDate('store_sale_invoice.invoice_date','=',$start_date);
 
                     }else{
-                        $modelQuery = $modelQuery
-                                        ->whereBetween('store_sale_invoice.invoice_date', 
-                                        array($start_date,$end_date));
+                        // $modelQuery = $modelQuery
+                        //                 ->whereBetween('store_sale_invoice.invoice_date', 
+                        //                 array($start_date,$end_date));
+                        $modelQuery  = $modelQuery
+                                            ->whereDate('store_sale_invoice.invoice_date','>=',$start_date)
+                                            ->whereDate('store_sale_invoice.invoice_date','<=',$end_date);
                     }            
 
                 } else if(!empty($request->custom['from-date']) && empty($request->custom['to-date'])) 
@@ -893,9 +900,12 @@ class ReportController extends Controller
                                             ->whereDate('store_in_materials.balance_corrected_at','=',$start_date);
 
                     }else{
-                        $modelQuery = $modelQuery
-                                        ->whereBetween('store_in_materials.balance_corrected_at', 
-                                        array($start_date,$end_date));
+                        // $modelQuery = $modelQuery
+                        //                 ->whereBetween('store_in_materials.balance_corrected_at', 
+                        //                 array($start_date,$end_date));
+                        $modelQuery  = $modelQuery
+                                            ->whereDate('store_in_materials.balance_corrected_at','>=',$start_date)
+                                            ->whereDate('store_in_materials.balance_corrected_at','<=',$end_date);
                     }
 
                 
@@ -1239,9 +1249,12 @@ class ReportController extends Controller
                                             ->whereDate('store_sales_stock.balance_corrected_at','=',$start_date);
 
                     }else{
-                        $modelQuery = $modelQuery
-                                        ->whereBetween('store_sales_stock.balance_corrected_at', 
-                                        array($start_date,$end_date));
+                        // $modelQuery = $modelQuery
+                        //                 ->whereBetween('store_sales_stock.balance_corrected_at', 
+                        //                 array($start_date,$end_date));
+                         $modelQuery  = $modelQuery
+                                            ->whereDate('store_sales_stock.balance_corrected_at','>=',$start_date)
+                                            ->whereDate('store_sales_stock.balance_corrected_at','<=',$end_date);
                     }
 
                 
