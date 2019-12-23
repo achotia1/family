@@ -51,7 +51,7 @@ class StoreInMaterialModel extends Model
     public function geLotNo($company_id) {
 
         $todaysRecords = self::where('status', 1)
-                            ->where('company_id', $companyId)
+                            ->where('company_id', $company_id)
                             ->whereDate('created_at', Carbon::today())
                             ->orderBy('id', 'desc')
                             ->first();
