@@ -141,7 +141,20 @@
       @endif
    </div>
 </div>
+   <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+  <footer class="main-footer" style="text-align: center;">
+    <!-- <div class="pull-right hidden-xs">
+      <b>Version</b> 2.4.18
+    </div> -->
+    <strong>Copyright &copy; 2019-{{ date("Y",time()) }} <a href="{{ url('/admin') }}">RCEsterStore</a>.</strong> All rights
+    reserved.
+  </footer>
+
+</div>
+</body>
+</html>
 @section('scripts')
 <!-- <script type="text/javascript" src="{{ url('assets/admin/js/auth/login.js') }}"></script> -->
 @endsection
-@include('admin.layout.partials.footer')
