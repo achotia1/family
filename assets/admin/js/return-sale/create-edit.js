@@ -174,7 +174,10 @@ function loadBatches(sel)
     var selected_val=[];
     $(".batch_id").each(function(){
         if(this.value!=""){
-            selected_val.push(this.value);
+            var str = this.value;
+            var res = str.split("||");
+
+            selected_val.push(res[0]);
         }
     });  
 
