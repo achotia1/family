@@ -1,8 +1,8 @@
 <?php
 
-Route::get('/adminLte', function(){
+/*Route::get('/adminLte', function(){
 	return view('adminLte');
-});
+});*/
 
 Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'], function ()
 {

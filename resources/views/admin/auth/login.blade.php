@@ -55,7 +55,8 @@
         
         <div class="row">
             <div class="col-xs-8">
-                <div class="checkbox">
+                 <a href="{{ route('admin.auth.forgot.password',[$encodedCompanyId]) }}">Forgot Password</a><br>
+                <!-- <div class="checkbox">
                     <label>
                         <input type="checkbox"
                                 class="" 
@@ -67,8 +68,8 @@
                             <span class="checkmark"></span>
                             Remember Me
                         </label>
-                    </label>
-                </div>
+                    
+                </div> -->
             </div>
             <div class="col-xs-4">
                 <button type="submit" id="btnLogin" value="Login" class="btn btn-primary btn-block btn-flat">Sign In</button>
@@ -79,7 +80,7 @@
 
     <!-- /.social-auth-links -->
 
-    <a href="{{ route('admin.auth.forgot.password',[$encodedCompanyId]) }}">I forgot my password</a><br>
+   <!--  <a href="{{ route('admin.auth.forgot.password',[$encodedCompanyId]) }}">I forgot my password</a><br> -->
     <!-- <a href="register.html" class="text-center">Register a new membership</a> -->
 
   </div>

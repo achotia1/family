@@ -57,6 +57,10 @@ style="padding: 40px 0px 20px;">
                   </p><br>
                   Regards,<br>
 
+                   {{  $user->company->name??"" }} <br>
+                    <a target="_blank" href="{{  $user->company->company_url }}">{{  $user->company->company_url }}</a><br>
+                    </td>
+
                    
               </tr>
         </tr>

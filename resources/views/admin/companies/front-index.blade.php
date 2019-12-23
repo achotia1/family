@@ -7,7 +7,7 @@
    <meta name="admin-path" content="{{ url('/admin') }}">
    <meta name="base-path" content="{{ url('/') }}">
    <meta name="csrf-token" content="{{ csrf_token() }}">
-   <title> Companies | Orchid</title>
+   <title> Companies | RCEsterStore</title>
    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i"
    rel="stylesheet">
    <script src="{{ asset('assets/common/js/jquery.min.js') }}"></script>

@@ -62,7 +62,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select production_material" 
+                            class="form-control my-select select2 production_material" 
                             placeholder="All Materials"
                             name="production[0][material_id]"
                             id="0"
@@ -87,7 +87,7 @@
                     <td>
                     	<div class="form-group"> 
                         <select 
-                            class="form-control my-select production_lot" 
+                            class="form-control my-select select2 production_lot" 
                             placeholder="Material Lots"
                             name="production[0][lot_id]"
                             id="l_0"
@@ -155,7 +155,7 @@
                     <td>
                     <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_batch" 
+                            class="form-control my-select select2 wastage_batch" 
                             placeholder="All Batches"
                             name="wastage[0][batch_id]"
                             id="wastage_0"
@@ -175,7 +175,7 @@
                     <td>
                         <div class="form-group"> 
                         <select 
-                            class="form-control my-select wastage_material" 
+                            class="form-control my-select select2 wastage_material" 
                             placeholder="Material"
                             name="wastage[0][material_id]"
                             id="m_wastage_0"

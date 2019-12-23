@@ -81,11 +81,14 @@ class AuthController extends Controller
             $this->ViewData['moduleAction'] = 'USER LOG IN';
             $this->ViewData['modulePath']   = $this->ModulePath.'login';
             $this->ViewData['encodedCompanyId']   = $encId;
+            $this->ViewData['company'] = "";
+            if(!empty($encId)){
 
-            $this->ViewData['company'] = $this->CompanyModel
-                                            ->where('id', base64_decode($encId))
-                                            ->whereStatus(1)
-                                            ->first();
+                $this->ViewData['company'] = $this->CompanyModel
+                                                ->where('id', base64_decode($encId))
+                                                ->whereStatus(1)
+                                                ->first();
+            }
            // dd($company);
             //dd($request->all(),$encId,$this->ViewData);
             
@@ -192,9 +195,22 @@ class AuthController extends Controller
             $this->ViewData['moduleAction'] = 'FORGOT PASSWORD';
             $this->ViewData['modulePath']   = $this->ModulePath.'forgot.password';
             $this->ViewData['encId']   = $encId;
+            $this->ViewData['company'] = "";
+            if(!empty($encId)){
+
+                $this->ViewData['company'] = $this->CompanyModel
+                                                ->where('id', base64_decode($encId))
+                                                ->whereStatus(1)
+                                                ->first();
+            }
 
             return view($this->ModuleView.'forgot-password', $this->ViewData);
         }
+
+        public function exist_image($url){
+            $result=get_headers($url);
+            return stripos($result[0],"200 OK")?true:false; //check if $result[0] has 200 OK
+         }
         
         public function forgotPasswordSubmit(ForgotPasswordRequest $request,$encId=false)
         {
@@ -207,7 +223,7 @@ class AuthController extends Controller
             
             $userCollection = $this->BaseModel->where('email',$email)->first();
              //dd($userCollection);
-            
+            $company = "";
             if (!empty($userCollection)) 
             {
                 if (!$userCollection->status) 
@@ -229,24 +245,31 @@ class AuthController extends Controller
                     $company = self::_getCompanyDetails($userCollection->company_id);
                     $company->company_url = url('/');
                     $company->adminmail = config('constants.ADMINEMAIL');
-                    if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
+                   /* if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
                         $company->logo = url('storage/app/'.$company->logo);
                     }else{
                         $company->logo = url('assets/admin/images/logo.jpg');
+                    }*/
+                    if(!empty($company->logo) && self::exist_image(config('constants.COMPANYURL').'storage/app/'.$company->logo))
+                    {
+                       $company->logo = config('constants.COMPANYURL').'storage/app/'.$company->logo;
+                    }else{
+                       $company->logo = url('assets/admin/images/logo.jpg');
                     }
                 }elseif(!empty($encId)){
 
                     $company = self::_getCompanyDetails(base64_decode($encId));
                     $company->company_url = url('/');
                     $company->adminmail = config('constants.ADMINEMAIL');
-                    if(!empty($company->logo) && is_file(storage_path().'/app/'.$company->logo)){
-                        $company->logo = url('storage/app/'.$company->logo);
+                    if(!empty($company->logo) && self::exist_image(config('constants.COMPANYURL').'storage/app/'.$company->logo))
+                    {
+                       $company->logo = config('constants.COMPANYURL').'storage/app/'.$company->logo;
                     }else{
-                        $company->logo = url('assets/admin/images/logo.jpg');
+                       $company->logo = url('assets/admin/images/logo.jpg');
                     }
 
                 }
-                 
+                // dd($company);
                  $userCollection->company = $company;
                 // dd($request->all(),$userCollection,$company);
 

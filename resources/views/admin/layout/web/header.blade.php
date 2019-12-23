@@ -1,9 +1,9 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>@yield('title') | Orchid Store</title>
+  <title>@yield('title') @if(!empty($company)) | {{ str_replace(" ","",$company->name) }}Store  @endif</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport') }}">
   <!-- Bootstrap 3.3.7 -->
@@ -31,5 +31,7 @@
 <body class="hold-transition login-page">
   <div class="login-box">
   <div class="login-logo">
-    <a href="javascript:void(0)"><b>{{ $company->name ?? 'Orchid' }}</b>Store</a>
+    @if(!empty($company))
+    <a href="javascript:void(0)"><b>{{ str_replace(" ","",$company->name) }}</b>Store</a>
+    @endif
   </div>

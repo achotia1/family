@@ -249,14 +249,6 @@
         </li>
          @endcan 
         <!-- end output material -->
-        @php
-         $rcester_companyId = config('constants.RCESTERCOMPANY');
-         $showWastage = true;
-          if($company->id==$rcester_companyId){
-              $showWastage = false;
-          }
-        @endphp
-        @if(!empty($showWastage) && $showWastage==true)
         <!-- wastage material -->
         @can('store-manage-wastage-material')
         <li class="treeview {{ active(['admin/wastage-material', 'admin/wastage-material/*']) }}">
@@ -276,8 +268,6 @@
           </ul>
         </li>
          @endcan 
-         @endif
-         
         <!-- end wastage material -->
         
         <!-- stock -->
@@ -294,6 +284,11 @@
            @can('store-stock-listing')
             <li class="{{ active('admin/sale-stock') }}">
               <a href="{{ route('admin.sale-stock.index') }}"><i class="fa fa-hand-o-right"></i> View Stock</a>
+            </li>            
+            @endcan 
+            @can('store-stock-add')
+            <li class="{{ active('admin/sale-stock/create') }}">
+              <a href="{{ route('admin.sale-stock.create') }}"><i class="fa fa-hand-o-right"></i> Add Opening Stock</a>
             </li>            
             @endcan 
           </ul>
