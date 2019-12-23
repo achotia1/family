@@ -64,7 +64,7 @@ class StoreRawMaterialModel extends Model
             }]);  
         }
         
-        $lotmaterialIds = $modelQuery->get(['id','name'])->toArray();        
+        $lotmaterialIds = $modelQuery->orderBy('store_raw_materials.name', 'ASC')->get(['id','name'])->toArray();        
         foreach($lotmaterialIds as $mval){
             if(!empty($mval['has_in_materials'])){
                 $balanceMaterials[$mval['id']]['id'] = $mval['id']; //$mval['name'];
