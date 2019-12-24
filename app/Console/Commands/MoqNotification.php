@@ -88,7 +88,9 @@ class MoqNotification extends Command
             }
 
             // dd($mail_collection);
-            $result = Mail::to(config('constants.ADMINEMAIL'))->send(new MoqNotificationMail($mail_collection));
+            if(!empty($mail_collection) && count($mail_collection)>0){
+                $result = Mail::to(config('constants.ADMINEMAIL'))->send(new MoqNotificationMail($mail_collection));
+            }
         }
     }
 }
