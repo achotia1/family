@@ -4,13 +4,13 @@ return [
 	/*--------------------------------------------------------
 	|  General Constants
 	------------------------------------*/
-		// 'ADMINEMAIL' 		=> 'naik.orchid@gmail.com',
+		'ADMINEMAIL' 		=> 'naik.orchid@gmail.com',
 		'ADMINFROMNAME'     => 'ADMIN',
 		'SUPERADMINROLENAME' => 'super-admin',
 		'SITENAME'     => 'Orchid Store',
 
 		//Test Mail
-		'ADMINEMAIL' 		=> 'eluminous_se42@eluminoustechnologies.com',
+		//'ADMINEMAIL' 		=> 'eluminous_se42@eluminoustechnologies.com',
 		//'COMPANYURL' 		=> 'http://dev.eluminousdev.com/orchid/',
 		'COMPANYURL' 		=> 'https://shop.orchidpolycoats.com/',
 		'RCESTERCOMPANY'    =>  1,//Set database companyid for rcester company

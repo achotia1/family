@@ -35,8 +35,8 @@ class MoqNotificationMail extends Mailable
 
         $viewName='admin.mail.moq-notify';
         $subject = 'Store - Moq MoqNotification';
-
         $this->subject($subject);
+        $this->from(config('constants.ADMINEMAIL'),config('ADMINFROMNAME'));
         $this->replyTo(config('constants.ADMINEMAIL'),config('ADMINFROMNAME'));
         return $this->view($viewName, ['data' => $this->data]);
     }
