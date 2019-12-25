@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 
 class RolesRequest extends FormRequest
 {
@@ -12,11 +13,22 @@ class RolesRequest extends FormRequest
         return true;
     }
 
-    public function rules()
+    public function rules(Request $request)
     {
-        return [
+
+        $id = base64_decode(base64_decode($this->route('endID'))) ?? null; 
+        // dd($this->route('endID'),$id,$request->all());
+        if ($id === null || $id=="") 
+        {
+            return [
                 'name'=> 'required|regex:/^[a-zA-Z\-]+$/u|unique:roles,name'
             ];
+        }else{
+             return [
+                'name'=> 'required|regex:/^[a-zA-Z\-]+$/u|unique:roles,name,'.$id,
+                //'code'     => 'required|unique:products,code,'.$id,
+            ];
+        }
     }
 
     public function messages()

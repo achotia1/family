@@ -54,6 +54,7 @@ class RolesController extends Controller
 
         $collection = $this->BaseModel->find($id);
         $collection->name = $request->name;
+        $collection->shop_store_type = 1;//For Store Project
 
         if($collection->save()){
             $this->JsonData['status'] = __('admin.RESP_SUCCESS');
@@ -70,8 +71,9 @@ class RolesController extends Controller
     {
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create role, Something went wrong on server.';
-
-        if($this->BaseModel->create($request->only('name')))
+        $request['shop_store_type']=1;//For Store Project
+        //dd($request->all(),$request->only('name','shop_store_type'));
+        if($this->BaseModel->create($request->only('name','shop_store_type')))
         {
             $this->JsonData['status'] = __('admin.RESP_SUCCESS');
             $this->JsonData['msg'] = 'Role created successfully.';
@@ -138,7 +140,9 @@ class RolesController extends Controller
 
             // start model query
             $modelQuery = $this->BaseModel
-                ->where('name', '!=', 'super-admin');
+                ->where('name', '!=', 'super-admin')
+                ->where('shop_store_type', 1);
+
         
             // get total count
             $countQuery = clone ($modelQuery);

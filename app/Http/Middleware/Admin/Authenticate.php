@@ -40,6 +40,7 @@ class Authenticate
                    $allRoles = $this->RoleModel
                                 ->where('guard_name', 'admin')
                                 ->where('name', '!=', 'super-admin')
+                                ->where('shop_store_type', 1)
                                 ->orderBy('name', 'ASC')
                                 ->get();
 
