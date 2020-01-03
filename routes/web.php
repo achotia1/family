@@ -163,6 +163,13 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/', 'ReportController@agedMaterialIndex')->name('admin.report.agedMaterials');
 				});
 
+				//Date Wise Material Report
+				Route::group(['prefix' => 'raw-materials','middleware' => ['permission:store-aged-material-report']], function () use($PREFIX)
+				{
+					Route::get('getRawMaterialRecords', 'ReportController@getRawMaterialRecords');
+					Route::get('/', 'ReportController@rawMaterialIndex')->name('admin.report.rawMaterials');
+				});
+
 				//Contribution Report
 				Route::group(['prefix' => 'contribution-report','middleware' => ['permission:store-contribution-report']], function () use($PREFIX)
 				{

@@ -16,7 +16,7 @@ use App\Models\StoreStockCorrectionModel;
 
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
-
+use DB;
 class ReportController extends Controller
 {   
     private $BaseModel;
@@ -413,6 +413,7 @@ class ReportController extends Controller
 
         return response()->json($this->JsonData);
     }
+
 
 /*--------------------------------------
  |  CONTRIBUTION REPORT
@@ -1501,6 +1502,208 @@ class ReportController extends Controller
         $this->JsonData['data']             = $data;
 
         return response()->json($this->JsonData);
-    }    
+    }
+
+    /*--------------------------------------
+ |  Raw Material REPORT
+------------------------------*/    
+
+    public function rawMaterialIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Raw Material Report';
+        $this->ViewData['moduleAction'] = 'Raw Material Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();
+
+        $objMaterial = new StoreRawMaterialModel;
+        $materials = $objMaterial->getMaterialNumbers($companyId);
+        //dd($materials);
+        $this->ViewData['materials']   = $materials; 
+        // view file with data
+        return view($this->ModuleView.'rawMaterials',$this->ViewData);
+    }
+    public function getRawMaterialRecords(Request $request)
+    {
+
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_raw_materials.id',
+            1 => 'store_raw_materials.name',
+            2 => 'store_raw_materials.unit',
+            3 => 'opening_total',            
+            4 => 'received_total',
+            5 => 'total_issued',
+            6 => 'total_returned',
+            7 => 'total_balance', 
+            8 => 'store_raw_materials.moq',                    
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY       
+        $companyId = self::_getCompanyId();        
+       
+        $sub= DB::raw('(SELECT deleted_at, material_id, 
+                      SUM(store_in_materials.lot_balance) as total_balance,
+                      SUM(CASE 
+                            WHEN store_in_materials.status = 0 
+                            THEN store_in_materials.lot_qty 
+                            ELSE 0 
+                        END) AS opening_total,
+                        SUM(CASE 
+                            WHEN store_in_materials.status = 1 
+                            THEN store_in_materials.lot_qty 
+                            ELSE 0 
+                        END) AS received_total
+                      FROM store_in_materials
+                      WHERE deleted_at is null
+                      GROUP BY material_id) im');
+        
+        $sub2 = DB::raw('(SELECT material_id, 
+                    SUM(store_production_has_materials.quantity) as total_issued,
+                    SUM(store_production_has_materials.returned_quantity) as total_returned
+                    FROM store_production_has_materials
+                    GROUP BY material_id) hm');
+        
+        $objRawMaterial = new StoreRawMaterialModel;
+        $modelQuery = $objRawMaterial
+       ->selectRaw('
+                    store_raw_materials.id,
+                    store_raw_materials.name,
+                    store_raw_materials.moq,
+                    store_raw_materials.unit, 
+                    store_raw_materials.material_type,
+                    store_raw_materials.status,
+                    IFNULL(im.total_balance, 0) AS total_balance,
+                    IFNULL(im.opening_total, 0) AS opening_total,
+                    IFNULL(im.received_total, 0) AS received_total,
+                    IFNULL(hm.total_issued, 0) AS total_issued,
+                    IFNULL(hm.total_returned, 0) AS total_returned
+                    ')        
+        ->leftjoin($sub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })
+        ->leftjoin($sub2,function($join){
+            $join->on('hm.material_id','=','store_raw_materials.id');
+        })
+        ->where('store_raw_materials.company_id', $companyId);
+        //->where('im.deleted_at', null);
+
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['material-id'])) 
+            {
+                $custom_search = true;
+                $material_id = $request->custom['material-id'];
+                
+                $modelQuery = $modelQuery
+                            ->where('store_raw_materials.id',$material_id);
+
+            }
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('store_raw_materials.moq', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('store_raw_materials.unit', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('total_balance', '=', $search);
+                    $query->orwhere('opening_total', '=', $search);
+                    $query->orwhere('received_total', '=', $search);
+                    $query->orwhere('total_issued', '=', $search);
+                    $query->orwhere('total_returned', '=', $search); 
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_raw_materials.name', 'ASC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+       
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {
+            $count =1;
+            foreach ($object as $key => $row)
+            {
+
+                $order_status = '-';
+                    if($row->moq >= $row->total_balance)
+                        $order_status = 'ORDER';
+
+                $data[$key]['id'] = $row->id;
+                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';                
+                $data[$key]['units']  = $row->unit;
+                $data[$key]['opening_stock']  = !empty($row->opening_total) ? number_format($row->opening_total, 2, '.', ''): '0.00';
+                $data[$key]['received_qty']  = !empty($row->received_total) ? number_format($row->received_total, 2, '.', ''): '0.00';
+                $data[$key]['issued_qty']  = !empty($row->total_issued) ? number_format($row->total_issued, 2, '.', ''): '0.00';
+                $data[$key]['return_qty']  = !empty($row->total_returned) ? number_format($row->total_returned, 2, '.', ''): '0.00';
+                $data[$key]['balance_qty']  =  !empty($row->total_balance) ? number_format($row->total_balance, 2, '.', ''): '0.00';               
+                $data[$key]['moq']  =  number_format($row->moq, 2, '.', '');
+                $data[$key]['status'] = $order_status;
+
+         }
+     }
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+}
+       
 
 }
