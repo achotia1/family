@@ -587,7 +587,16 @@
                                 value="store-aged-material-report">
                             <span class="knob text-white"><em>off</em></span>
                         </label>
-                    </li>
+                    </li>                    
+                    <li class="list-group-item d-flex">
+                        <a href="#">Raw Material Report </a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-raw-material-report" name="store-raw-material-report"
+                                value="store-raw-material-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>                    
                     <li class="list-group-item d-flex">
                         <a href="#">Material Deviation Report </a>
                         <label class="sub-menu switch ml-auto">

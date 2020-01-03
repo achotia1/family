@@ -354,7 +354,7 @@
 
         <!-- Manage Reports --> 
         @can('store-manage-reports')       
-        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*']) }}">
+        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*','admin/raw-materials','admin/raw-materials/*']) }}">
           <a href="#">
             <i class="fa fa-file"></i>
             <span>Manage Reports</span>
@@ -372,7 +372,14 @@
             <li class="{{ active('admin/aged-materials') }}">
               <a href="{{ route('admin.report.agedMaterials') }}"><i class="fa fa-hand-o-right"></i> Aged Material Report</a>
             </li>
-            @endcan 
+            @endcan
+            
+            @can('store-raw-material-report')  
+            <li class="{{ active('admin/raw-materials') }}">
+              <a href="{{ route('admin.report.rawMaterials') }}"><i class="fa fa-hand-o-right"></i> Raw Material Report</a>
+            </li>
+            @endcan
+            
             @can('store-material-deviation-report')  
             <li class="{{ active(['admin/deviation-material','admin/deviation-material/*']) }}">
               <a href="{{ route('admin.report.deviationMaterial') }}"><i class="fa fa-hand-o-right"></i> Material Deviation Report</a>
