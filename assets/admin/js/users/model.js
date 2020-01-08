@@ -153,3 +153,6 @@ $('#AddNoteForm').validator().on('submit', function (e)
       return false;
    }
 })
+function getTwoDigitDateFormat(monthOrDate) {
+  return (monthOrDate < 10) ? '0' + monthOrDate : '' + monthOrDate;
+}

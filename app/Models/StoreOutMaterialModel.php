@@ -141,6 +141,12 @@ class StoreOutMaterialModel extends Model
     public function getOutputRec($planId) {
         return self::select('id')->where('plan_id', $planId)->first();         
     }
+    public function getOutputDetails($planId) {
+        //return self::select('id')->where('plan_id', $planId)->first();
+        return self::with([
+                'assignedPlan'
+                ])->where('plan_id', $planId)->first();
+    }
 	
     
 }

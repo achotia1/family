@@ -75,15 +75,19 @@ class StoreReturnedMaterialController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['moduleAction'] = 'Add New '.$this->ModuleTitle;
         $this->ViewData['modulePath']   = $this->ModulePath;
+        /* ASHVINI */
         
+        /* END ASHVINI */
         $companyId = self::_getCompanyId();
         
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers($companyId);
 
-        $planBatch = $this->StoreProductionModel
-                          ->getProductionPlans($companyId,true);                      
+        /*$planBatch = $this->StoreProductionModel
+                          ->getProductionPlans($companyId,true);*/                      
        
+        $planBatch = $this->StoreProductionModel
+                          ->getProductionPlans($companyId);
         $this->ViewData['materialIds']   = $materialIds;
         $this->ViewData['planBatch']   = $planBatch;
         ## VIEW FILE WITH DATA
@@ -202,10 +206,15 @@ class StoreReturnedMaterialController extends Controller
                     }
 
                     $materialOutObj = new StoreOutMaterialModel;
-                    $outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                    //$outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                    $outputRec = $materialOutObj->getOutputDetails($request->plan_id);
                     if($outputRec){                            
                         $outPutId =  $outputRec->id;
+                        $batchId = $outputRec->assignedPlan->batch_id;
                         $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                        ## UPDATE MANUFACTURING COSTPER UNIT
+                        $objBatchCard = new StoreBatchCardModel;
+                        $objBatchCard->updateClosedBatch($batchId);
                     }
                
                 }
@@ -279,9 +288,9 @@ class StoreReturnedMaterialController extends Controller
                     ->where('store_returned_materials.company_id', $companyId)
                     ->first();
         //dd($data);
-        if(empty($data) || $data->assignedProductionPlan->assignedBatch->review_status == 'closed') {            
+        /*if(empty($data) || $data->assignedProductionPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.return.index');
-        }
+        }*/
 
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers($companyId);       
@@ -463,10 +472,15 @@ class StoreReturnedMaterialController extends Controller
                             }
 
                             $materialOutObj = new StoreOutMaterialModel;
-                            $outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                            //$outputRec = $materialOutObj->getOutputRec($request->plan_id);
+                            $outputRec = $materialOutObj->getOutputDetails($request->plan_id);
                             if($outputRec){                            
                                 $outPutId =  $outputRec->id;
+                                $batchId = $outputRec->assignedPlan->batch_id;
                                 $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                                ## UPDATE MANUFACTURING COSTPER UNIT
+                                $objBatchCard = new StoreBatchCardModel;
+                                $objBatchCard->updateClosedBatch($batchId);
                             }
 
                         } 
@@ -677,9 +691,8 @@ class StoreReturnedMaterialController extends Controller
                     $data[$key]['review_status'] = 'Closed';
                 }
                 $edit = $delete = '';
-                if( $row->review_status == 'open'){
-                    $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
-                    
+                $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>&nbsp';
+                if( $row->review_status == 'open'){                    
                     $delete = '<a href="javascript:void(0)" class="delete-user action-icon" title="Delete" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" ><span class="glyphicon glyphicon-trash"></span></a>';
                 }            
                 

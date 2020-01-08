@@ -169,9 +169,9 @@ class StoreOutMaterialController extends Controller
         ->find($id);
         // dd($data);
         // END ASHVINI
-        if(empty($data) || $data->assignedPlan->assignedBatch->review_status == 'closed') {            
+        /*if(empty($data) || $data->assignedPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.materials-out.index');
-        }
+        }*/
         ## VIEW FILE WITH DATA
         $this->ViewData['material'] = $data;
           
@@ -229,7 +229,17 @@ class StoreOutMaterialController extends Controller
             if($collection){
                 ## CALCULATE LOSS MATERIAL AND YEILD
                 $companyId = self::_getCompanyId();
-                $output = $this->BaseModel->updateMadeByMaterial($id, $companyId); 
+                $output = $this->BaseModel->updateMadeByMaterial($id, $companyId);
+                ## UPDATE COST PER UNIT, SALE STOCK AND WASTAGE STOCK
+                $outputData = $this->BaseModel->with([
+                'assignedPlan'
+                ])->where('company_id', $companyId)
+                ->find($id);
+                $batchId = $outputData->assignedPlan->batch_id;
+                if($batchId>0){
+                    $objBatchCard = new StoreBatchCardModel;
+                    $objBatchCard->updateClosedBatch($batchId, false, true);
+                }
                 //dd($output);
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-out.index');
@@ -261,7 +271,8 @@ class StoreOutMaterialController extends Controller
         $collection->dust_product    = $request->dust_product;
         $collection->loose_material  = $request->loose_material;
         /*$collection->unfiltered      = $request->unfiltered;*/        
-        $collection->status         = 0;
+        
+        //$collection->status         = 0;
         //dd($collection);     
         ## SAVE DATA
         $collection->save();
@@ -507,9 +518,9 @@ class StoreOutMaterialController extends Controller
                     $data[$key]['review_status'] = 'Closed';
                 }
                 $edit = '';
-                if( $row->review_status == 'open'){
+                //if( $row->review_status == 'open'){
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-                }
+                //}
 
                 $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 

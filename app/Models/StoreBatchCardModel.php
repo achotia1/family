@@ -120,6 +120,116 @@ class StoreBatchCardModel extends Model
         return $result;   
         
     }
+
+    public function updateClosedBatch($batchId, $yieldFlag = false, $outputFlag = false) {  
+
+        $records = self::with([
+            'hasProduction'=>function($q){
+                $q->with(['hasProductionMaterials' => function($q){                    
+                    $q->with('mateialName');
+                    $q->with('hasLot');    
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasOutMaterial']);
+            }
+        ])
+        ->find($batchId);
+        if($records->review_status == 'closed'){
+            ## MAKE RETURNED ARRAY
+            $returnedMateArr = array();
+            if(isset($records->hasProduction->hasReturnMaterial->hasReturnedMaterials)){
+                foreach($records->hasProduction->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+                    $returnedMateArr[$returnedMaterial->lot_id] = $returnedMaterial->quantity;
+                }
+            }
+            //dd($returnedMateArr);
+            $yield = $cost_per_unit = $amountTotal = $finalTotal = 0;
+            if($records->hasProduction){
+                foreach($records->hasProduction->hasProductionMaterials as $material){
+                    $returnedQty = 0;
+                    if(isset($returnedMateArr[$material->lot_id]) && $returnedMateArr[$material->lot_id] > 0){
+                        $returnedQty = $returnedMateArr[$material->lot_id];
+                    }                    
+                    /*$finalWeight = $material->quantity - $material->returned_quantity;*/
+                    $finalWeight = $material->quantity - $returnedQty;
+                    if($material->mateialName->material_type == 'Raw'){
+                        $finalTotal = $finalTotal + $finalWeight;
+                    }
+                    $amount = ($finalWeight * $material->hasLot->price_per_unit);
+                    $amountTotal = $amountTotal + $amount;
+                }
+                $matOutId = $records->hasProduction->hasOutMaterial->id;
+                $courseQty = $records->hasProduction->hasOutMaterial->course_powder;
+                $rejectionQty = $records->hasProduction->hasOutMaterial->rejection;
+                $dustQty = $records->hasProduction->hasOutMaterial->dust_product;
+                $looseQty = $records->hasProduction->hasOutMaterial->loose_material;
+                $lossQty = $records->hasProduction->hasOutMaterial->loss_material;
+
+                if($records->hasProduction->hasOutMaterial->sellable_qty > 0){
+                    $sellableQty = $records->hasProduction->hasOutMaterial->sellable_qty;
+                    ## CALCULATE MANUFACTURING COST PER UNIT
+                    $cost_per_unit = ($amountTotal)/$sellableQty;
+                    ## CALCULATE YIELD
+                    if($finalTotal > 0)
+                        $yield = ($sellableQty/$finalTotal) * 100;
+                }            
+
+            }
+            ## UPDATE MANUFACTURING COST IN store_sales_stock        
+            $collection = StoreSaleStockModel::where('batch_id', $batchId)->first();
+            $preQty = $collection->quantity;
+            $preBalQty = $collection->balance_quantity;
+            $qtyDiff = $sellableQty - $collection->quantity;
+            $collection->manufacturing_cost = $cost_per_unit;
+            ## UPDATE QUANTITY AND BALANCE QUANTITY IN store_sales_stock 
+            if($outputFlag){
+                $collection->quantity = $sellableQty;
+                $collection->balance_quantity = $preBalQty + $qtyDiff;
+            }
+            $collection->save();
+
+            ## UPDATE YIELD IN store_out_materials
+            if($yieldFlag && $matOutId > 0){
+                $collOutMat = StoreOutMaterialModel::find($matOutId);
+                $collOutMat->yield = $yield;
+                $collOutMat->save();
+            }
+            ## UPDATE WASTAGE STOCK QUANTITY AND BALANCE QUANTITY IN store_waste_stock
+            if($outputFlag){
+                $collWastage = StoreWasteStockModel::where('batch_id', $batchId)->first();
+                $preCourse = $collWastage->course;
+                $preRejection = $collWastage->rejection;
+                $preDust = $collWastage->dust;
+                $preLoose = $collWastage->loose;
+
+                $courseQty = $records->hasProduction->hasOutMaterial->course_powder;        
+                $rejQty = $records->hasProduction->hasOutMaterial->rejection;
+                $dustQty = $records->hasProduction->hasOutMaterial->dust_product;
+                $looseQty = $records->hasProduction->hasOutMaterial->loose_material;
+
+                $courseDiff = $courseQty - $preCourse;
+                $rejDiff = $rejQty - $preRejection;
+                $dustDiff = $dustQty - $preDust;
+                $looseDiff = $looseQty - $preLoose;
+
+                $collWastage->course = $courseQty;
+                $collWastage->rejection = $rejQty;
+                $collWastage->dust = $dustQty;
+                $collWastage->loose = $looseQty;
+
+                $collWastage->balance_course = $collWastage->balance_course + $courseDiff;
+                $collWastage->balance_rejection = $collWastage->balance_rejection + $rejDiff;
+                $collWastage->balance_dust = $collWastage->balance_dust + $dustDiff;
+                $collWastage->balance_loose = $collWastage->balance_loose + $looseDiff;
+                $collWastage->save();
+            }
+        }
+
+        //return $collection;
+        //dd($collWastage);        
+    }
    /* public function getPendingBatches() {
         return self::where('status', 1)->orderBy('id', 'DESC')->get();
         

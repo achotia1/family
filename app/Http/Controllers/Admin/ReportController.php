@@ -13,6 +13,7 @@ use App\Models\StoreSaleInvoiceHasProductsModel;
 use App\Models\StoreSaleStockModel;
 use App\Models\StoreLotCorrectionModel;
 use App\Models\StoreStockCorrectionModel;
+use App\Models\StoreTempRawMaterialModel;
 
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
@@ -1518,6 +1519,104 @@ class ReportController extends Controller
 
         $objMaterial = new StoreRawMaterialModel;
         $materials = $objMaterial->getMaterialNumbers($companyId);
+
+        /* ASHVINI */
+        /*$tempCollection = new StoreTempRawMaterialModel;
+        $tempCollection->query()->truncate();
+        
+        $receivedSub= DB::raw('(SELECT deleted_at, material_id,
+                    SUM(CASE 
+                        WHEN store_in_materials.status = 1 
+                        THEN store_in_materials.lot_qty 
+                        ELSE 0 
+                    END) AS received_total
+                    FROM store_in_materials
+                    WHERE deleted_at is null
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "2020-01-02" 
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "2020-01-06" 
+                    GROUP BY material_id) im');
+        $issuedSub = DB::raw('(SELECT material_id, 
+                SUM(store_production_has_materials.quantity) as total_issued,
+                SUM(store_production_has_materials.returned_quantity) as total_returned
+                FROM store_production_has_materials
+                where DATE_FORMAT(`store_production_has_materials`.`created_at`, "%Y-%m-%d") >= "2020-01-02" 
+                and date(`store_production_has_materials`.`created_at`) <= "2020-01-06" 
+                GROUP BY material_id) hm'); 
+
+       
+
+        $opBalSub = DB::raw('(SELECT material_id, 
+                    SUM(CASE 
+                        WHEN store_in_materials.status = 0 
+                        THEN store_in_materials.lot_qty 
+                        ELSE store_in_materials.lot_balance
+                    END) AS opening_balance
+                    FROM `store_in_materials` 
+            WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "2020-01-02"
+            GROUP BY material_id) im');
+
+        $modelQuery = $objMaterial
+       ->selectRaw('
+                    store_raw_materials.id,
+                    store_raw_materials.name,
+                    store_raw_materials.moq,
+                    store_raw_materials.unit, 
+                    store_raw_materials.material_type,
+                    store_raw_materials.status,
+                    IFNULL(im.received_total, 0) AS received_total,
+                    IFNULL(hm.total_issued, 0) AS total_issued,
+                    IFNULL(hm.total_returned, 0) AS total_returned
+                ')        
+        ->leftjoin($receivedSub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })
+        ->leftjoin($issuedSub,function($join){
+            $join->on('hm.material_id','=','store_raw_materials.id');
+        })
+        ->where('store_raw_materials.company_id', $companyId);
+       
+        $modelQuery2 = $objMaterial
+       ->selectRaw('
+                    store_raw_materials.id,
+                    IFNULL(im.opening_balance, 0) AS opening_balance
+                ')        
+        ->leftjoin($opBalSub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })        
+        ->where('store_raw_materials.company_id', $companyId);
+        //dd($modelQuery2->toSql());
+        $insertArray = array();
+        $result = $modelQuery->get();        
+        $result2 = $modelQuery2->get();
+        if($result){            
+            foreach($result as $key=>$val){
+                $insertArray[$val->id]['material_id'] = $val->id;
+                $insertArray[$val->id]['name'] = $val->name;
+                $insertArray[$val->id]['moq'] = $val->moq;
+                $insertArray[$val->id]['unit'] = $val->unit;
+                $insertArray[$val->id]['material_type'] = $val->material_type;
+                $insertArray[$val->id]['received_qty'] = $val->received_total;
+                $insertArray[$val->id]['issued_qty'] = $val->total_issued;
+                $insertArray[$val->id]['returned_qty'] = $val->total_returned;
+            }
+            //$tempCollection->
+        }
+        
+        if($result2){            
+            foreach($result2 as $key2=>$val2){
+                $insertArray[$val2->id]['opening_balance'] = $val2->opening_balance;
+            }            
+        }
+        if($insertArray){            
+            foreach($insertArray as $key1=>$val1){
+                $insertArray[$val1['material_id']]['balance_qty'] = ((float)$val1['opening_balance'] + (float)$val1['received_qty'] + (float)$val1['returned_qty']) - (float)$val1['issued_qty'] ;
+            }
+
+            $tempCollection->insert($insertArray);           
+        }*/
+        //dd($insertArray);
+        /* END ASHVINI */
+
         //dd($materials);
         $this->ViewData['materials']   = $materials; 
         // view file with data
@@ -1525,7 +1624,125 @@ class ReportController extends Controller
     }
     public function getRawMaterialRecords(Request $request)
     {
+        
+        /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */        
+        $start_date = $end_date   = date('Y-m-d');        
+        if (!empty($request->custom)){
+            if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) {
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                $start_date   = date_format($dateObject, 'Y-m-d'); 
 
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                $end_date   = date_format($dateObject, 'Y-m-d');
+
+            }
+        }
+        
+        $companyId = self::_getCompanyId();
+        $tempCollection = new StoreTempRawMaterialModel;
+        $tempCollection->query()->truncate();
+        
+        $objMaterial = new StoreRawMaterialModel;
+        /*$receivedSub= DB::raw('(SELECT deleted_at, material_id,
+                    SUM(CASE 
+                        WHEN store_in_materials.status = 1 
+                        THEN store_in_materials.lot_qty 
+                        ELSE 0 
+                    END) AS received_total
+                    FROM store_in_materials
+                    WHERE deleted_at is null
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
+                    GROUP BY material_id) im');*/
+        $receivedSub= DB::raw('(SELECT deleted_at, material_id,
+                    SUM(
+                        store_in_materials.lot_qty                      
+                    ) AS received_total
+                    FROM store_in_materials
+                    WHERE deleted_at is null
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
+                    GROUP BY material_id) im');
+        $issuedSub = DB::raw('(SELECT material_id, 
+                SUM(store_production_has_materials.quantity) as total_issued,
+                SUM(store_production_has_materials.returned_quantity) as total_returned
+                FROM store_production_has_materials
+                where DATE_FORMAT(`store_production_has_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                and date(`store_production_has_materials`.`created_at`) <= "'.$end_date.'" 
+                GROUP BY material_id) hm'); 
+
+       
+
+        $opBalSub = DB::raw('(SELECT material_id, 
+                    SUM(CASE 
+                        WHEN store_in_materials.status = 0 
+                        THEN store_in_materials.lot_qty 
+                        ELSE store_in_materials.lot_balance
+                    END) AS opening_balance
+                    FROM `store_in_materials` 
+            WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
+            GROUP BY material_id) im');
+
+        $modelQuery = $objMaterial
+       ->selectRaw('
+                    store_raw_materials.id,
+                    store_raw_materials.name,
+                    store_raw_materials.moq,
+                    store_raw_materials.unit, 
+                    store_raw_materials.material_type,
+                    store_raw_materials.status,
+                    IFNULL(im.received_total, 0) AS received_total,
+                    IFNULL(hm.total_issued, 0) AS total_issued,
+                    IFNULL(hm.total_returned, 0) AS total_returned
+                ')        
+        ->leftjoin($receivedSub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })
+        ->leftjoin($issuedSub,function($join){
+            $join->on('hm.material_id','=','store_raw_materials.id');
+        })
+        ->where('store_raw_materials.company_id', $companyId);
+       
+        $modelQuery2 = $objMaterial
+       ->selectRaw('
+                    store_raw_materials.id,
+                    IFNULL(im.opening_balance, 0) AS opening_balance
+                ')        
+        ->leftjoin($opBalSub,function($join){
+            $join->on('im.material_id','=','store_raw_materials.id');
+        })        
+        ->where('store_raw_materials.company_id', $companyId);
+        //dd($modelQuery2->toSql());
+        $insertArray = array();
+        $result = $modelQuery->get();        
+        $result2 = $modelQuery2->get();
+        if($result){            
+            foreach($result as $key=>$val){
+                $insertArray[$val->id]['material_id'] = $val->id;
+                $insertArray[$val->id]['name'] = $val->name;
+                $insertArray[$val->id]['moq'] = $val->moq;
+                $insertArray[$val->id]['unit'] = $val->unit;
+                $insertArray[$val->id]['material_type'] = $val->material_type;
+                $insertArray[$val->id]['received_qty'] = $val->received_total;
+                $insertArray[$val->id]['issued_qty'] = $val->total_issued;
+                $insertArray[$val->id]['returned_qty'] = $val->total_returned;
+            }
+            //$tempCollection->
+        }
+        
+        if($result2){            
+            foreach($result2 as $key2=>$val2){
+                $insertArray[$val2->id]['opening_balance'] = $val2->opening_balance;
+            }            
+        }
+        if($insertArray){            
+            foreach($insertArray as $key1=>$val1){
+                $insertArray[$val1['material_id']]['balance_qty'] = ((float)$val1['opening_balance'] + (float)$val1['received_qty'] + (float)$val1['returned_qty']) - (float)$val1['issued_qty'] ;
+            }
+
+            $tempCollection->insert($insertArray);           
+        }
+        /* END TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
         /*--------------------------------------
         |  VARIABLES
         ------------------------------*/
@@ -1543,15 +1760,15 @@ class ReportController extends Controller
 
         ## FILTER COLUMNS
         $filter = array(
-            0 => 'store_raw_materials.id',
-            1 => 'store_raw_materials.name',
-            2 => 'store_raw_materials.unit',
-            3 => 'opening_total',            
-            4 => 'received_total',
-            5 => 'total_issued',
-            6 => 'total_returned',
-            7 => 'total_balance', 
-            8 => 'store_raw_materials.moq',                    
+            0 => 'store_temp_raw_materials.id',
+            1 => 'store_temp_raw_materials.name',
+            2 => 'store_temp_raw_materials.unit',
+            3 => 'store_temp_raw_materials.opening_balance',     
+            4 => 'store_temp_raw_materials.received_qty',
+            5 => 'store_temp_raw_materials.issued_qty',
+            6 => 'store_temp_raw_materials.returned_qty',
+            7 => 'store_temp_raw_materials.balance_qty',
+            8 => 'store_temp_raw_materials.moq',               
         );
 
         /*--------------------------------------
@@ -1559,54 +1776,10 @@ class ReportController extends Controller
         ------------------------------*/
 
         ## START MODEL QUERY       
-        $companyId = self::_getCompanyId();        
+               
        
-        $sub= DB::raw('(SELECT deleted_at, material_id, 
-                      SUM(store_in_materials.lot_balance) as total_balance,
-                      SUM(CASE 
-                            WHEN store_in_materials.status = 0 
-                            THEN store_in_materials.lot_qty 
-                            ELSE 0 
-                        END) AS opening_total,
-                        SUM(CASE 
-                            WHEN store_in_materials.status = 1 
-                            THEN store_in_materials.lot_qty 
-                            ELSE 0 
-                        END) AS received_total
-                      FROM store_in_materials
-                      WHERE deleted_at is null
-                      GROUP BY material_id) im');
-        
-        $sub2 = DB::raw('(SELECT material_id, 
-                    SUM(store_production_has_materials.quantity) as total_issued,
-                    SUM(store_production_has_materials.returned_quantity) as total_returned
-                    FROM store_production_has_materials
-                    GROUP BY material_id) hm');
-        
-        $objRawMaterial = new StoreRawMaterialModel;
-        $modelQuery = $objRawMaterial
-       ->selectRaw('
-                    store_raw_materials.id,
-                    store_raw_materials.name,
-                    store_raw_materials.moq,
-                    store_raw_materials.unit, 
-                    store_raw_materials.material_type,
-                    store_raw_materials.status,
-                    IFNULL(im.total_balance, 0) AS total_balance,
-                    IFNULL(im.opening_total, 0) AS opening_total,
-                    IFNULL(im.received_total, 0) AS received_total,
-                    IFNULL(hm.total_issued, 0) AS total_issued,
-                    IFNULL(hm.total_returned, 0) AS total_returned
-                    ')        
-        ->leftjoin($sub,function($join){
-            $join->on('im.material_id','=','store_raw_materials.id');
-        })
-        ->leftjoin($sub2,function($join){
-            $join->on('hm.material_id','=','store_raw_materials.id');
-        })
-        ->where('store_raw_materials.company_id', $companyId);
-        //->where('im.deleted_at', null);
-
+        $objTemp = new StoreTempRawMaterialModel;
+        $modelQuery =  $objTemp;
         ## GET TOTAL COUNT
         $countQuery = clone($modelQuery);            
         $totalData  = $countQuery->count();
@@ -1621,7 +1794,7 @@ class ReportController extends Controller
                 $material_id = $request->custom['material-id'];
                 
                 $modelQuery = $modelQuery
-                            ->where('store_raw_materials.id',$material_id);
+                            ->where('store_temp_raw_materials.material_id',$material_id);
 
             }
         }
@@ -1634,14 +1807,14 @@ class ReportController extends Controller
 
                 $modelQuery = $modelQuery->where(function ($query) use($search)
                 {
-                    $query->orwhere('store_raw_materials.name', 'LIKE', '%'.$search.'%');
-                    $query->orwhere('store_raw_materials.moq', 'LIKE', '%'.$search.'%');
-                    $query->orwhere('store_raw_materials.unit', 'LIKE', '%'.$search.'%');
-                    $query->orwhere('total_balance', '=', $search);
-                    $query->orwhere('opening_total', '=', $search);
-                    $query->orwhere('received_total', '=', $search);
-                    $query->orwhere('total_issued', '=', $search);
-                    $query->orwhere('total_returned', '=', $search); 
+                    $query->orwhere('name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('moq', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('unit', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('balance_qty', '=', $search);
+                    $query->orwhere('opening_balance', '=', $search);
+                    $query->orwhere('received_qty', '=', $search);
+                    $query->orwhere('issued_qty', '=', $search);
+                    $query->orwhere('returned_qty', '=', $search); 
                 });              
 
             }
@@ -1654,7 +1827,7 @@ class ReportController extends Controller
         ## OFFSET AND LIMIT
         if(empty($column))
         {   
-            $modelQuery = $modelQuery->orderBy('store_raw_materials.name', 'ASC');
+            $modelQuery = $modelQuery->orderBy('store_temp_raw_materials.name', 'ASC');
                         
         }
         else
@@ -1679,17 +1852,17 @@ class ReportController extends Controller
             {
 
                 $order_status = '-';
-                    if($row->moq >= $row->total_balance)
+                    if($row->moq >= $row->balance_qty)
                         $order_status = 'ORDER';
 
                 $data[$key]['id'] = $row->id;
                 $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span>';                
                 $data[$key]['units']  = $row->unit;
-                $data[$key]['opening_stock']  = !empty($row->opening_total) ? number_format($row->opening_total, 2, '.', ''): '0.00';
-                $data[$key]['received_qty']  = !empty($row->received_total) ? number_format($row->received_total, 2, '.', ''): '0.00';
-                $data[$key]['issued_qty']  = !empty($row->total_issued) ? number_format($row->total_issued, 2, '.', ''): '0.00';
-                $data[$key]['return_qty']  = !empty($row->total_returned) ? number_format($row->total_returned, 2, '.', ''): '0.00';
-                $data[$key]['balance_qty']  =  !empty($row->total_balance) ? number_format($row->total_balance, 2, '.', ''): '0.00';               
+                $data[$key]['opening_stock']  = !empty($row->opening_balance) ? number_format($row->opening_balance, 2, '.', ''): '0.00';
+                $data[$key]['received_qty']  = !empty($row->received_qty) ? number_format($row->received_qty, 2, '.', ''): '0.00';
+                $data[$key]['issued_qty']  = !empty($row->issued_qty) ? number_format($row->issued_qty, 2, '.', ''): '0.00';
+                $data[$key]['return_qty']  = !empty($row->returned_qty) ? number_format($row->returned_qty, 2, '.', ''): '0.00';
+                $data[$key]['balance_qty']  =  !empty($row->balance_qty) ? number_format($row->balance_qty, 2, '.', ''): '0.00';               
                 $data[$key]['moq']  =  number_format($row->moq, 2, '.', '');
                 $data[$key]['status'] = $order_status;
 

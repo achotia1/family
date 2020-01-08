@@ -124,9 +124,9 @@ class StoreBatchCardController extends Controller
 
         $data = $this->BaseModel->where('store_batch_cards.id', base64_decode(base64_decode($encID)))->where('store_batch_cards.company_id', $companyId)->first();
         //dd($data);
-        if(empty($data) || $data->review_status == 'closed') {            
+        /*if(empty($data) || $data->review_status == 'closed') {            
             return redirect()->route('admin.rms-store.index');
-        }
+        }*/
         ## PRODUCT STOCK DATA
         $objStock = new StoreSaleStockModel;
         $stockData = $objStock->getProductStock($data->product_code, $companyId);
@@ -355,9 +355,9 @@ class StoreBatchCardController extends Controller
                  $data[$key]['review_status'] = 'Closed';
                 }                
                 $edit = '';
-                if($row->review_status=='open'){
+                //if($row->review_status=='open'){
                     $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
-                }
+                //}
 
                  $view = '<a href="'.route($this->ModulePath.'show',[ base64_encode(base64_encode($row->id))]).'" title="View"><span class="glyphicon glyphicon-eye-open"></a>';
 

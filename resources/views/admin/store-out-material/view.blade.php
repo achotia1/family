@@ -361,7 +361,7 @@
                 <div class="checkbox">
                     <label>
                       <input type="checkbox" name="status" value="1" id="chk-status">
-                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to send to Sales Stock. After sending this to sales stock you can not edit this batch records again.</b></span>
+                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to send to Sales Stock.</b></span>
                     </label>
                 </div>  
             </div>
@@ -374,7 +374,7 @@
                 <div class="checkbox">
                     <label>
                       <input type="checkbox" name="status" value="1" id="chk-status">
-                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to close it. After closing, you can not edit this batch records again.</b></span>
+                      <span class="text-yellow"><b>Yes, I have reviewed this batch and want to close it.</b></span>
                     </label>
                 </div>  
             </div>

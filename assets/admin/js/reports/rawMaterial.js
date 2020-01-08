@@ -1,9 +1,11 @@
 $(document).ready(function() 
 {
     var date = new Date();
-    $("#from-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
-    $("#to-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
-
+    /*$("#from-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
+    $("#to-date").val(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());*/
+    $("#from-date").val(getTwoDigitDateFormat(date.getDate())+"-"+getTwoDigitDateFormat(date.getMonth()+1)+"-"+date.getFullYear());
+    $("#to-date").val(getTwoDigitDateFormat(date.getDate())+"-"+getTwoDigitDateFormat(date.getMonth()+1)+"-"+date.getFullYear());
+    
     $('#from-date').datepicker({
             format: 'dd-mm-yyyy',
             autoclose: true,

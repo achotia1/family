@@ -15,6 +15,14 @@
         <div class="container">
             <div class="row">                
                 <div class="col-md-3">
+                    <label class="theme-blue f-14">From Date</label>
+                    <input id="from-date" type="text" class="form-control">
+                 </div>   
+                 <div class="col-md-3">
+                     <label class="theme-blue f-14">To Date</label>
+                     <input id="to-date" type="text" class="form-control">
+                </div>
+                <div class="col-md-3">
                      <label class="theme-blue">Material</label>
                     <select class="form-control select2" 
                          id="material-id"
