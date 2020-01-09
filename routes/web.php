@@ -208,6 +208,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				{
 					Route::get('/sales/getRecords',  'StoreSalesController@getRecords');
 					Route::post('/sales/getProductBatches',  'StoreSalesController@getProductBatches');
+					Route::post('/sales/getProductWastageBatches',  'StoreSalesController@getProductWastageBatches');
 					Route::resource('sales', 'StoreSalesController', ['as' => $PREFIX]);
 				});
 

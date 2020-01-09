@@ -55,5 +55,12 @@ class StoreWasteStockModel extends Model
         }
         return $stockWasteReturn;
     }
+    public function getWastageStockProducts($companyId) {
+        return self::with(['assignedProduct'])
+                    ->where('company_id',$companyId)
+                    ->groupBy('product_id')
+                    ->get();
+
+    }
 
 }

@@ -123,11 +123,117 @@ function addPlan()
     
 }
 
+function addWastageStockPlan() 
+{     
+    var items = parseInt($("#wtotal_items").val()) + 1;
+    $("#wtotal_items").val(items);
+    var counter = items;    
+    var plan_area = `<tr class="inner-td add_wastage_area wastage">                    
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select select2 wproducts" 
+                            placeholder="All Products"
+                            name="wastagesales[${counter}][product_id]"
+                            id="wproduct_${counter}"
+                            required
+                            onchange="loadWastageBatches(this);"
+                            data-error="Product field is required." 
+                        >
+                            ${wplan_options}
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[${counter}][product_id][] err_production_product"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                        <div class="form-group"> 
+                        <select 
+                            class="form-control my-select select2 wbatch_id" 
+                            placeholder="All Batches"
+                            name="wastagesales[${counter}][batch_id]"
+                            onchange="setWastageQuantityLimit(${counter});"
+                            id="wbatches_wproduct_${counter}"
+                            required
+                            data-error="Batch field is required." 
+                        >
+                            <option value="">Select Batch</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[${counter}][batch_id][] err_wbatch_id"></li>
+                            </ul>
+                        </span>
+                       </div>
+                    </td>
+                    <td>
+                    <div class="wadd_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control wquantity"
+                            name="wastagesales[${counter}][quantity]" 
+                            id="wquantity_${counter}"
+                            required
+                            step="any" 
+                            data-error="Quantity should be number."
+                        >
+                        <input 
+                            type="hidden" 
+                            class="form-control quantity"
+                            name="wastagesales[${counter}][quantityLimit]"
+                            id="wquantityLimit_${counter}"
+                            value="" 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[${counter}][quantity][] err_wquantity"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                    <div class="wadd_rate form-group">
+                        <input 
+                            type="number" 
+                            class="form-control rate"
+                            name="wastagesales[${counter}][rate]" 
+                            id="wrate_${counter}"
+                            required
+                            step="any" 
+                            data-error="Rate should be number."
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[${counter}][rate][] err_wrate"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                    <p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deleteWastagePlan(this)"  id="w${counter}" style="cursor:pointer">Remove</p>              </td>
+                    </tr>`;
+    if($("#wastage-table tr").length > 1){     
+        $(plan_area).insertAfter($(".add_wastage_area:last")); 
+    } else {        
+        $(plan_area).insertAfter($(".heading-tr:last"));    
+    }
+    $('.select2').select2();
+    $(".add_wastage_area").validator();    
+}
+
 function deletePlan(element)
 {
-    $(element).closest('.add_plan_area').find('*').attr('disabled', true);
-   // $(element).closest('.add_plan_area').hide();
+   $(element).closest('.add_plan_area').find('*').attr('disabled', true);
    $(element).closest('.add_plan_area').remove();
+}
+
+function deleteWastagePlan(element)
+{
+   $(element).closest('.add_wastage_area').find('*').attr('disabled', true);   
+   $(element).closest('.add_wastage_area').remove();
 }
 
 function setQuantityLimit(index)
@@ -144,7 +250,8 @@ function setQuantityLimit(index)
 
 function loadBatches(sel)
 {    
-    var id = $(sel).attr("id");   
+    var id = $(sel).attr("id"); 
+      
     var product_id = sel.value;
     // var plan_id = $("#plan_id").val();
     var selected_val=[];
@@ -165,6 +272,48 @@ function loadBatches(sel)
     .then(response => 
     { 
         $("#batches_"+id).html(response.data.html); 
+        $('.box-body').LoadingOverlay("hide");
+    })
+    .catch(error =>
+    {
+        $('.box-body').LoadingOverlay("hide");
+    })
+    return false;
+}
+function setWastageQuantityLimit(index)
+{
+    var qtyLimit = $( "#wbatches_wproduct_"+index+" option:selected" ).attr('data-qty');
+    $("#wquantity_"+index).val("");
+    $("#wquantity_"+index).attr("min",1);
+    $("#wquantity_"+index).attr("max",qtyLimit);
+    $("#wquantityLimit_"+index).val(qtyLimit);
+
+    $("#wquantity_"+index).attr("data-error","You can not select more than available quantity:"+qtyLimit);
+}
+function loadWastageBatches(sel)
+{    
+    var id = $(sel).attr("id");    
+    var product_id = sel.value;
+   
+    var selected_val=[];
+    $(".wbatch_id").each(function(){
+        if(this.value!=""){
+            var str = this.value;
+            var res = str.split("||");
+
+            selected_val.push(res[0]);
+        }
+    });  
+    $('.box-body').LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.4)",
+    });
+
+    var action = ADMINURL + '/sales/getProductWastageBatches';
+    axios.post(action, {sale_invoice_id:sale_invoice_id,editFlag:editFlag,product_id:product_id,selected_val:selected_val})
+    .then(response => 
+    { 
+        //console.log("#wbatches_"+id);
+        $("#wbatches_"+id).html(response.data.html); 
         $('.box-body').LoadingOverlay("hide");
     })
     .catch(error =>

@@ -12,6 +12,7 @@ use App\Models\AdminUserModel;
 use App\Models\ProductsModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreSaleStockModel;
+use App\Models\StoreWasteStockModel;
 
 use App\Http\Requests\Admin\StoreSaleRequest;
 use App\Traits\GeneralTrait;
@@ -83,6 +84,9 @@ class StoreSalesController extends Controller
                                 ->where('company_id',$company_id)
                                 ->groupBy('product_id')
                                 ->get();
+        $objWastageStock = new StoreWasteStockModel;
+        $getWastageStockProducts = $objWastageStock
+                                    ->getWastageStockProducts($company_id);
         //dd($getStockProducts->toArray());
 
         // $objProduct = new ProductsModel;
@@ -91,12 +95,38 @@ class StoreSalesController extends Controller
 
         $this->ViewData['customers']  = $customers;
         $this->ViewData['getStockProducts']   = $getStockProducts;
+        $this->ViewData['getWastageStockProducts']   = $getWastageStockProducts;
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'create', $this->ViewData);
     }
 
     public function store(StoreSaleRequest $request)
     {        
+        ##Validation for Wastage Material Stock quantity
+        if (!empty($request->wastagesales) && count($request->wastagesales) > 0){
+            foreach ($request->wastagesales as $wastage){
+                if( !empty($wastage['product_id']) && !empty($wastage['batch_id']) && !empty($wastage['quantity']) ){
+
+                    if($wastage['quantity']<=0){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+                    if($wastage['quantity']>$wastage['quantityLimit']){
+
+                        $this->JsonData['status'] = __('admin.RESP_ERROR');
+                        $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wastage['quantityLimit']; 
+                        return response()->json($this->JsonData);
+                        exit();
+                    }
+
+                }
+                
+            }
+        }
+
         //dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to create record, Something went wrong on server.'; 
@@ -200,6 +230,69 @@ class StoreSalesController extends Controller
                     }
 
                 }
+
+                ## WASTAGE SALE
+                if (!empty($request->wastagesales) && sizeof($request->wastagesales) > 0)
+                {
+                    foreach ($request->wastagesales as $wkey => $wSale) 
+                    {
+                        if(!empty($wSale['product_id']) && !empty($wSale['batch_id']) && !empty($wSale['quantity']) && !empty($wSale['rate'])){
+                            if($wSale['quantity']<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            if($wSale['rate']<0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add rate less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            if($wSale['quantity']>$wSale['quantityLimit']){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You can not select more than available quantitykk:'.$wSale['quantityLimit']; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            $wbatch_stock_id = explode("||", $wSale['batch_id']);
+                            $wbatch_id = $wbatch_stock_id[0];
+                            $wsale_stock_id = $wbatch_stock_id[1];
+
+                            $wSaleObj = new $this->StoreSaleInvoiceHasProductsModel;
+                            $wSaleObj->sale_invoice_id = $collection->id;
+                            $wSaleObj->product_id = !empty($wSale['product_id']) ? $wSale['product_id'] : 0;
+                            $wSaleObj->batch_id      =  $wbatch_id;
+                            $wSaleObj->sale_stock_id =  $wsale_stock_id;
+                            $wSaleObj->quantity   = !empty($wSale['quantity']) ? $wSale['quantity'] : 0;
+                            $wSaleObj->rate       = !empty($wSale['rate']) ? $wSale['rate'] : 0;
+                            $wSaleObj->total_basic = $wSale['quantity']*$wSale['rate'];
+                            $wSaleObj->is_wastage = 1;
+                            if ($wSaleObj->save()) 
+                            { 
+                                $wSaleStockObj = new StoreWasteStockModel;
+                                $wSaleStock = $wSaleStockObj->find($wsale_stock_id);
+                                if(!empty($wSaleStock))
+                                {
+                                    $lbalance_quantity = $wSaleStock->balance_loose - $wSale['quantity'];
+                                    $updatewQtyQry = DB::table('store_waste_stock')
+                                                                ->where('id', $wSaleStock->id)
+                                                                ->update(['balance_loose' => $lbalance_quantity]);
+                                }
+                                $all_transactions[] = 1;
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }
+                    }
+                }
+                ## END WASTAGE SALE
             }
 
             if (!in_array(0,$all_transactions)) 
@@ -819,6 +912,65 @@ class StoreSalesController extends Controller
                 if (!in_array($stock->batch_id, $selected_val))
                 {
                     $balance_quantity=$stock->balance_quantity;
+                    if($editFlag==1){
+                        $getqty = $this->StoreSaleInvoiceHasProductsModel
+                                ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
+                                ->where("store_sale_invoice_has_products.batch_id",$stock->batch_id)
+                                ->where("store_sale_invoice_has_products.product_id",$product_id)
+                                ->first(['quantity']);
+                        // dump($getqty);
+                        // dump($stock->balance_quantity);
+                        if(!empty($getqty)){
+                            #To add the quantity for proper validations
+                            // if($stock->balance_quantity!=$getqty->quantity){
+                                $balance_quantity=$stock->balance_quantity+$getqty->quantity;
+                            // }
+                        }
+                    }
+                    if(!empty($balance_quantity) && $balance_quantity>0)
+                    {
+                        $html.="<option data-qty='".$balance_quantity."' value='".$stock->batch_id."||".$stock->id."'>".$stock->assignedBatch->batch_card_no." (".$balance_quantity.")</option>";
+                    }
+                }                        
+            }
+
+           
+            $this->JsonData['html'] = $html;
+            //$this->JsonData['data'] = $raw_materials;
+            $this->JsonData['msg']  = 'Product Batches';
+            $this->JsonData['status']  = 'Success';
+
+        } catch (Exception $e) 
+        {
+            $this->JsonData['exception'] = $e->getMessage();
+        }
+
+        return response()->json($this->JsonData);   
+    }
+
+    public function getProductWastageBatches(Request $request)
+    {
+        // dd($request->all());
+        $this->JsonData['status'] = 'error';
+        $this->JsonData['msg'] = 'Failed to get product batches, Something went wrong on server.';
+        try 
+        {
+            $company_id  = self::_getCompanyId();
+            $product_id = $request->product_id;
+            $selected_val = $request->selected_val;
+            $editFlag = $request->editFlag;
+            $sale_invoice_id = $request->sale_invoice_id;
+            $objWastageStock = new StoreWasteStockModel;
+            $getStock = $objWastageStock->with(['assignedBatch'])
+                                ->where("store_waste_stock.product_id",$product_id)
+                                ->where("store_waste_stock.company_id",$company_id)
+                                ->get();                            
+            // dd($getStock);
+            $html="<option value=''>Select Batch</option>";
+            foreach($getStock as $stock){        
+                if (!in_array($stock->batch_id, $selected_val))
+                {
+                    $balance_quantity=$stock->balance_loose;
                     if($editFlag==1){
                         $getqty = $this->StoreSaleInvoiceHasProductsModel
                                 ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
