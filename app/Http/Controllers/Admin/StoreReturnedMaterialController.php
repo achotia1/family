@@ -477,7 +477,13 @@ class StoreReturnedMaterialController extends Controller
                             if($outputRec){                            
                                 $outPutId =  $outputRec->id;
                                 $batchId = $outputRec->assignedPlan->batch_id;
-                                $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                                $rcester_companyId = config('constants.RCESTERCOMPANY');
+                                if($companyId==$rcester_companyId){
+                                    $materialOutObj->rcUpdateMadeByMaterial($outPutId, $companyId);
+                                } else {
+                                    $materialOutObj->updateMadeByMaterial($outPutId, $companyId);    
+                                }
+                                
                                 ## UPDATE MANUFACTURING COSTPER UNIT
                                 $objBatchCard = new StoreBatchCardModel;
                                 $objBatchCard->updateClosedBatch($batchId);

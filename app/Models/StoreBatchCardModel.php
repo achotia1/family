@@ -122,7 +122,8 @@ class StoreBatchCardModel extends Model
     }
 
     public function updateClosedBatch($batchId, $yieldFlag = false, $outputFlag = false) {  
-
+        //dd(config('constants.RCESTERCOMPANY'));
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
         $records = self::with([
             'hasProduction'=>function($q){
                 $q->with(['hasProductionMaterials' => function($q){                    
@@ -169,11 +170,15 @@ class StoreBatchCardModel extends Model
 
                 if($records->hasProduction->hasOutMaterial->sellable_qty > 0){
                     $sellableQty = $records->hasProduction->hasOutMaterial->sellable_qty;
+                    $totalSellable = $sellableQty;
+                    if($rcester_companyId == $records->company_id)
+                        $totalSellable =  $records->hasProduction->hasOutMaterial->sellable_qty + $records->hasProduction->hasOutMaterial->loose_material + $records->hasProduction->hasOutMaterial->course_powder;
                     ## CALCULATE MANUFACTURING COST PER UNIT
-                    $cost_per_unit = ($amountTotal)/$sellableQty;
+                    $cost_per_unit = ($amountTotal)/$totalSellable;
                     ## CALCULATE YIELD
+                    
                     if($finalTotal > 0)
-                        $yield = ($sellableQty/$finalTotal) * 100;
+                        $yield = ($totalSellable/$finalTotal) * 100;
                 }            
 
             }

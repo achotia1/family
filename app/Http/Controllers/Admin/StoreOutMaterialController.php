@@ -200,7 +200,18 @@ class StoreOutMaterialController extends Controller
             if($collection){
                 ## CALCULATE LOSS MATERIAL AND YEILD
                 $companyId = self::_getCompanyId();
-                $output = $this->BaseModel->rcUpdateMadeByMaterial($id, $companyId); 
+                $output = $this->BaseModel->rcUpdateMadeByMaterial($id, $companyId);
+                ## UPDATE COST PER UNIT, SALE STOCK AND WASTAGE STOCK
+                $outputData = $this->BaseModel->with([
+                'assignedPlan'
+                ])->where('company_id', $companyId)
+                ->find($id);
+                $batchId = $outputData->assignedPlan->batch_id;
+                if($batchId>0){
+                    $objBatchCard = new StoreBatchCardModel;
+                    $objBatchCard->updateClosedBatch($batchId, false, true);
+                }
+                
                 //dd($output);
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-out.index');

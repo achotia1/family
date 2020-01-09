@@ -320,9 +320,26 @@ class StoreProductionController extends Controller
         dd($d);*/
 
         /* ASHVINI */
-        /*$bid = 8;
+        /*$bid = 1;
         $objBatchCard = new StoreBatchCardModel;
-        $objBatchCard->updateClosedBatch($bid);*/        
+        $objBatchCard->updateClosedBatch($bid);*/
+        /*$bid = 1;
+        $objBatchCard = new StoreBatchCardModel;
+        $records = $objBatchCard->with([
+            'hasProduction'=>function($q){
+                $q->with(['hasProductionMaterials' => function($q){                    
+                    $q->with('mateialName');
+                    $q->with('hasLot');    
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasOutMaterial']);
+            }
+        ])
+        ->find($bid);
+        dd($records->company_id);*/
+
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -509,7 +526,13 @@ class StoreProductionController extends Controller
                         $outputRec = $materialOutObj->getOutputRec($productionId);
                         if($outputRec){                            
                             $outPutId =  $outputRec->id;
-                            $updateOutput = $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                            $rcester_companyId = config('constants.RCESTERCOMPANY');
+                            if($companyId==$rcester_companyId){
+                                $updateOutput = $materialOutObj->rcUpdateMadeByMaterial($outPutId, $companyId);   
+                            } else {
+                               $updateOutput = $materialOutObj->updateMadeByMaterial($outPutId, $companyId); 
+                            }
+                            
                             if($updateOutput) 
                             {                            
                                 $all_transactions[] = 1;
