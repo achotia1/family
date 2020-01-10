@@ -334,7 +334,7 @@
         @endforeach
         @endif
         
-        // PLAN OPTIONS
+        // WASTAGE PLAN OPTIONS
         var wplan_options = '<option value="">Select Product</option>';
         @if(!empty($getWastageStockProducts) && sizeof($getWastageStockProducts) > 0)
         @foreach($getWastageStockProducts as $stock)

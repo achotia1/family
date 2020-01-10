@@ -256,7 +256,7 @@ class StoreSalesController extends Controller
                             if($wSale['quantity']>$wSale['quantityLimit']){
 
                                 $this->JsonData['status'] = __('admin.RESP_ERROR');
-                                $this->JsonData['msg'] = 'You can not select more than available quantitykk:'.$wSale['quantityLimit']; 
+                                $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wSale['quantityLimit']; 
                                 DB::rollback();
                                 return response()->json($this->JsonData);
                                 exit();
@@ -345,15 +345,17 @@ class StoreSalesController extends Controller
         $data = $this->BaseModel
                     ->with(['hasSaleInvoiceProducts'=> function($q)
                             {  
+                                //$q->where('is_wastage', '=', 0);
                                 $q->with('assignedProduct');
                                 $q->with(['assignedBatch'=>function($q1){
                                     $q1->with('hasStockProducts');
+                                    $q1->with('hasStockWastage');
                                 }]);
                             },'hasCustomer'])
                     ->where('store_sale_invoice.id', base64_decode(base64_decode($encID)))
                     ->where('store_sale_invoice.company_id', $company_id)
                     ->first();
-        // dd($data);
+        //dd($data);
         if(empty($data)) {            
             return redirect()->route('admin.return.index');
         }
@@ -374,18 +376,22 @@ class StoreSalesController extends Controller
                                 ->where('company_id',$company_id)
                                 ->groupBy('product_id')
                                 ->get();
-
+        $objWastageStock = new StoreWasteStockModel;
+        $getWastageStockProducts = $objWastageStock
+                                    ->getWastageStockProducts($company_id);
+        //dd($data);
         ## ALL DATA
         $this->ViewData['object']     = $data;        
         $this->ViewData['customers']  = $customers;
-        $this->ViewData['getStockProducts'] = $getStockProducts;                                
+        $this->ViewData['getStockProducts'] = $getStockProducts;
+        $this->ViewData['getWastageStockProducts'] = $getWastageStockProducts;                                
         ## VIEW FILE WITH DATA
         return view($this->ModuleView.'edit', $this->ViewData);
     }
 
     public function update(StoreSaleRequest $request, $encID)
     {
-        // dd($request->all());
+        //dd($request->all());
         $this->JsonData['status'] = __('admin.RESP_ERROR');
         $this->JsonData['msg'] = 'Failed to update Sale, Something went wrong on server.';       
 
@@ -444,12 +450,13 @@ class StoreSalesController extends Controller
                 {   
                     $previousSaleProducts=$this->StoreSaleInvoiceHasProductsModel
                                                     ->where('sale_invoice_id', $collection->id)
+                                                    ->where('is_wastage', 0)
                                                     ->get();
 
                     
 
                     //Delete records
-                    $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->delete();
+                    $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->where('is_wastage', 0)->delete();
 
                     //Update return quantity and lot balance for the current items
                     ## ADD IN store_has_production_materials
@@ -541,12 +548,113 @@ class StoreSalesController extends Controller
                         }
                     }
 
+                    ## WASTAGE SALE
+                    if (!empty($request->wastagesales) && sizeof($request->wastagesales) > 0) {
+                    $previousWsaleProducts=$this->StoreSaleInvoiceHasProductsModel
+                                                    ->where('sale_invoice_id', $collection->id)
+                                                    ->where('is_wastage', 1)
+                                                    ->get();
+                    //Delete records
+                    $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->where('is_wastage', 1)->delete();
+                    
+                    foreach ($request->wastagesales as $wkey => $wSale) 
+                    {
+                        //echo "<br> ".$wSale['product_id']." >> ".$wSale['batch_id']. " >> ".$wSale['quantity']. " >> ".$wSale['rate'];
 
+                        if(!empty($wSale['product_id']) && !empty($wSale['batch_id']) && !empty($wSale['quantity']) && !empty($wSale['rate']))
+                        {
+                            if($wSale['quantity']<=0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add quantity less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            if($wSale['rate']<0){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You cannot add rate less than one'; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            if($wSale['quantity']>$wSale['quantityLimit']){
+
+                                $this->JsonData['status'] = __('admin.RESP_ERROR');
+                                $this->JsonData['msg'] = 'You can not select more than available quantity:'.$wSale['quantityLimit']; 
+                                DB::rollback();
+                                return response()->json($this->JsonData);
+                                exit();
+                            }
+                            $wbatch_stock_id = explode("||", $wSale['batch_id']);
+                            $wbatch_id = $wbatch_stock_id[0];
+                            $wsale_stock_id = $wbatch_stock_id[1];
+                            $wsaleInvProdObj = new StoreSaleInvoiceHasProductsModel;
+                            $wsaleInvProdObj->sale_invoice_id   = $collection->id;
+                            $wsaleInvProdObj->product_id   = !empty($wSale['product_id']) ? $wSale['product_id'] : 0;
+                            $wsaleInvProdObj->batch_id   =  $wbatch_id;
+                            $wsaleInvProdObj->sale_stock_id =  $wsale_stock_id;
+                            $wsaleInvProdObj->quantity   = !empty($wSale['quantity']) ? $wSale['quantity'] : 0;
+                            $wsaleInvProdObj->rate   = !empty($wSale['rate']) ? $wSale['rate'] : 0;
+                            $wsaleInvProdObj->total_basic   =  $wSale['quantity']*$wSale['rate'];
+                            $wsaleInvProdObj->is_wastage   =  1;
+                            //dd($wsaleInvProdObj->is_wastage);
+                            /*echo "<xmp>";
+                            print_r($wsaleInvProdObj);
+                            echo "</xmp>";*/
+                            if ($wsaleInvProdObj->save()) 
+                            {
+                                $all_transactions[] = 1;
+                                $wSaleStockObj = new StoreWasteStockModel;
+                                $wSaleStock = $wSaleStockObj->find($wsale_stock_id);
+                                if(!empty($wSaleStock))
+                                {
+                                    $lbalance_quantity = $wSaleStock->balance_loose - $wSale['quantity'];
+                                    $updatewQtyQry = DB::table('store_waste_stock')
+                                                                ->where('id', $wSaleStock->id)
+                                                                ->update(['balance_loose' => $lbalance_quantity]);
+                                }
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        } else {
+                            $all_transactions[] = 0;    
+                        }
+                    }
+                    //Iterate all the previous products and update the stock balance
+                    if(!empty($previousWsaleProducts))
+                    {
+                        foreach($previousWsaleProducts as $wprevious) 
+                        {
+                             $sqlwQuery = "SELECT  store_waste_stock.id as wsid,store_waste_stock.loose,store_waste_stock.balance_loose FROM store_waste_stock
+                                        WHERE store_waste_stock.product_id = '".$wprevious->product_id."' AND store_waste_stock.batch_id = '".$wprevious->batch_id."'";
+                            $wcollectionReturn = collect(DB::select(DB::raw($sqlwQuery)));
+                            ## Update Stock Balance quantity                            
+                            if(!empty($wcollectionReturn) && count($wcollectionReturn)>0)
+                            {
+                                $wsalesData = $wcollectionReturn->first();
+                                if($wsalesData->wsid)
+                                {
+                                    ##update returned quantity in production and update returned qty+actual qty in store
+                                    $lbalance_quantity=$wprevious->quantity+$wsalesData->balance_loose;
+                                    $updatewQtyQry = DB::table('store_waste_stock')
+                                                                ->where('id', $wsalesData->wsid)
+                                                                ->update(['balance_loose' => $lbalance_quantity]);
+                                }
+                            }
+                        }
+                    }
+                    
+
+                }
+                    ## END WASTAGE SALE
                 }//ifclose
             }
 
             if (!in_array(0,$all_transactions)) 
             {
+                //echo "innn";
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route($this->ModulePath.'index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' updated successfully.';
@@ -562,8 +670,7 @@ class StoreSalesController extends Controller
             DB::rollback();
             $this->JsonData['error_msg'] = $e->getMessage();
             $this->JsonData['msg'] = __('admin.ERR_SOMETHING_WRONG');
-        }
-
+        }        
         return response()->json($this->JsonData);
     }
 
@@ -833,34 +940,58 @@ class StoreSalesController extends Controller
                         {
                             foreach($previousSaleObject as $previous) 
                             {
-                               $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
-                                            WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
-                                $collectionSale = collect(DB::select(DB::raw($sqlQuery)));
+                               
+                               if($previous->is_wastage == 0){
+                                   $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
+                                                WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
+                                    $collectionSale = collect(DB::select(DB::raw($sqlQuery)));
 
-                                if(!empty($collectionSale) && count($collectionSale)>0)
-                                {
-                                    $salesData = $collectionSale->first();
-                                    if($salesData->sssid)
+                                    if(!empty($collectionSale) && count($collectionSale)>0)
                                     {
+                                        $salesData = $collectionSale->first();
+                                        if($salesData->sssid)
+                                        {
 
-                                        $batchDetails = $this->StoreSaleInvoiceHasProductsModel
-                                                    ->selectRaw('created_at')
-                                                    ->where('batch_id', $previous->batch_id)
-                                                    ->orderBy('store_sale_invoice_has_products.id', 'DESC')
-                                                    ->first();
-                                        $prevDate = null;
-                                        if($batchDetails)
-                                            $prevDate = $batchDetails->created_at;
+                                            $batchDetails = $this->StoreSaleInvoiceHasProductsModel
+                                                        ->selectRaw('created_at')
+                                                        ->where('batch_id', $previous->batch_id)
+                                                        ->orderBy('store_sale_invoice_has_products.id', 'DESC')
+                                                        ->first();
+                                            $prevDate = null;
+                                            if($batchDetails)
+                                                $prevDate = $batchDetails->created_at;
 
-                                       ##update stock balance quantity in stock
-                                        $balance_quantity=$previous->quantity+$salesData->balance_quantity;
-                                        $updateQtyQry = DB::table('store_sales_stock')
-                                                        ->where('id', $salesData->sssid)
-                                                        ->update(['balance_quantity' => $balance_quantity,'last_used_at' =>$prevDate]);
+                                           ##update stock balance quantity in stock
+                                            $balance_quantity=$previous->quantity+$salesData->balance_quantity;
+                                            $updateQtyQry = DB::table('store_sales_stock')
+                                                            ->where('id', $salesData->sssid)
+                                                            ->update(['balance_quantity' => $balance_quantity,'last_used_at' =>$prevDate]);
+
+                                        }
 
                                     }
+                                } else if($previous->is_wastage == 1){
+                                    $sqlQuery = "SELECT store_waste_stock.id as sssid,store_waste_stock.loose,store_waste_stock.balance_loose FROM store_waste_stock
+                                                WHERE store_waste_stock.product_id = '".$previous->product_id."' AND store_waste_stock.batch_id = '".$previous->batch_id."'";
+                                    $collectionSale = collect(DB::select(DB::raw($sqlQuery)));
 
+                                    if(!empty($collectionSale) && count($collectionSale)>0)
+                                    {
+                                        $salesData = $collectionSale->first();
+                                        if($salesData->sssid)
+                                        {                                            
+
+                                           ##update stock balance quantity in stock
+                                            $balance_quantity=$previous->quantity+$salesData->balance_loose;
+                                            $updateQtyQry = DB::table('store_waste_stock')
+                                                            ->where('id', $salesData->sssid)
+                                                            ->update(['balance_loose' => $balance_quantity]);
+
+                                        }
+
+                                    }
                                 }
+                                //
                             }
                         }
 
@@ -917,6 +1048,7 @@ class StoreSalesController extends Controller
                                 ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
                                 ->where("store_sale_invoice_has_products.batch_id",$stock->batch_id)
                                 ->where("store_sale_invoice_has_products.product_id",$product_id)
+                                ->where("store_sale_invoice_has_products.is_wastage",0)
                                 ->first(['quantity']);
                         // dump($getqty);
                         // dump($stock->balance_quantity);
@@ -976,13 +1108,14 @@ class StoreSalesController extends Controller
                                 ->where("store_sale_invoice_has_products.sale_invoice_id",$sale_invoice_id)
                                 ->where("store_sale_invoice_has_products.batch_id",$stock->batch_id)
                                 ->where("store_sale_invoice_has_products.product_id",$product_id)
+                                ->where("store_sale_invoice_has_products.is_wastage",1)
                                 ->first(['quantity']);
                         // dump($getqty);
                         // dump($stock->balance_quantity);
                         if(!empty($getqty)){
                             #To add the quantity for proper validations
                             // if($stock->balance_quantity!=$getqty->quantity){
-                                $balance_quantity=$stock->balance_quantity+$getqty->quantity;
+                                $balance_quantity=$stock->balance_loose+$getqty->quantity;
                             // }
                         }
                     }

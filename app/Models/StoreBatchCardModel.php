@@ -48,7 +48,10 @@ class StoreBatchCardModel extends Model
     {
         return $this->hasMany(StoreSaleStockModel::class, 'batch_id', 'id');
     }
-
+    public function hasStockWastage()
+    {
+        return $this->hasMany(StoreWasteStockModel::class, 'batch_id', 'id');
+    }
     public function getBatchCardNo($companyId) {
         
         $todaysRecords = self::where('status', 1)

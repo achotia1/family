@@ -218,7 +218,7 @@ function addWastageStockPlan()
     if($("#wastage-table tr").length > 1){     
         $(plan_area).insertAfter($(".add_wastage_area:last")); 
     } else {        
-        $(plan_area).insertAfter($(".heading-tr:last"));    
+        $(plan_area).insertAfter($(".heading-wastage-tr:last"));    
     }
     $('.select2').select2();
     $(".add_wastage_area").validator();    
@@ -234,6 +234,7 @@ function deleteWastagePlan(element)
 {
    $(element).closest('.add_wastage_area').find('*').attr('disabled', true);   
    $(element).closest('.add_wastage_area').remove();
+   //$(".add_wastage_area").validator();
 }
 
 function setQuantityLimit(index)
@@ -312,7 +313,7 @@ function loadWastageBatches(sel)
     axios.post(action, {sale_invoice_id:sale_invoice_id,editFlag:editFlag,product_id:product_id,selected_val:selected_val})
     .then(response => 
     { 
-        //console.log("#wbatches_"+id);
+        console.log(response.data.html);
         $("#wbatches_"+id).html(response.data.html); 
         $('.box-body').LoadingOverlay("hide");
     })
@@ -326,16 +327,18 @@ function loadWastageBatches(sel)
 // submitting form after validation
 $('#salesForm').validator().on('submit', function (e) 
 {
+    //console.log(e.isDefaultPrevented());
+    //console.log("actinnn");
     if (!e.isDefaultPrevented()) {
 
         const $this = $(this);
         const action = $this.attr('action');
         const formData = new FormData($this[0]);
-        
+        console.log("act"+action);
         $('.box-body').LoadingOverlay("show", {
             background: "rgba(165, 190, 100, 0.4)",
         });
-
+//console.log("errorkaaak");	
         axios.post(action, formData)
             .then(function (response) {
                 const resp = response.data;
@@ -358,7 +361,7 @@ $('#salesForm').validator().on('submit', function (e)
                 $('.box-body').LoadingOverlay("hide");
 
                 const errorBag = error.response.data.errors;
-
+//console.log("errorkk");	
                 $.each(errorBag, function (fieldName, value) {
                     $('.err_' + fieldName).closest('.form-group').addClass('has-error has-danger');
                     $('.err_' + fieldName).text(value[0]).closest('span').show();

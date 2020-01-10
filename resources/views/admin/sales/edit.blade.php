@@ -91,12 +91,12 @@
                             <th class="w-50-px"></th>
                         </tr>
                     </thead>
+                    <tbody class="no-border">
                     @php
                      $k = 0;
                     @endphp
                     @if(!empty($object->hasSaleInvoiceProducts))
-                    @foreach($object->hasSaleInvoiceProducts as $hasSaleInvoiceProducts)
-                    <tbody class="no-border">
+                    @foreach($object->hasSaleInvoiceProducts as $hasSaleInvoiceProducts)                   	@if($hasSaleInvoiceProducts->is_wastage == 0)
                     <tr class="inner-td add_plan_area plan">                    
                     <td>
                     <div class="form-group"> 
@@ -206,6 +206,7 @@
                     @php
                         $k++;
                     @endphp
+                    @endif
                     @endforeach
                     @endif
                      <input type="hidden" name="total_items" id="total_items" value="{{$k}}">
@@ -220,7 +221,154 @@
                             </a>
                 </div>
             </div> 
+			<!-- Sale Loose Material -->
+			<div class="with-border col-md-12">
+                <h4 class="">Loose Product Stock</h4>
+            </div>
+            <div class="col-md-12">
+                <table class="table mb-0 border-none " id="wastage-table">
+                    <thead class="theme-bg-blue-light-opacity-15">
+                        <tr class="heading-wastage-tr">                            
+                            <th class="w-160-px">Product Name</th>                            
+                            <th class="w-160-px">Batch Code</th>
+                            <th class="w-160-px">Quantity</th>
+                            <th class="w-160-px">Rate</th>
+                            <th class="w-50-px"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="no-border">
+                    @php
+                    $n = 0;
+                    @endphp
+                    @if(!empty($object->hasSaleInvoiceProducts))
+                    @foreach($object->hasSaleInvoiceProducts as $hasSaleInvoiceProducts)
+                    @if($hasSaleInvoiceProducts->is_wastage == 1)
+                    <tr class="inner-td add_wastage_area wastage">                    
+                    <td>
+                    	<select 
+                            class="form-control my-select select2 wproducts" 
+                            placeholder="All Products"
+                            name="wastagesales[{{$n}}][product_id]"
+                            id="wproduct_{{$n}}"
+                            required
+                            onchange="loadWastageBatches(this)"
+                            data-error="Product field is required." 
+                        >
+                            <option value="{{ $hasSaleInvoiceProducts->product_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedProduct->name }} ({{ $hasSaleInvoiceProducts->assignedProduct->code }})</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[{{$n}}][product_id][] err_production_product"></li>
+                            </ul>
+                        </span>
+                    </td>
+                    <td>
+                    @php
+                            $wstock_qty = 0;
+                            if(!empty($hasSaleInvoiceProducts->assignedBatch->hasStockWastage))
+                            {
+                                foreach($hasSaleInvoiceProducts->assignedBatch->hasStockWastage as $wsale_stock)
+                                {
+                                    if($hasSaleInvoiceProducts->product_id==$wsale_stock->product_id && $hasSaleInvoiceProducts->batch_id==$wsale_stock->batch_id)
+                                    {
+                                        if($wsale_stock->balance_loose<$wsale_stock->loose){
+                                            $wstock_qty=$wsale_stock->balance_loose+$hasSaleInvoiceProducts->quantity;
+                                        }else{
+                                            $wstock_qty=$wsale_stock->balance_loose;
+                                        }
+                                        
+                                    }
+                                }
+                            }
 
+                        @endphp
+                    	<div class="form-group"> 
+                        <select 
+                            class="form-control my-select select2 wbatch_id" 
+                            placeholder="All Batches"
+                            name="wastagesales[{{$n}}][batch_id]"
+                            onchange="setWastageQuantityLimit({{$n}});"
+                            id="wbatches_wproduct_{{$n}}"
+                            required
+                            data-error="Batch field is required." 
+                        >
+                            <option data-qty="{{ $wstock_qty }}" value="{{ $hasSaleInvoiceProducts->batch_id.'||'.$hasSaleInvoiceProducts->sale_stock_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedBatch->batch_card_no }} ({{ $wstock_qty }})</option>
+                        </select>
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[{{$n}}][batch_id][] err_wbatch_id"></li>
+                            </ul>
+                        </span>
+                        </div>
+                    </td>
+                    <td>
+                    	<div class="wadd_quantity form-group">
+                        <input 
+                            type="number" 
+                            class="form-control wquantity"
+                            name="wastagesales[{{$n}}][quantity]" 
+                            id="wquantity_{{$n}}"
+                            value="{{ $hasSaleInvoiceProducts->quantity }}"
+                            min="1"
+                            max="{{$wstock_qty}}"
+                            required
+                            step="any" 
+                            data-error="Quantity should be number."
+                        >
+                        <input 
+                            type="hidden" 
+                            id="wquantityLimit_{{$n}}"
+                            name="wastagesales[{{$n}}][quantityLimit]"
+                            value="{{$wstock_qty}}" 
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[{{$n}}][quantity][] err_wquantity"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                    	<div class="wadd_rate form-group">
+                        <input 
+                            type="number" 
+                            class="form-control wrate"
+                            name="wastagesales[{{$n}}][rate]" 
+                            id="wrate_{{$n}}"
+                            value="{{ $hasSaleInvoiceProducts->rate }}" 
+                            required
+                            step="any" 
+                            data-error="Rate should be number."
+                        >
+                        <span class="help-block with-errors">
+                            <ul class="list-unstyled">
+                                <li class="err_wastagesales[{{$n}}][rate][] err_wrate"></li>
+                            </ul>
+                        </span>
+                    </div>
+                    </td>
+                    <td>
+                    	<p class="m-0 red bold deletebtn" style="display:block;cursor:pointer" onclick="return deleteWastagePlan(this)"  id="w{{$n}}" style="cursor:pointer">Remove</p>
+                    </td>
+                    </tr>
+					@php
+                    	$n++;
+                    @endphp
+                    @endif
+					@endforeach
+					@endif
+                    <input type="hidden" name="wtotal_items" id="wtotal_items" value="1">
+                    </tbody>                    
+                </table>
+                <div class="col-md-8">
+                <a href="javascript:void(0)" class="add-more-btn theme-green bold f-16 text-underline"
+                                onclick="return addWastageStockPlan()" style="cursor: pointer;">
+                                <span class="mr-2"><img src="{{ url('/assets/admin/images') }}/icons/green_plus.svg"
+                                        alt=" view"></span> Add More
+                            </a>
+                </div>
+            </div>
+			<!-- End Sale Loose Material -->
             <div class="box-footer">
                 <div class="col-md-12 align-right">
                 <button type="reset" class="btn btn-danger">Reset</button>
@@ -244,6 +392,13 @@
         @if(!empty($getStockProducts) && sizeof($getStockProducts) > 0)
         @foreach($getStockProducts as $stock)
          plan_options += `<option value="{{ $stock->assignedProduct->id }}">{{ $stock->assignedProduct->code }} ({{ $stock->assignedProduct->name }})</option>`;
+        @endforeach
+        @endif
+        // WASTAGE PLAN OPTIONS
+        var wplan_options = '<option value="">Select Product</option>';
+        @if(!empty($getWastageStockProducts) && sizeof($getWastageStockProducts) > 0)
+        @foreach($getWastageStockProducts as $stock)
+         wplan_options += `<option value="{{ $stock->assignedProduct->id }}">{{ $stock->assignedProduct->code }} ({{ $stock->assignedProduct->name }})</option>`;
         @endforeach
         @endif
     </script>
