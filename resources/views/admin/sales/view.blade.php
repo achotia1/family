@@ -89,15 +89,7 @@
                             <td colspan="5">
                                 {{$object->hasCustomer->contact_name}} ({{$object->hasCustomer->company_name}})
                             </td>
-                        </tr>
-                        <!-- <tr>                            
-                            <td><b>Total Returned Raw Material :</b></td>
-                            <td colspan="3"><span id="planned-material"></span></td>
-                        </tr>
-                        <tr class="cls-pmaterial">                          
-                            <td><b>Total Packaging Material :</b></td>
-                            <td colspan="3"><span id="planned-pmaterial"></span></td>
-                        </tr> -->
+                        </tr>                        
                         <tr>
                             <td colspan="6"></td>
                         </tr>
@@ -151,7 +143,61 @@
                              
                              <td><strong> {{ number_format($total_amount,2) }} </strong></td>
                         </tr>
-                       
+                       <!-- wastage material details -->
+                       <tr>
+                            <td colspan="6"></td>
+                        </tr>
+                        <tr class="trExpense">
+                            <td colspan="6" class="title"><b>Loose Product Details</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>Sr.No</b></td>
+                            <td><b>Product Name</b></td>
+                            <td><b>Batch Code</b></td>
+                            <td><b>Quantity</b></td>                            
+                            <td><b>Rate</b></td>                            
+                            <td><b>Amount</b></td>                            
+                        </tr>
+                        @php
+                            $lindex=1;
+                            $lpId=[];
+                            $ltotal_qty=0;
+                            $ltotal_amount=0;
+                        @endphp
+                        @foreach($wastageBatch_data as $key=>$products)
+                            @foreach($products as $product)
+                                @php
+                                    $ltotal_qty=$ltotal_qty+$product->quantity;
+                                    $ltotal_amount=$ltotal_amount+$product->total_basic;
+                                @endphp 
+                            <tr>
+                                @if(!in_array($product->product_id,$lpId))
+                                    @php
+                                        $lpId[]=$product->product_id;
+                                    @endphp 
+                                <td>{{ $lindex }}</td>
+                                <td>{{ $product->assignedProduct->name }} ({{ $product->assignedProduct->code }})</td>
+                                @else
+                                <td></td>
+                                <td></td>
+                                @endif
+                                <td>{{ $product->assignedBatch->batch_card_no }}</td>          
+                                <td>{{ number_format($product->quantity,2) }} kg</td>          
+                                <td>{{ number_format($product->rate,2) }}</td>
+                                <td>{{ number_format($product->total_basic,2) }}</td>
+                            </tr>
+                            @endforeach 
+                        @php
+                            $lindex++;
+                        @endphp
+                        @endforeach 
+                        <tr>
+                             <td colspan="3" align="right"><strong>Total</strong></td>
+                             <td colspan="2"><strong> {{ number_format($ltotal_qty,2) }} kg </strong></td>
+                             
+                             <td><strong> {{ number_format($ltotal_amount,2) }} </strong></td>
+                        </tr>
+                       <!-- end wastage material detsila -->
                     </tbody>
                 </table>
             </div>           

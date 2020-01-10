@@ -695,16 +695,21 @@ class StoreSalesController extends Controller
                     ->find($id);
                     // ->where('id',$id)
                     // ->get();
-        //dump($data->toArray());
+        //dd($data->toArray());
         $productBatch_data=[];
+        $wastageBatch_data=[];
         foreach($data->hasSaleInvoiceProducts as $key => $product) {
-            $productBatch_data[$product->product_id][$product->batch_id] = $product;
+            if($product->is_wastage == 0)
+                $productBatch_data[$product->product_id][$product->batch_id] = $product;
+            else
+                $wastageBatch_data[$product->product_id][$product->batch_id] = $product; 
         }
-        // dd($productBatch_data);
+        //dd($wastageBatch_data);
 
         $this->ViewData['object'] = $data;         
         $this->ViewData['productBatch_data'] = $productBatch_data;         
-       
+        $this->ViewData['wastageBatch_data'] = $wastageBatch_data;
+        
         return view($this->ModuleView.'view', $this->ViewData);
     }
 

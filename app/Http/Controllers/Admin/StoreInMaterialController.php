@@ -125,7 +125,7 @@ class StoreInMaterialController extends Controller
     }*/
 
     public function edit($encID)
-    {
+    {        
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
         $this->ViewData['moduleAction'] = 'Edit '.$this->ModuleTitle;
@@ -187,8 +187,13 @@ class StoreInMaterialController extends Controller
 
     public function _storeOrUpdate($collection, $request)
     {        
+        $is_opening = !empty($request->status) ? 0 : 1;
+        //$mytime->toDateTimeString();
+        
         if(!$collection->id){
             $collection->lot_balance     = $request->lot_qty;
+            if($is_opening == 0)
+                $collection->created_at = new Carbon('-2 days');
         } else {
             $diffQty = $request->lot_qty - $collection->lot_qty;
             $collection->lot_balance = $collection->lot_balance + $diffQty; 
@@ -200,6 +205,7 @@ class StoreInMaterialController extends Controller
         $collection->lot_qty             = $request->lot_qty;        
         $collection->price_per_unit             = $request->price_per_unit;
         $collection->status             = !empty($request->status) ? 0 : 1;      
+        
         ## SAVE DATA
         $collection->save();
         
