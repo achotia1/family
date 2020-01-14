@@ -25,6 +25,11 @@ class StoreRawMaterialModel extends Model
         return $this->hasMany(StoreInMaterialModel::class, 'material_id', 'id');
     }
 
+    public function hasOpeningMaterials()
+    {
+        return $this->hasMany(StoreMaterialOpeningModel::class, 'material_id', 'id');
+    }
+
     /**
      * The attributes that should be mutated to dates.
      *
@@ -82,4 +87,5 @@ class StoreRawMaterialModel extends Model
                 ->orderBy('name', 'ASC')
                 ->get();
     }
+
 }

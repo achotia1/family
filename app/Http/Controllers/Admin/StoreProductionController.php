@@ -23,6 +23,7 @@ use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
 
 use DB;
+use Carbon\Carbon;
 class StoreProductionController extends Controller
 {
 
@@ -320,6 +321,9 @@ class StoreProductionController extends Controller
         dd($d);*/
 
         /* ASHVINI */
+        //$carbon = new Carbon('Y-m-d');
+        /*$now =  Carbon::today()->format('Y-m-d');;
+        dd($now);*/
         /*$bid = 1;
         $objBatchCard = new StoreBatchCardModel;
         $objBatchCard->updateClosedBatch($bid);*/
@@ -339,7 +343,17 @@ class StoreProductionController extends Controller
         ])
         ->find($bid);
         dd($records->company_id);*/
-
+        /*$productionId = 1;
+        $prodRawMaterialModel = new ProductionHasMaterialModel;
+        $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity','created_at'])->toArray();
+        $datesArr = array();
+        if(!empty($prevRecords)){
+            foreach($prevRecords as $prKey=>$prVal){
+                $datesArr[$prVal['lot_id']] = $prVal['created_at'];
+            }
+        }*/
+        //dd($datesArr);
+        
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -348,7 +362,7 @@ class StoreProductionController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
         $id = base64_decode(base64_decode($encID));
         $companyId = self::_getCompanyId();        
-        
+        //dd($id );
         $data = $this->BaseModel
         ->with([   
             'hasProductionMaterials' => function($q)
@@ -436,7 +450,9 @@ class StoreProductionController extends Controller
         try {
 
             $collection = $this->BaseModel->find($id);
-            $batchId = $collection->batch_id;            
+            $batchId = $collection->batch_id;
+            $cDate = $collection->created_at;
+            //dd($cDate);            
             $collection = self::_storeOrUpdate($collection,$request);
             if($collection->save())
             {
@@ -446,8 +462,13 @@ class StoreProductionController extends Controller
                 {                     
                     ## GET PREIOUS LOT QUANTITIES
                     $prodRawMaterialModel = new ProductionHasMaterialModel;
-                    $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity'])->toArray();
-                    
+                    $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity','created_at'])->toArray();
+                    $datesArr = array();
+                    if(!empty($prevRecords)){
+                        foreach($prevRecords as $prKey=>$prVal){
+                            $datesArr[$prVal['lot_id']] = $prVal['created_at'];
+                        }
+                    }
                     $result = array();
                     ## IF Duplicate row for same material and lot id
                     # MAKE addition of quantities and create one record
@@ -477,6 +498,12 @@ class StoreProductionController extends Controller
                                 $finalArray[$i]['material_id'] = $materialId;
                                 $finalArray[$i]['lot_id'] = $lotId;
                                 $finalArray[$i]['quantity'] = $quantity;
+                                $finalArray[$i]['created_at'] = $cDate;
+                                /*if(isset($datesArr[$lotId]) && $datesArr[$lotId] != '')
+                                    $finalArray[$i]['created_at'] = $datesArr[$lotId];
+                                else{                                    
+                                    $finalArray[$i]['created_at'] = Carbon::now()->toDateTimeString();
+                                }*/
                                 $i++;
                                 $correntRecords[$lotId] = $quantity;
                             }                            

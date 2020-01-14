@@ -10,6 +10,7 @@ use App\Models\StoreInMaterialModel;
 use App\Models\StoreRawMaterialModel;
 use App\Models\ProductionHasMaterialModel;
 use App\Models\StoreLotCorrectionModel;
+use App\Models\StoreMaterialOpeningModel;
 
 use App\Http\Requests\Admin\StoreInMaterialRequest;
 use App\Http\Requests\Admin\StoreCorrectMaterialRequest;
@@ -65,7 +66,23 @@ class StoreInMaterialController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
 
         $company_id = self::_getCompanyId();
+        // ASHVINI
+        /*$openingDate =  Carbon::today()->format('Y-m-d');
+        $objMatOpen = new StoreMaterialOpeningModel;
+        $rawopncollection = $objMatOpen->where('material_id', 8)->where('opening_date',$openingDate)->first(); //$request->material_id
+        if(!empty($rawopncollection)){
+            $rawopncollection->opening_bal = $rawopncollection->opening_bal+10;
+            $rawopncollection->save();
+        } else {
+            $objMatOpen->material_id = 8;
+            $objMatOpen->opening_bal = 10;
+            $objMatOpen->opening_date = $openingDate;
+            $objMatOpen->save();
+        }*/
+        //$rawopncollection->save();
+        //dd($rawopncollection);
 
+        // END ASHVINI
         //$objLot = new StoreBatchCardModel;
         $lotNo = $this->BaseModel->geLotNo($company_id);
         $this->ViewData['lotNo']   = $lotNo;
@@ -95,6 +112,13 @@ class StoreInMaterialController extends Controller
                 $objMaterial = new StoreRawMaterialModel;
                 $rawMaterialcollection = $objMaterial->find($request->material_id);
                 $rawMaterialcollection->balance_stock = $rawMaterialcollection->balance_stock + $request->lot_qty;
+                $rawMaterialcollection->save();
+
+                ## ADD OPENING BAL IN OPENING TALE
+                /*$openingDate =  Carbon::today()->format('Y-m-d');
+                $objMatOpen = new StoreMaterialOpeningModel;;
+                $rawopncollection = $objMatOpen->where('material_id', $request->material_id)->where('opening_date',$openingDate)->find();*/
+                //$rawMaterialcollection->balance_stock = $rawMaterialcollection->balance_stock + $request->lot_qty;
                 $rawMaterialcollection->save();
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-in.index');
@@ -192,8 +216,8 @@ class StoreInMaterialController extends Controller
         
         if(!$collection->id){
             $collection->lot_balance     = $request->lot_qty;
-            if($is_opening == 0)
-                $collection->created_at = new Carbon('-2 days');
+            /*if($is_opening == 0)
+                $collection->created_at = new Carbon('-2 days');*/
         } else {
             $diffQty = $request->lot_qty - $collection->lot_qty;
             $collection->lot_balance = $collection->lot_balance + $diffQty; 

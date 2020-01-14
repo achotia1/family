@@ -249,8 +249,7 @@
                             class="form-control my-select select2 wproducts" 
                             placeholder="All Products"
                             name="wastagesales[{{$n}}][product_id]"
-                            id="wproduct_{{$n}}"
-                            required
+                            id="wproduct_{{$n}}"                            
                             onchange="loadWastageBatches(this)"
                             data-error="Product field is required." 
                         >
@@ -288,8 +287,7 @@
                             placeholder="All Batches"
                             name="wastagesales[{{$n}}][batch_id]"
                             onchange="setWastageQuantityLimit({{$n}});"
-                            id="wbatches_wproduct_{{$n}}"
-                            required
+                            id="wbatches_wproduct_{{$n}}"                            
                             data-error="Batch field is required." 
                         >
                             <option data-qty="{{ $wstock_qty }}" value="{{ $hasSaleInvoiceProducts->batch_id.'||'.$hasSaleInvoiceProducts->sale_stock_id }}"  selected >{{ $hasSaleInvoiceProducts->assignedBatch->batch_card_no }} ({{ $wstock_qty }})</option>
@@ -310,8 +308,7 @@
                             id="wquantity_{{$n}}"
                             value="{{ $hasSaleInvoiceProducts->quantity }}"
                             min="1"
-                            max="{{$wstock_qty}}"
-                            required
+                            max="{{$wstock_qty}}"                            
                             step="any" 
                             data-error="Quantity should be number."
                         >
@@ -335,8 +332,7 @@
                             class="form-control wrate"
                             name="wastagesales[{{$n}}][rate]" 
                             id="wrate_{{$n}}"
-                            value="{{ $hasSaleInvoiceProducts->rate }}" 
-                            required
+                            value="{{ $hasSaleInvoiceProducts->rate }}"
                             step="any" 
                             data-error="Rate should be number."
                         >

@@ -14,7 +14,7 @@ use App\Models\StoreSaleStockModel;
 use App\Models\StoreLotCorrectionModel;
 use App\Models\StoreStockCorrectionModel;
 use App\Models\StoreTempRawMaterialModel;
-
+//use App\Models\StoreMaterialOpeningModel;
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
 use DB;
@@ -1625,6 +1625,8 @@ class ReportController extends Controller
     public function getRawMaterialRecords(Request $request)
     {
         
+        
+        //dd($balResult);
         /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */        
         $start_date = $end_date   = date('Y-m-d');        
         if (!empty($request->custom)){
@@ -1637,13 +1639,13 @@ class ReportController extends Controller
 
             }
         }
-        
+        //dd($start_date);
         $companyId = self::_getCompanyId();
         $tempCollection = new StoreTempRawMaterialModel;
         $tempCollection->query()->truncate();
         
         $objMaterial = new StoreRawMaterialModel;
-        /*$receivedSub= DB::raw('(SELECT deleted_at, material_id,
+        $receivedSub= DB::raw('(SELECT deleted_at, material_id,
                     SUM(CASE 
                         WHEN store_in_materials.status = 1 
                         THEN store_in_materials.lot_qty 
@@ -1653,16 +1655,8 @@ class ReportController extends Controller
                     WHERE deleted_at is null
                     and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
                     and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
-                    GROUP BY material_id) im');*/
-        $receivedSub= DB::raw('(SELECT deleted_at, material_id,
-                    SUM(
-                        store_in_materials.lot_qty                      
-                    ) AS received_total
-                    FROM store_in_materials
-                    WHERE deleted_at is null
-                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
-                    and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
                     GROUP BY material_id) im');
+      
         $issuedSub = DB::raw('(SELECT material_id, 
                 SUM(store_production_has_materials.quantity) as total_issued,
                 SUM(store_production_has_materials.returned_quantity) as total_returned
@@ -1682,6 +1676,12 @@ class ReportController extends Controller
                     FROM `store_in_materials` 
             WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
             GROUP BY material_id) im');
+
+        /*$opBalSub = DB::raw('(SELECT material_id, 
+                    SUM(store_in_materials.lot_balance) AS opening_balance
+                    FROM `store_in_materials` 
+            WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
+            GROUP BY material_id) im');*/
 
         $modelQuery = $objMaterial
        ->selectRaw('
@@ -1703,7 +1703,7 @@ class ReportController extends Controller
         })
         ->where('store_raw_materials.company_id', $companyId);
        
-        $modelQuery2 = $objMaterial
+        /*$modelQuery2 = $objMaterial
        ->selectRaw('
                     store_raw_materials.id,
                     IFNULL(im.opening_balance, 0) AS opening_balance
@@ -1711,11 +1711,12 @@ class ReportController extends Controller
         ->leftjoin($opBalSub,function($join){
             $join->on('im.material_id','=','store_raw_materials.id');
         })        
-        ->where('store_raw_materials.company_id', $companyId);
+        ->where('store_raw_materials.company_id', $companyId);*/        
+        
         //dd($modelQuery2->toSql());
         $insertArray = array();
         $result = $modelQuery->get();        
-        $result2 = $modelQuery2->get();
+        //$result2 = $modelQuery2->get();
         if($result){            
             foreach($result as $key=>$val){
                 $insertArray[$val->id]['material_id'] = $val->id;
@@ -1729,12 +1730,35 @@ class ReportController extends Controller
             }
             //$tempCollection->
         }
-        
-        if($result2){            
+        //dd($result2);
+        /*if($result2){            
             foreach($result2 as $key2=>$val2){
                 $insertArray[$val2->id]['opening_balance'] = $val2->opening_balance;
             }            
+        }*/
+        //$openingDate =  Carbon::today()->format('Y-m-d');
+        $openingDate = $start_date;
+        $mObj = new StoreRawMaterialModel;
+        $openingData = $mObj
+        ->with([   
+            'hasOpeningMaterials' => function($q) use ($openingDate)
+            {  
+                $q->where('opening_date', $openingDate);                
+            }
+            ])
+        ->where('company_id', $companyId)
+        ->get()->toArray();
+        //dd($openingData);
+        //$balResult = array();
+        if(!empty($openingData)){
+            foreach($openingData as $oKey=>$oVal){                
+                if(isset($oVal['has_opening_materials'][0]['opening_bal']))
+                    $insertArray[$oVal['id']]['opening_balance'] = $oVal['has_opening_materials'][0]['opening_bal'];
+                else
+                     $insertArray[$oVal['id']]['opening_balance'] = 0;              
+            }
         }
+
         if($insertArray){            
             foreach($insertArray as $key1=>$val1){
                 $insertArray[$val1['material_id']]['balance_qty'] = ((float)$val1['opening_balance'] + (float)$val1['received_qty'] + (float)$val1['returned_qty']) - (float)$val1['issued_qty'] ;

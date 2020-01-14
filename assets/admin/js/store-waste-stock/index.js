@@ -1,7 +1,44 @@
 $(document).ready(function() 
-{
+{    
     var action = ADMINURL+'/wastage-material/getRecords'; 
-
+	if(rcesterCompany){
+		var objCustom = {
+                    "batch_id" :  $('#batch-id').val(),
+                    "product_code" :  $('#product-code').val(),
+                    "balance_course" :  $('#balance-course').val(),                    
+                    "balance_loose" :  $('#balance-loose').val(),                    
+                };
+	    var objcolmns = [
+	            { "data": "id",  "visible": false, },           
+	            { "data": "batch_id"},
+	            { "data": "product_code"},            
+	            { "data": "balance_course"},	           
+	            { "data": "balance_loose"},
+	            { "data": "actions"}
+       	 ];
+       	 var aTar = 	[0,5];
+	} else {
+		var objCustom = {
+                    "batch_id" :  $('#batch-id').val(),
+                    "product_code" :  $('#product-code').val(),
+                    "balance_course" :  $('#balance-course').val(),
+                    "balance_rejection" :  $('#balance-rejection').val(),
+                    "balance_dust" :  $('#balance-dust').val(),
+                    "balance_loose" :  $('#balance-loose').val(),                    
+                };
+	    var objcolmns = [
+	            { "data": "id",  "visible": false, },           
+	            { "data": "batch_id"},
+	            { "data": "product_code"},            
+	            { "data": "balance_course"},
+	            { "data": "balance_rejection"},
+	            { "data": "balance_dust"},
+	            { "data": "balance_loose"},
+	            { "data": "actions"}
+	        ];
+	        var aTar = 	[0,7];
+	}
+	
     const table = $('#listingTable').DataTable( 
     {
         "stateSave": true,
@@ -16,28 +53,11 @@ $(document).ready(function()
             "url": action,
             "data": function (object) 
             {
-                object.custom = {
-                    "batch_id" :  $('#batch-id').val(),
-                    "product_code" :  $('#product-code').val(),
-                    "balance_course" :  $('#balance-course').val(),
-                    "balance_rejection" :  $('#balance-rejection').val(),
-                    "balance_dust" :  $('#balance-dust').val(),
-                    "balance_loose" :  $('#balance-loose').val(),                    
-                }
+                object.custom = objCustom;
             }
         },
-        "columns": [
-            { "data": "id",  "visible": false, },
-            /*{ "data": "select"},*/
-            { "data": "batch_id"},
-            { "data": "product_code"},            
-            { "data": "balance_course"},
-            { "data": "balance_rejection"},
-            { "data": "balance_dust"},
-            { "data": "balance_loose"},
-            { "data": "actions"}
-        ],
-        "aoColumnDefs": [{ "bSortable": false, "aTargets": [0,7] }],
+        "columns": objcolmns,
+        "aoColumnDefs": [{ "bSortable": false, "aTargets": aTar }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
         "createdRow": function ( row, data, index ) {			

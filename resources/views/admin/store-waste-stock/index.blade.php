@@ -52,7 +52,9 @@
 </section>
 @endsection
 @section('scripts')
-
+<script type="text/javascript">
+	var rcesterCompany = '{{$rcesterCompany}}';
+</script>
 <script type="text/javascript" src="{{ url('assets/admin/js/store-waste-stock/index.js') }}"></script>
 
 @endsection

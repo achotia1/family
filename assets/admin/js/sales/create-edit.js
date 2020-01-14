@@ -226,12 +226,14 @@ function addWastageStockPlan()
 
 function deletePlan(element)
 {
+   
    $(element).closest('.add_plan_area').find('*').attr('disabled', true);
    $(element).closest('.add_plan_area').remove();
 }
 
 function deleteWastagePlan(element)
 {
+   console.log(element);
    $(element).closest('.add_wastage_area').find('*').attr('disabled', true);   
    $(element).closest('.add_wastage_area').remove();
    //$(".add_wastage_area").validator();
@@ -334,7 +336,7 @@ $('#salesForm').validator().on('submit', function (e)
         const $this = $(this);
         const action = $this.attr('action');
         const formData = new FormData($this[0]);
-        console.log("act"+action);
+        //console.log("act"+action);
         $('.box-body').LoadingOverlay("show", {
             background: "rgba(165, 190, 100, 0.4)",
         });
