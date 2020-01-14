@@ -66,21 +66,7 @@ class StoreInMaterialController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;
 
         $company_id = self::_getCompanyId();
-        // ASHVINI
-        /*$openingDate =  Carbon::today()->format('Y-m-d');
-        $objMatOpen = new StoreMaterialOpeningModel;
-        $rawopncollection = $objMatOpen->where('material_id', 8)->where('opening_date',$openingDate)->first(); //$request->material_id
-        if(!empty($rawopncollection)){
-            $rawopncollection->opening_bal = $rawopncollection->opening_bal+10;
-            $rawopncollection->save();
-        } else {
-            $objMatOpen->material_id = 8;
-            $objMatOpen->opening_bal = 10;
-            $objMatOpen->opening_date = $openingDate;
-            $objMatOpen->save();
-        }*/
-        //$rawopncollection->save();
-        //dd($rawopncollection);
+        // ASHVINI       
 
         // END ASHVINI
         //$objLot = new StoreBatchCardModel;
@@ -114,12 +100,22 @@ class StoreInMaterialController extends Controller
                 $rawMaterialcollection->balance_stock = $rawMaterialcollection->balance_stock + $request->lot_qty;
                 $rawMaterialcollection->save();
 
-                ## ADD OPENING BAL IN OPENING TALE
-                /*$openingDate =  Carbon::today()->format('Y-m-d');
-                $objMatOpen = new StoreMaterialOpeningModel;;
-                $rawopncollection = $objMatOpen->where('material_id', $request->material_id)->where('opening_date',$openingDate)->find();*/
-                //$rawMaterialcollection->balance_stock = $rawMaterialcollection->balance_stock + $request->lot_qty;
-                $rawMaterialcollection->save();
+                ## ADD OPENING BAL IN OPENING TABLE
+                $is_opening = !empty($request->status) ? 0 : 1;
+                if($is_opening == 0){
+                    $openingDate =  Carbon::today()->format('Y-m-d');
+                    $objMatOpen = new StoreMaterialOpeningModel;;
+                    $rawopncollection = $objMatOpen->where('material_id', $request->material_id)->where('opening_date',$openingDate)->first();
+                    if(!empty($rawopncollection)){
+                        $rawopncollection->opening_bal = $rawopncollection->opening_bal+$request->lot_qty;
+                        $rawopncollection->save();
+                    } else {
+                        $objMatOpen->material_id = $request->material_id;
+                        $objMatOpen->opening_bal = $request->lot_qty;
+                        $objMatOpen->opening_date = $openingDate;
+                        $objMatOpen->save();
+                    }
+                }
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-in.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' created successfully.'; 
@@ -161,7 +157,23 @@ class StoreInMaterialController extends Controller
         if(empty($data)) {            
             return redirect()->route('admin.materials-in.index');
         }
-        
+        ## ASHVINI
+        /*$flagEditOpening = 0;
+        $todaysDate =  Carbon::today()->format('Y-m-d');
+        $createdDate = $data->created_at;
+        $fcreatedDate = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $createdDate)
+                ->format('Y-m-d');
+        //$fcreatedDate = '2020-01-10';
+        if($todaysDate == $fcreatedDate){
+            if($data->status == 0)
+                $flagEditOpening = 1;
+        } else if($fcreatedDate < $todaysDate){
+            $flagEditOpening = 1;
+        }
+        echo $flagEditOpening;
+
+        dd($data);*/
+        ## END ASHVINI
         ## ALL DATA        
         $this->ViewData['material'] = $data;
         
@@ -179,17 +191,62 @@ class StoreInMaterialController extends Controller
         $id = base64_decode(base64_decode($encID));
         try {
             $collection = $this->BaseModel->find($id);
-            $preLotQty =  $collection->lot_qty;                
+            $preLotQty =  $collection->lot_qty;
+            $preStatus =  $collection->status;                
             $collection = self::_storeOrUpdate($collection,$request);
 
             if($collection){
                 ## UPDATE Lot Quantity in material balance
                 $objMaterial = new StoreRawMaterialModel;
                 $rawMaterialcollection = $objMaterial->find($request->material_id);
-               
                 $rawMaterialcollection->balance_stock = ($rawMaterialcollection->balance_stock - $preLotQty) + $request->lot_qty;                
                 $rawMaterialcollection->save();
+                ## IF LOT IS TODAYS OPENING, ANY OLDER THEN EDIT OPENING BALANCE IN store_material_openings TABLE
+                //$is_opening = !empty($request->status) ? 0 : 1;
+                $flagEditOpening = 0;
+                $flagSubstarctPrev = 1;
+                $todaysDate =  Carbon::today()->format('Y-m-d');
+                $createdDate = $collection->created_at;
+                $fcreatedDate = Carbon::createFromFormat('Y-m-d H:i:s', $createdDate)
+                        ->format('Y-m-d');                
+                if($todaysDate == $fcreatedDate){
+                    if($collection->status == 0){
+                        $flagEditOpening = 1;
+                        ## IF PREV STATUS WAS NORMAL AND IT IS EDITED TO OPENING
+                        ## DO NOT SUBSTRACT THE PREV BAL
+                        if($preStatus == 1 && $collection->status == 0)
+                            $flagSubstarctPrev = 0;                        
+                    }
+                    ## IF PREVIOUS BATCH WAS OPENING AND NOW IT IS NORMAIL
+                    ## SUBSTRACT FROM OPENING BAL
+                    if($preStatus == 0 && $collection->status == 1){
+                        $flagEditOpening = 1;
+                        $flagSubstarctPrev = 2;
+                    }
+                } else if($fcreatedDate < $todaysDate){
+                    $flagEditOpening = 1;
+                }                
+                if($flagEditOpening == 1){
+                    $openingDate =  Carbon::today()->format('Y-m-d');
+                    $objMatOpen = new StoreMaterialOpeningModel;;
+                    $rawopncollection = $objMatOpen->where('material_id', $collection->material_id)->where('opening_date',$openingDate)->first();
+                    if(!empty($rawopncollection)){                       
+                        if($flagSubstarctPrev == 1)
+                            $rawopncollection->opening_bal = ($rawopncollection->opening_bal - $preLotQty) + $request->lot_qty;
+                        else if($flagSubstarctPrev == 2)
+                            $rawopncollection->opening_bal = $rawopncollection->opening_bal - $preLotQty;
+                        else
+                            $rawopncollection->opening_bal = $rawopncollection->opening_bal + $request->lot_qty;
 
+                        $rawopncollection->save();
+                    } else {
+                        $objMatOpen->material_id = $collection->material_id;
+                        $objMatOpen->opening_bal = $request->lot_qty;
+                        $objMatOpen->opening_date = $openingDate;
+                        $objMatOpen->save();
+                    } 
+                }                
+                
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');
                 $this->JsonData['url'] = route('admin.materials-in.index');
                 $this->JsonData['msg'] = $this->ModuleTitle.' Updated successfully.'; 

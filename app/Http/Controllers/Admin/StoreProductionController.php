@@ -18,6 +18,7 @@ use App\Models\StoreReturnedMaterialModel;
 use App\Models\StoreWasteStockModel;
 use App\Models\StoreReuseWastageModel;
 use App\Models\StoreReuseWastageHasMaterialsModel;
+use App\Models\StoreMaterialOpeningModel;
 
 use App\Http\Requests\Admin\StoreProductionRequest;
 use App\Traits\GeneralTrait;
@@ -316,44 +317,49 @@ class StoreProductionController extends Controller
 
     public function edit($encID)
     {
-        /*$prodRawMaterialObj1 = new ProductionHasMaterialModel;
-        $d = $prodRawMaterialObj1->selectRaw('created_at')->where('lot_id', 5)->orderBy('store_production_has_materials.id', 'DESC')->first();
-        dd($d);*/
-
         /* ASHVINI */
-        //$carbon = new Carbon('Y-m-d');
-        /*$now =  Carbon::today()->format('Y-m-d');;
-        dd($now);*/
-        /*$bid = 1;
-        $objBatchCard = new StoreBatchCardModel;
-        $objBatchCard->updateClosedBatch($bid);*/
-        /*$bid = 1;
-        $objBatchCard = new StoreBatchCardModel;
-        $records = $objBatchCard->with([
-            'hasProduction'=>function($q){
-                $q->with(['hasProductionMaterials' => function($q){                    
-                    $q->with('mateialName');
-                    $q->with('hasLot');    
-                }]);
-                $q->with(['hasReturnMaterial' => function($q){
-                    $q->with('hasReturnedMaterials');
-                }]);
-                $q->with(['hasOutMaterial']);
-            }
-        ])
-        ->find($bid);
-        dd($records->company_id);*/
-        /*$productionId = 1;
-        $prodRawMaterialModel = new ProductionHasMaterialModel;
-        $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity','created_at'])->toArray();
-        $datesArr = array();
-        if(!empty($prevRecords)){
-            foreach($prevRecords as $prKey=>$prVal){
-                $datesArr[$prVal['lot_id']] = $prVal['created_at'];
-            }
-        }*/
-        //dd($datesArr);
+        /*$prevArr[6][12] = 50.0;
+        $prevArr[6][11] = 30.0;
+        $prevArr[1][1] = 90.0;
+        $prevArr[5][7] = 60.0;
         
+        $currArr[6][12] = 50.0;
+        $currArr[1][1] = 90.0;
+        $currArr[5][7] = 50.0;
+        $objMatOpen = new StoreMaterialOpeningModel;
+        $objMatOpen->updateOpeningBals($prevArr, $currArr);*/
+
+        ## REMOVE PREVIOUS QUANTITES FROM store_material_openings
+        /*$openingDate =  Carbon::today()->format('Y-m-d');
+        foreach($prevArr as $prevKay=>$prevVal){
+            $removeQty = 0;
+            $objMatOpen = new StoreMaterialOpeningModel;;
+            $rawopncollection = $objMatOpen->where('material_id', $prevKay)->where('opening_date',$openingDate)->first();            
+            if(!empty($rawopncollection)){                
+                foreach($prevVal as $prevLot=>$prevQty){
+                    $removeQty = $removeQty + $prevQty;
+                }
+                echo "<br>rq ".$removeQty;
+                echo $rawopncollection->opening_bal = $rawopncollection->opening_bal + $removeQty;
+                $rawopncollection->save();
+            }            
+        }
+        ## ADD CURRENT QUANTITES IN store_material_openings
+        foreach($currArr as $currKay=>$currVal){
+            $addQty = 0;
+            $objMattOpen = new StoreMaterialOpeningModel;;
+            $matOpnCollection = $objMattOpen->where('material_id', $currKay)->where('opening_date',$openingDate)->first();            
+            if(!empty($matOpnCollection)){                
+                foreach($currVal as $currLot=>$currQty){
+                    $addQty = $addQty + $currQty;
+                }
+                echo "<br>aq ".$addQty;
+                echo $matOpnCollection->opening_bal = $matOpnCollection->opening_bal - $addQty;
+                $matOpnCollection->save();
+            }    
+        }*/
+        //dump($prevArr);
+        //dd($currArr);
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -462,13 +468,13 @@ class StoreProductionController extends Controller
                 {                     
                     ## GET PREIOUS LOT QUANTITIES
                     $prodRawMaterialModel = new ProductionHasMaterialModel;
-                    $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['lot_id','quantity','created_at'])->toArray();
-                    $datesArr = array();
+                    $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['material_id','lot_id','quantity','created_at'])->toArray();
+                    /*$datesArr = array();
                     if(!empty($prevRecords)){
                         foreach($prevRecords as $prKey=>$prVal){
                             $datesArr[$prVal['lot_id']] = $prVal['created_at'];
                         }
-                    }
+                    }*/
                     $result = array();
                     ## IF Duplicate row for same material and lot id
                     # MAKE addition of quantities and create one record
@@ -482,7 +488,7 @@ class StoreProductionController extends Controller
                         
                     }
 
-                    $finalArray = $correntRecords = array();
+                    $finalArray = $correntRecords = $crntOpeningRecs = array();
                     $i = 0;
                     foreach($result as $materialId=>$rVal){     
                         foreach($rVal as $lotId=>$quantity){
@@ -506,6 +512,7 @@ class StoreProductionController extends Controller
                                 }*/
                                 $i++;
                                 $correntRecords[$lotId] = $quantity;
+                                $crntOpeningRecs[$materialId][$lotId] = floatval($quantity);
                             }                            
                         }   
                     }
@@ -519,6 +526,7 @@ class StoreProductionController extends Controller
                         $prodRawMaterialObj1->insert($finalArray);
                         
                         ## ADD BALANCE In MATERIAL IN
+                        $prevOpeningRecs = array();
                         foreach($prevRecords as $pKey=>$pVal){
                             ## GET PREVIOUS LOT USED DATE
                             $lotDetails = $prodRawMaterialObj1->selectRaw('created_at')->where('lot_id', $pVal['lot_id'])->orderBy('store_production_has_materials.id', 'DESC')->first();
@@ -529,6 +537,7 @@ class StoreProductionController extends Controller
                             $inObj = new StoreInMaterialModel;
                             $inMaterialcollection = $inObj->find($pVal['lot_id']);
                             $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true, $prevDate);
+                            $prevOpeningRecs[$pVal['material_id']][$pVal['lot_id']] = $pVal['quantity'];
                             if($updateBal) 
                             {                            
                                 $all_transactions[] = 1;
@@ -548,6 +557,14 @@ class StoreProductionController extends Controller
                                 $all_transactions[] = 0;
                             }
                         }
+                        ## UPDATE MATERIAL OPENING BALANCE
+                        $todaysDate =  Carbon::today()->format('Y-m-d');
+                        if($cDate < $todaysDate){
+                           $objMattOpen = new StoreMaterialOpeningModel;
+                           $objMattOpen->updateOpeningBals($prevOpeningRecs, $crntOpeningRecs);
+                        }
+                        ## END UPDATE MATERIAL OPENING BALANCE
+
                         ## UPDATE LOSS MATERIAL AND YIELD
                         $materialOutObj = new StoreOutMaterialModel;
                         $outputRec = $materialOutObj->getOutputRec($productionId);
@@ -727,14 +744,16 @@ class StoreProductionController extends Controller
 
         $BaseModel = $this->BaseModel->find($id);
         $batchId = $BaseModel->batch_id;
+        $cDate = $BaseModel->created_at;
         $prodRawMaterialModel = new ProductionHasMaterialModel;
-        $prevRecords = $prodRawMaterialModel->where('production_id',$id)->get(['lot_id','quantity'])->toArray();
+        $prevRecords = $prodRawMaterialModel->where('production_id',$id)->get(['material_id','lot_id','quantity'])->toArray();
         $all_transactions = [];
         try {
             if($BaseModel->delete())
             {
                 $prodRawMaterialModel->where('production_id', $id)->delete();
                 $inObj = new StoreInMaterialModel;
+                $prevOpeningRecs = array();
                 foreach($prevRecords as $pKey=>$pVal){                
                     ## GET PREVIOUS LOT USED DATE
                     $lotDetails = $prodRawMaterialModel->selectRaw('created_at')->where('lot_id', $pVal['lot_id'])->orderBy('store_production_has_materials.id', 'DESC')->first();
@@ -743,6 +762,7 @@ class StoreProductionController extends Controller
                         $prevDate = $lotDetails->created_at;
                     $inMaterialcollection = $inObj->find($pVal['lot_id']);
                     $updateBal = $inObj->updateBalance($inMaterialcollection, $pVal['quantity'], true, $prevDate);
+                    $prevOpeningRecs[$pVal['material_id']][$pVal['lot_id']] = $pVal['quantity'];
                     if($updateBal) 
                     {                            
                         $all_transactions[] = 1;
@@ -750,6 +770,13 @@ class StoreProductionController extends Controller
                         $all_transactions[] = 0;
                     }
                 }
+                ## UPDATE MATERIAL OPENING BALANCE
+                $todaysDate =  Carbon::today()->format('Y-m-d');
+                if($cDate < $todaysDate){
+                   $objMattOpen = new StoreMaterialOpeningModel;
+                   $objMattOpen->updateOpeningBals($prevOpeningRecs);
+                }
+
                 ## MARK BATCH AS PLAN ADDED BATCH
                 $objBatch = new StoreBatchCardModel();
                 $objBatch->updatePlanAdded($batchId, 'no');     
