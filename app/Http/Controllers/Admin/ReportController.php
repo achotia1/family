@@ -1657,17 +1657,28 @@ class ReportController extends Controller
                     and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
                     GROUP BY material_id) im');
       
-        $issuedSub = DB::raw('(SELECT material_id, 
+        /*$issuedSub = DB::raw('(SELECT material_id, 
                 SUM(store_production_has_materials.quantity) as total_issued,
                 SUM(store_production_has_materials.returned_quantity) as total_returned
                 FROM store_production_has_materials
                 where DATE_FORMAT(`store_production_has_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
                 and date(`store_production_has_materials`.`created_at`) <= "'.$end_date.'" 
-                GROUP BY material_id) hm'); 
+                GROUP BY material_id) hm');*/
+        $issuedSub = DB::raw('(SELECT material_id, 
+                SUM(store_production_has_materials.quantity) as total_issued
+                FROM store_production_has_materials
+                where DATE_FORMAT(`store_production_has_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                and date(`store_production_has_materials`.`created_at`) <= "'.$end_date.'" 
+                GROUP BY material_id) hm');
 
-       
+        $returnedSub = DB::raw('(SELECT material_id,                
+                SUM(store_returned_materials_has_materials.quantity) as total_returned
+                FROM store_returned_materials_has_materials
+                where DATE_FORMAT(`store_returned_materials_has_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                and date(`store_returned_materials_has_materials`.`created_at`) <= "'.$end_date.'" 
+                GROUP BY material_id) hrm');
 
-        $opBalSub = DB::raw('(SELECT material_id, 
+        /*$opBalSub = DB::raw('(SELECT material_id, 
                     SUM(CASE 
                         WHEN store_in_materials.status = 0 
                         THEN store_in_materials.lot_qty 
@@ -1675,13 +1686,9 @@ class ReportController extends Controller
                     END) AS opening_balance
                     FROM `store_in_materials` 
             WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
-            GROUP BY material_id) im');
-
-        /*$opBalSub = DB::raw('(SELECT material_id, 
-                    SUM(store_in_materials.lot_balance) AS opening_balance
-                    FROM `store_in_materials` 
-            WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
             GROUP BY material_id) im');*/
+
+        
 
         $modelQuery = $objMaterial
        ->selectRaw('
@@ -1693,13 +1700,16 @@ class ReportController extends Controller
                     store_raw_materials.status,
                     IFNULL(im.received_total, 0) AS received_total,
                     IFNULL(hm.total_issued, 0) AS total_issued,
-                    IFNULL(hm.total_returned, 0) AS total_returned
+                    IFNULL(hrm.total_returned, 0) AS total_returned
                 ')        
         ->leftjoin($receivedSub,function($join){
             $join->on('im.material_id','=','store_raw_materials.id');
         })
         ->leftjoin($issuedSub,function($join){
             $join->on('hm.material_id','=','store_raw_materials.id');
+        })
+        ->leftjoin($returnedSub,function($join){
+            $join->on('hrm.material_id','=','store_raw_materials.id');
         })
         ->where('store_raw_materials.company_id', $companyId);
        
@@ -1714,8 +1724,10 @@ class ReportController extends Controller
         ->where('store_raw_materials.company_id', $companyId);*/        
         
         //dd($modelQuery2->toSql());
+
         $insertArray = array();
-        $result = $modelQuery->get();        
+        $result = $modelQuery->get();
+        //dd($result);
         //$result2 = $modelQuery2->get();
         if($result){            
             foreach($result as $key=>$val){

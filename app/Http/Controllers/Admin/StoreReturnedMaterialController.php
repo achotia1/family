@@ -20,7 +20,7 @@ use App\Models\StoreInMaterialModel;
 use App\Http\Requests\Admin\StoreReturnedMaterialRequest;
 use App\Traits\GeneralTrait;
 use DB;
-
+use Carbon\Carbon;
 class StoreReturnedMaterialController extends Controller
 {
 
@@ -291,7 +291,9 @@ class StoreReturnedMaterialController extends Controller
         /*if(empty($data) || $data->assignedProductionPlan->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.return.index');
         }*/
+        ## ASHVINI
 
+        ## END ASHVINI
         $objMaterial = new StoreRawMaterialModel;
         $materialIds = $objMaterial->getMaterialNumbers($companyId);       
         
@@ -346,7 +348,8 @@ class StoreReturnedMaterialController extends Controller
             DB::beginTransaction();
             $companyId = self::_getCompanyId();      
 
-            $collection = $this->BaseModel->find($id);   
+            $collection = $this->BaseModel->find($id); 
+            $cDate = $collection->created_at; 
             $collection = self::_storeOrUpdate($collection,$request);
 
             if($collection)
@@ -360,10 +363,13 @@ class StoreReturnedMaterialController extends Controller
                                                     ->get();
 
                     //Update lot balance for all the previous materials
+                    $prevOpeningRecs = $crntOpeningRecs = array();
                     if(!empty($previousReturnedMaterials))
                     {
                         foreach($previousReturnedMaterials as $previous) 
                         {
+                            $prevOpeningRecs[$previous['material_id']][$previous['lot_id']] = $previous['quantity'];
+
                             $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
                                     join store_productions ON store_production_has_materials.production_id=store_productions.id 
                                             WHERE store_productions.id = '".$request->plan_id."'
@@ -414,13 +420,18 @@ class StoreReturnedMaterialController extends Controller
                         if(!empty($return['material_id']) && !empty($return['lot_id']))
                         {
 
+                            $materialrId = !empty($return['material_id']) ? $return['material_id'] : 0;
+                            $lotrId = !empty($return['lot_id']) ? $return['lot_id'] : 0;
+                            $rQty = !empty($return['quantity']) ? $return['quantity'] : 0;
                             $returnRawMaterialObj = new $this->StoreReturnedHasMaterialModel;
                             $returnRawMaterialObj->returned_id   = $collection->id;
-                            $returnRawMaterialObj->material_id   = !empty($return['material_id']) ? $return['material_id'] : 0;
-                            $returnRawMaterialObj->lot_id   =  !empty($return['lot_id']) ? $return['lot_id'] : 0;
-                            $returnRawMaterialObj->quantity   = !empty($return['quantity']) ? $return['quantity'] : 0;
+                            $returnRawMaterialObj->material_id   = $materialrId;
+                            $returnRawMaterialObj->lot_id   =  $lotrId;
+                            $returnRawMaterialObj->quantity   = $rQty;
+                            $returnRawMaterialObj->created_at   = $cDate;
                             if ($returnRawMaterialObj->save()) 
                             {                            
+                                $crntOpeningRecs[$materialrId][$lotrId] = floatval($rQty);
                                 ## UPDATE Production Planned QUANTITY                            
                                 if($return['lot_id'] > 0)
                                 {
@@ -491,6 +502,15 @@ class StoreReturnedMaterialController extends Controller
 
                         } 
                     }
+                    ## UPDATE MATERIAL OPENING BALANCE
+                    $todaysDate =  Carbon::today()->format('Y-m-d');
+                    if($cDate < $todaysDate){
+                       $objMattOpen = new StoreMaterialOpeningModel;
+                       $objMattOpen->updateOpeningBals($crntOpeningRecs, $prevOpeningRecs);
+                    }
+                    ## END UPDATE MATERIAL OPENING BALANCE
+                   
+
                 }//ifclose
             }
 
@@ -777,7 +797,8 @@ class StoreReturnedMaterialController extends Controller
                 $companyId = self::_getCompanyId();
 
                 $object = $this->BaseModel->where('id', $id)->get();
-                // dd($object->toArray());
+                $cDate = $object->created_at;
+                $prevOpeningRecs = array();
                 foreach ($object as $key => $collection) 
                 {
 
@@ -792,6 +813,8 @@ class StoreReturnedMaterialController extends Controller
                         //                     ->update(['returned_quantity' => 0]);
                         foreach($returnedMaterialObject as $mkey => $mvalue) 
                         {
+                           $prevOpeningRecs[$mvalue['material_id']][$mvalue['lot_id']] = $mvalue['quantity'];
+
                            $sqlQuery = "SELECT store_production_has_materials.id as spmid,store_production_has_materials.quantity,store_production_has_materials.returned_quantity FROM store_production_has_materials
                                         join store_productions ON store_production_has_materials.production_id=store_productions.id 
                                                 WHERE store_productions.id = '".$collection->plan_id."'
@@ -844,6 +867,14 @@ class StoreReturnedMaterialController extends Controller
                         $outPutId =  $outputRec->id;
                         $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
                     }
+
+                    ## UPDATE MATERIAL OPENING BALANCE
+                    $todaysDate =  Carbon::today()->format('Y-m-d');
+                    if($cDate < $todaysDate){
+                       $objMattOpen = new StoreMaterialOpeningModel;
+                       $objMattOpen->updateOpeningBals($prevOpeningRecs, $crntOpeningRecs);
+                    }
+                        ## END UPDATE MATERIAL OPENING BALANCE
                 }
 
                 DB::commit();

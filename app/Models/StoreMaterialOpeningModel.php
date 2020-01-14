@@ -25,17 +25,19 @@ class StoreMaterialOpeningModel extends Model
     public function updateOpeningBals($prevArr, $currArr=array()) {
         ## REMOVE PREVIOUS QUANTITES FROM store_material_openings
         $openingDate =  Carbon::today()->format('Y-m-d');
-        foreach($prevArr as $prevKay=>$prevVal){
-	        $removeQty = 0;	        
-	        $rawopncollection = self::where('material_id', $prevKay)->where('opening_date',$openingDate)->first();            
-	        if(!empty($rawopncollection)){                
-	            foreach($prevVal as $prevLot=>$prevQty){
-	                $removeQty = $removeQty + $prevQty;
-	            }	            
-	            $rawopncollection->opening_bal = $rawopncollection->opening_bal + $removeQty;
-	            $rawopncollection->save();
-	        }            
-        }
+        if(!empty($prevArr)){
+	        foreach($prevArr as $prevKay=>$prevVal){
+		        $removeQty = 0;	        
+		        $rawopncollection = self::where('material_id', $prevKay)->where('opening_date',$openingDate)->first();            
+		        if(!empty($rawopncollection)){                
+		            foreach($prevVal as $prevLot=>$prevQty){
+		                $removeQty = $removeQty + $prevQty;
+		            }	            
+		            $rawopncollection->opening_bal = $rawopncollection->opening_bal + $removeQty;
+		            $rawopncollection->save();
+		        }            
+	        }
+		}
         ## ADD CURRENT QUANTITES IN store_material_openings
         if(!empty($currArr)){
 	        foreach($currArr as $currKay=>$currVal){
