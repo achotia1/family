@@ -506,7 +506,8 @@ class StoreReturnedMaterialController extends Controller
                     $todaysDate =  Carbon::today()->format('Y-m-d');
                     if($cDate < $todaysDate){
                        $objMattOpen = new StoreMaterialOpeningModel;
-                       $objMattOpen->updateOpeningBals($crntOpeningRecs, $prevOpeningRecs);
+                       /*$objMattOpen->updateOpeningBals($crntOpeningRecs, $prevOpeningRecs);*/
+                       $objMattOpen->updateOpeningBalsNew($cDate, $crntOpeningRecs, $prevOpeningRecs);
                     }
                     ## END UPDATE MATERIAL OPENING BALANCE
                    
@@ -795,13 +796,12 @@ class StoreReturnedMaterialController extends Controller
             {
                 DB::beginTransaction();
                 $companyId = self::_getCompanyId();
-
                 $object = $this->BaseModel->where('id', $id)->get();
-                $cDate = $object->created_at;
+               
                 $prevOpeningRecs = array();
                 foreach ($object as $key => $collection) 
                 {
-
+                    $cDate = $collection->created_at;                    
                     if(!empty($collection->id))
                     {
 
@@ -872,7 +872,8 @@ class StoreReturnedMaterialController extends Controller
                     $todaysDate =  Carbon::today()->format('Y-m-d');
                     if($cDate < $todaysDate){
                        $objMattOpen = new StoreMaterialOpeningModel;
-                       $objMattOpen->updateOpeningBals($prevOpeningRecs, $crntOpeningRecs);
+                       /*$objMattOpen->updateOpeningBals(array(), $prevOpeningRecs);*/
+                       $objMattOpen->updateOpeningBalsNew($cDate, array(), $prevOpeningRecs);
                     }
                         ## END UPDATE MATERIAL OPENING BALANCE
                 }
