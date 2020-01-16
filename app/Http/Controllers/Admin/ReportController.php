@@ -1892,7 +1892,7 @@ class ReportController extends Controller
                         $order_status = 'ORDER';
 
                 $data[$key]['id'] = $row->id;
-                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span> '.$row->id;
+                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span> ';
                 $data[$key]['units']  = $row->unit;
                 $data[$key]['opening_stock']  = !empty($row->opening_balance) ? number_format($row->opening_balance, 2, '.', ''): '0.00';
                 $data[$key]['received_qty']  = !empty($row->received_qty) ? number_format($row->received_qty, 2, '.', ''): '0.00';
