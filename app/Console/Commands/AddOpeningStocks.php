@@ -80,6 +80,8 @@ class AddOpeningStocks extends Command
                 $i++;
             }
         }
+        //$jasonData = json_encode($dataArr);
+        //dd($jasonData);
         if(!empty($dataArr)){            
             $this->StoreMaterialOpeningModel->insert($dataArr);            
         }
