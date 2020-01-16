@@ -30,8 +30,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('moq:day')
                   ->twiceDaily(9, 16);
         
+        /*$schedule->command('openingbalance:day')
+                  ->daily(12);*/
         $schedule->command('openingbalance:day')
-                  ->daily(12);
+                  ->everyFiveMinutes();
+        
     }
 
     /**
