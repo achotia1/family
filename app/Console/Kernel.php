@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
                   ->twiceDaily(9, 16);
         
         $schedule->command('openingbalance:day')
-                  ->daily(17);
+                  ->daily(12);
     }
 
     /**
