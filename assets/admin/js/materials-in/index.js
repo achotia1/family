@@ -77,6 +77,41 @@ function removeSearch(element)
 	$('#listingTable').DataTable().draw();
 }
 
+function deleteCollection(element) 
+{
+  var $this = $(element);
+  var action = $this.attr('data-href');
+
+  if (action != '') {
+    swal({
+      title: "Are you sure !!",
+      text: "You want to delete ?",
+      type: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      confirmButtonClass: "btn-danger",
+      closeOnConfirm: false,
+      showLoaderOnConfirm: true
+    },
+      function () {
+        axios.delete(action)
+          .then(function (response) {
+            if (response.data.status === 'success') {
+              swal("Success", response.data.msg, 'success');
+              $('#listingTable').DataTable().ajax.reload();
+            }
+            if (response.data.status === 'error') {
+              swal("Error", response.data.msg, 'error');
+            }
+
+          })
+          .catch(function (error) {
+            // swal("Error",error.response.data.msg,'error');
+          });
+      });
+  }
+}
+
 function deleteCollections(element)
 {
 
