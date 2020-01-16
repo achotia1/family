@@ -539,8 +539,22 @@ public function destroy($encID)
         try 
         {
 
+            $recObj = $this->BaseModel->find($id);
+            $status = $recObj->status;
+            $createdDate = $recObj->created_at;
+            $fcreatedDate = Carbon::createFromFormat('Y-m-d H:i:s', $createdDate)->format('Y-m-d');
+            $currArr[$recObj->material_id][$recObj->id] = $recObj->lot_qty;
+            
+            //dd($recObj);
             if ($this->BaseModel->where('id', $id)->delete()) 
             {
+                ## REMOVE FROM OPENING STOCKS
+                $objMattOpening = new StoreMaterialOpeningModel;
+                if($status == 0){
+                    $objMattOpening->updateOpeningBalsNew($fcreatedDate, array(), $currArr, true);
+                } else {
+                    $objMattOpening->updateOpeningBalsNew($fcreatedDate, array(), $currArr);    
+                }
                 $this->JsonData['status'] = 'success';
                 $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
             }
