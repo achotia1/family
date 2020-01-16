@@ -54,17 +54,21 @@ class StoreMaterialOpeningModel extends Model
 	    }
 
     }
-    public function updateOpeningBalsNew($cDate, $prevArr, $currArr=array()) {
+    public function updateOpeningBalsNew($cDate, $prevArr, $currArr=array(), $flag=false) {
         ## REMOVE PREVIOUS QUANTITES FROM store_material_openings
-        //$openingDate =  Carbon::today()->format('Y-m-d');
+        
         if(!empty($prevArr)){
 	        foreach($prevArr as $prevKay=>$prevVal){
 	            $removeQty = 0;
 	            foreach($prevVal as $prevLot=>$prevQty){
 	                $removeQty = $removeQty + $prevQty;
-	            }
-	            //$objMatOpen = new StoreMaterialOpeningModel;
-	            $rawopncollection = self::where('material_id', $prevKay)->where('opening_date', '>',$cDate)->get();            
+	            }	            
+	            if($flag){
+					$rawopncollection = self::where('material_id', $prevKay)->where('opening_date', '>=',$cDate)->get();
+				} else {
+					$rawopncollection = self::where('material_id', $prevKay)->where('opening_date', '>',$cDate)->get();	
+				}
+	                        
 	            if(!empty($rawopncollection)){
 	                foreach ($rawopncollection as $item) {
 	                    //$objMOpen = new StoreMaterialOpeningModel;
@@ -82,15 +86,18 @@ class StoreMaterialOpeningModel extends Model
 	            foreach($currVal as $currLot=>$currQty){
 	                $addQty = $addQty + $currQty;
 	            }
-	            //$objMattOpen = new StoreMaterialOpeningModel;;
-	            $matOpnCollection = self::where('material_id', $currKay)->where('opening_date', '>',$cDate)->get();	                      
+	            
+	            if($flag){
+	            	$matOpnCollection = self::where('material_id', $currKay)->where('opening_date', '>=',$cDate)->get();
+				} else {
+					$matOpnCollection = self::where('material_id', $currKay)->where('opening_date', '>',$cDate)->get();	
+				}
+	            	                      
 	            if(!empty($matOpnCollection)){                
 	                
-	                foreach ($matOpnCollection as $citem) {
-	                    //$objCOpen = new StoreMaterialOpeningModel;
+	                foreach ($matOpnCollection as $citem) {	                    
 	                    $openingCColl = self::find($citem['id']);
 	                    $openingCColl->opening_bal -= $addQty;
-	                    //dump($openingCColl);                    
 	                    $openingCColl->save();
 	                }	                
 	            }   

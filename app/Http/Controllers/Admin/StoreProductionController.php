@@ -317,64 +317,7 @@ class StoreProductionController extends Controller
 
     public function edit($encID)
     {
-        /* ASHVINI */
-        /*$prevArr[6][12] = 3.0;
-        $prevArr[6][11] = 2.0;
-        $prevArr[1][1] = 90.0;
-        $prevArr[5][7] = 60.0;
-        
-        $currArr[6][12] = 2.0;
-        $currArr[1][1] = 90.0;
-        $currArr[5][7] = 50.0;*/
-        /*$cDate =  '2020-01-13';
-        $objMatOpen = new StoreMaterialOpeningModel;
-        $objMatOpen->updateOpeningBalsNew($cDate,$prevArr, $currArr);
-        die;*/
-        //dump();
-        //dd($prevArr);
-        ## REMOVE PREVIOUS QUANTITES FROM store_material_openings
-        /*$openingDate =  Carbon::today()->format('Y-m-d');
-        $cDate =  '2020-01-13';
-        foreach($prevArr as $prevKay=>$prevVal){
-            $removeQty = 0;
-            foreach($prevVal as $prevLot=>$prevQty){
-                $removeQty = $removeQty + $prevQty;
-            }
-            $objMatOpen = new StoreMaterialOpeningModel;
-            $rawopncollection = $objMatOpen->where('material_id', $prevKay)->where('opening_date', '>',$cDate)->get();            
-            if(!empty($rawopncollection)){
-                foreach ($rawopncollection as $item) {
-                    $objMOpen = new StoreMaterialOpeningModel;
-                    $openingColl = $objMOpen->find($item['id']);
-                    $openingColl->opening_bal += $removeQty;                    
-                    $openingColl->save();
-                }                
-            }            
-        }
-        
-         ## ADD CURRENT QUANTITES IN store_material_openings
-        foreach($currArr as $currKay=>$currVal){
-            $addQty = 0;
-            foreach($currVal as $currLot=>$currQty){
-                $addQty = $addQty + $currQty;
-            }
-            $objMattOpen = new StoreMaterialOpeningModel;;
-            $matOpnCollection = $objMattOpen->where('material_id', $currKay)->where('opening_date', '>',$cDate)->get(); 
-            //dd($matOpnCollection);          
-            if(!empty($matOpnCollection)){                
-                
-                foreach ($matOpnCollection as $citem) {
-                    $objCOpen = new StoreMaterialOpeningModel;
-                    $openingCColl = $objCOpen->find($citem['id']);
-                    $openingCColl->opening_bal -= $addQty;
-                    //dump($openingCColl);                    
-                    $openingCColl->save();
-                }
-            }   
-        }*/
-        
-        //dump($prevArr);
-        //dd($currArr);
+        /* ASHVINI */        
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -484,12 +427,7 @@ class StoreProductionController extends Controller
                     ## GET PREIOUS LOT QUANTITIES
                     $prodRawMaterialModel = new ProductionHasMaterialModel;
                     $prevRecords = $prodRawMaterialModel->where('production_id',$productionId)->get(['material_id','lot_id','quantity','created_at'])->toArray();
-                    /*$datesArr = array();
-                    if(!empty($prevRecords)){
-                        foreach($prevRecords as $prKey=>$prVal){
-                            $datesArr[$prVal['lot_id']] = $prVal['created_at'];
-                        }
-                    }*/
+                    
                     $result = array();
                     ## IF Duplicate row for same material and lot id
                     # MAKE addition of quantities and create one record

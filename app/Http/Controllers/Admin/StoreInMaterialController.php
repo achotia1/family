@@ -192,7 +192,8 @@ class StoreInMaterialController extends Controller
         try {
             $collection = $this->BaseModel->find($id);
             $preLotQty =  $collection->lot_qty;
-            $preStatus =  $collection->status;                
+            $preStatus =  $collection->status;
+            $prevMid = $collection->material_id;            
             $collection = self::_storeOrUpdate($collection,$request);
 
             if($collection){
@@ -205,6 +206,7 @@ class StoreInMaterialController extends Controller
                 //$is_opening = !empty($request->status) ? 0 : 1;
                 $flagEditOpening = 0;
                 $flagSubstarctPrev = 1;
+                $flagOlder = 0;
                 $todaysDate =  Carbon::today()->format('Y-m-d');
                 $createdDate = $collection->created_at;
                 $fcreatedDate = Carbon::createFromFormat('Y-m-d H:i:s', $createdDate)
@@ -225,26 +227,40 @@ class StoreInMaterialController extends Controller
                     }
                 } else if($fcreatedDate < $todaysDate){
                     $flagEditOpening = 1;
+                    $flagOlder = 1;
                 }                
                 if($flagEditOpening == 1){
-                    $openingDate =  Carbon::today()->format('Y-m-d');
-                    $objMatOpen = new StoreMaterialOpeningModel;;
-                    $rawopncollection = $objMatOpen->where('material_id', $collection->material_id)->where('opening_date',$openingDate)->first();
-                    if(!empty($rawopncollection)){                       
-                        if($flagSubstarctPrev == 1)
-                            $rawopncollection->opening_bal = ($rawopncollection->opening_bal - $preLotQty) + $request->lot_qty;
-                        else if($flagSubstarctPrev == 2)
-                            $rawopncollection->opening_bal = $rawopncollection->opening_bal - $preLotQty;
-                        else
-                            $rawopncollection->opening_bal = $rawopncollection->opening_bal + $request->lot_qty;
-
-                        $rawopncollection->save();
+                    ## IF RECORD IS ANY OLDER THEN UPDATE ALL THE OPENINGS GREATER THAN CREATED DATE 
+                    if($flagOlder == 1){
+                        //$objMattOpen = new StoreMaterialOpeningModel;
+                        $prevArr[$prevMid][$id] = $preLotQty;
+                        $currArr[$request->material_id][$id] = $request->lot_qty;
+                        $objMattOpen = new StoreMaterialOpeningModel;
+                        if($collection->status == 0){
+                            $objMattOpen->updateOpeningBalsNew($fcreatedDate, $currArr, $prevArr, true);
+                        } else {
+                            $objMattOpen->updateOpeningBalsNew($fcreatedDate, $currArr, $prevArr);    
+                        }
                     } else {
-                        $objMatOpen->material_id = $collection->material_id;
-                        $objMatOpen->opening_bal = $request->lot_qty;
-                        $objMatOpen->opening_date = $openingDate;
-                        $objMatOpen->save();
-                    } 
+                        $openingDate =  Carbon::today()->format('Y-m-d');
+                        $objMatOpen = new StoreMaterialOpeningModel;
+                        $rawopncollection = $objMatOpen->where('material_id', $collection->material_id)->where('opening_date',$openingDate)->first();
+                        if(!empty($rawopncollection)){                       
+                            if($flagSubstarctPrev == 1)
+                                $rawopncollection->opening_bal = ($rawopncollection->opening_bal - $preLotQty) + $request->lot_qty;
+                            else if($flagSubstarctPrev == 2)
+                                $rawopncollection->opening_bal = $rawopncollection->opening_bal - $preLotQty;
+                            else
+                                $rawopncollection->opening_bal = $rawopncollection->opening_bal + $request->lot_qty;
+
+                            $rawopncollection->save();
+                        } else {
+                            $objMatOpen->material_id = $collection->material_id;
+                            $objMatOpen->opening_bal = $request->lot_qty;
+                            $objMatOpen->opening_date = $openingDate;
+                            $objMatOpen->save();
+                        }
+                    }
                 }                
                 
                 $this->JsonData['status'] = __('admin.RESP_SUCCESS');

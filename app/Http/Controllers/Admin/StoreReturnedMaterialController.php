@@ -14,7 +14,7 @@ use App\Models\ProductionHasMaterialModel;
 use App\Models\StoreReturnedHasMaterialModel;
 use App\Models\StoreOutMaterialModel;
 use App\Models\ProductsModel;
-
+use App\Models\StoreMaterialOpeningModel;
 use App\Models\StoreInMaterialModel;
 
 use App\Http\Requests\Admin\StoreReturnedMaterialRequest;
