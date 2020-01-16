@@ -277,11 +277,6 @@ class StoreInMaterialController extends Controller
 
     }
 
-    public function destroy($id)
-    {
-        //
-    }
-
     public function _storeOrUpdate($collection, $request)
     {        
         $is_opening = !empty($request->status) ? 0 : 1;
@@ -463,11 +458,12 @@ class StoreInMaterialController extends Controller
                 
                 $edit = '<a href="'.route($this->ModulePath.'edit', [ base64_encode(base64_encode($row->id))]).'" class="edit-user action-icon" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>';
                 $view = '<a href="'.route($this->ModulePath.'correct-balance',[ base64_encode(base64_encode($row->id))]).'" title="Correct Balance"><span class="glyphicon glyphicon-ok-circle"></a>';
+                $delete = '<a href="javascript:void(0)" onclick="return deleteCollection(this)" data-href="'.route($this->ModulePath.'destroy', [base64_encode(base64_encode($row->id))]) .'" title="Delete"><span class="glyphicon glyphicon-trash"></span></a>';    
                 
                 $data[$key]['actions'] = '';
                 if(auth()->user()->can('store-material-in-add'))
                 {
-                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$view.'</div>';
+                    $data[$key]['actions'] =  '<div class="text-center">'.$edit.' '.$delete.' '.$view.'</div>';
                 }
 
         }
@@ -518,6 +514,44 @@ class StoreInMaterialController extends Controller
     $this->JsonData['data']             = $data;
 
     return response()->json($this->JsonData);
+}
+
+public function destroy($encID)
+{
+    //dd($request->all());
+    $this->JsonData['status'] = 'error';
+    $this->JsonData['msg'] = 'Failed to delete material in record, Something went wrong on server.';
+
+    $id = base64_decode(base64_decode($encID));
+
+    if (!empty($id)) 
+    {
+
+        $store_lot_count = $this->ProductionHasMaterialModel->where('lot_id',$id)->count();
+        if($store_lot_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Lot which is assigned in Production Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
+
+        try 
+        {
+
+            if ($this->BaseModel->where('id', $id)->delete()) 
+            {
+                $this->JsonData['status'] = 'success';
+                $this->JsonData['msg'] = $this->ModuleTitle.' deleted successfully.';
+            }
+
+        } catch (Exception $e) 
+        {
+           $this->JsonData['exception'] = $e->getMessage();
+       }
+   }
+
+   return response()->json($this->JsonData);   
 }
 
 public function bulkDelete(Request $request)
