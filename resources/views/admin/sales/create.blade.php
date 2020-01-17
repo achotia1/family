@@ -214,8 +214,7 @@
                             class="form-control my-select select2 wproducts" 
                             placeholder="All Products"
                             name="wastagesales[0][product_id]"
-                            id="wproduct_0"
-                            required
+                            id="wproduct_0"                            
                             onchange="loadWastageBatches(this)"
                             data-error="Product field is required." 
                         >
@@ -239,8 +238,7 @@
                             placeholder="All Batches"
                             name="wastagesales[0][batch_id]"
                             onchange="setWastageQuantityLimit(0);"
-                            id="wbatches_wproduct_0"
-                            required
+                            id="wbatches_wproduct_0"                            
                             data-error="Batch field is required." 
                         >
                             <option value="">Select Batch</option>
@@ -258,8 +256,7 @@
                             type="number" 
                             class="form-control wquantity"
                             name="wastagesales[0][quantity]" 
-                            id="wquantity_0"
-                            required
+                            id="wquantity_0"                            
                             step="any" 
                             data-error="Quantity should be number."
                         >
@@ -282,8 +279,7 @@
                             type="number" 
                             class="form-control wrate"
                             name="wastagesales[0][rate]" 
-                            id="wrate_0"
-                            required
+                            id="wrate_0"                            
                             step="any" 
                             data-error="Rate should be number."
                         >

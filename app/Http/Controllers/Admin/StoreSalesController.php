@@ -547,16 +547,18 @@ class StoreSalesController extends Controller
                             }
                         }
                     }
-
-                    ## WASTAGE SALE
-                    if (!empty($request->wastagesales) && sizeof($request->wastagesales) > 0) {
-                    $previousWsaleProducts=$this->StoreSaleInvoiceHasProductsModel
+                    
+                }//ifclose
+                ## WASTAGE SALE
+                $previousWsaleProducts=$this->StoreSaleInvoiceHasProductsModel
                                                     ->where('sale_invoice_id', $collection->id)
                                                     ->where('is_wastage', 1)
                                                     ->get();
-                    //Delete records
-                    $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->where('is_wastage', 1)->delete();
-                    
+                //Delete records
+                $this->StoreSaleInvoiceHasProductsModel->where('sale_invoice_id', $collection->id)->where('is_wastage', 1)->delete();
+
+                if (!empty($request->wastagesales) && sizeof($request->wastagesales) > 0)
+                {   
                     foreach ($request->wastagesales as $wkey => $wSale) 
                     {
                         //echo "<br> ".$wSale['product_id']." >> ".$wSale['batch_id']. " >> ".$wSale['quantity']. " >> ".$wSale['rate'];
@@ -622,34 +624,31 @@ class StoreSalesController extends Controller
                             $all_transactions[] = 0;    
                         }
                     }
-                    //Iterate all the previous products and update the stock balance
-                    if(!empty($previousWsaleProducts))
+                }
+                //Iterate all the previous products and update the stock balance
+                if(!empty($previousWsaleProducts))
+                {
+                    foreach($previousWsaleProducts as $wprevious) 
                     {
-                        foreach($previousWsaleProducts as $wprevious) 
+                         $sqlwQuery = "SELECT  store_waste_stock.id as wsid,store_waste_stock.loose,store_waste_stock.balance_loose FROM store_waste_stock
+                                    WHERE store_waste_stock.product_id = '".$wprevious->product_id."' AND store_waste_stock.batch_id = '".$wprevious->batch_id."'";
+                        $wcollectionReturn = collect(DB::select(DB::raw($sqlwQuery)));
+                        ## Update Stock Balance quantity                            
+                        if(!empty($wcollectionReturn) && count($wcollectionReturn)>0)
                         {
-                             $sqlwQuery = "SELECT  store_waste_stock.id as wsid,store_waste_stock.loose,store_waste_stock.balance_loose FROM store_waste_stock
-                                        WHERE store_waste_stock.product_id = '".$wprevious->product_id."' AND store_waste_stock.batch_id = '".$wprevious->batch_id."'";
-                            $wcollectionReturn = collect(DB::select(DB::raw($sqlwQuery)));
-                            ## Update Stock Balance quantity                            
-                            if(!empty($wcollectionReturn) && count($wcollectionReturn)>0)
+                            $wsalesData = $wcollectionReturn->first();
+                            if($wsalesData->wsid)
                             {
-                                $wsalesData = $wcollectionReturn->first();
-                                if($wsalesData->wsid)
-                                {
-                                    ##update returned quantity in production and update returned qty+actual qty in store
-                                    $lbalance_quantity=$wprevious->quantity+$wsalesData->balance_loose;
-                                    $updatewQtyQry = DB::table('store_waste_stock')
-                                                                ->where('id', $wsalesData->wsid)
-                                                                ->update(['balance_loose' => $lbalance_quantity]);
-                                }
+                                ##update returned quantity in production and update returned qty+actual qty in store
+                                $lbalance_quantity=$wprevious->quantity+$wsalesData->balance_loose;
+                                $updatewQtyQry = DB::table('store_waste_stock')
+                                                            ->where('id', $wsalesData->wsid)
+                                                            ->update(['balance_loose' => $lbalance_quantity]);
                             }
                         }
                     }
-                    
-
                 }
-                    ## END WASTAGE SALE
-                }//ifclose
+                ## END WASTAGE SALE
             }
 
             if (!in_array(0,$all_transactions)) 

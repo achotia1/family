@@ -233,7 +233,7 @@ function deletePlan(element)
 
 function deleteWastagePlan(element)
 {
-   console.log(element);
+   //console.log(element);
    $(element).closest('.add_wastage_area').find('*').attr('disabled', true);   
    $(element).closest('.add_wastage_area').remove();
    //$(".add_wastage_area").validator();
