@@ -114,18 +114,27 @@ $(document).ready(function()
                 .reduce( function (a, b) {
                     return (intVal(a) + intVal(b)).toFixed(2);
                 }, 0 );*/
-            var materialConsumptionTotal = 0;
+            /*var materialConsumptionTotal = 0;
             if(net>0){
                 materialConsumptionTotal = (100-((total_cal/net)*100)).toFixed(2);
+            }*/
+            
+			var rateRatio = grossRatio = 0;
+			if(quantity>0){
+				rateRatio = (net/quantity).toFixed(2);
+				grossRatio = (total_cal/quantity).toFixed(2);	
+			}
+			var materialConsumptionTotal = 0;
+            if(net>0){
+                materialConsumptionTotal = (100-((grossRatio/net)*100)).toFixed(2);
             }
-
             // Update footer by showing the total with the reference of the column index 
             $( api.column( 5 ).footer() ).html('Total');
             $( api.column( 6 ).footer() ).html(quantity);
-            $( api.column( 7 ).footer() ).html(rate);
+            $( api.column( 7 ).footer() ).html(rateRatio);
             $( api.column( 8 ).footer() ).html(net);
-            $( api.column( 9 ).footer() ).html(costing);
-            $( api.column( 10 ).footer() ).html(gross);
+            $( api.column( 9 ).footer() ).html('');
+            $( api.column( 10 ).footer() ).html(grossRatio);
             $( api.column( 11 ).footer() ).html(total_cal);
             $( api.column( 12 ).footer() ).html(materialConsumptionTotal);
          
