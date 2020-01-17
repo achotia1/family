@@ -125,8 +125,8 @@ $(document).ready(function()
 				grossRatio = (total_cal/quantity).toFixed(2);	
 			}
 			var materialConsumptionTotal = 0;
-            if(net>0){
-                materialConsumptionTotal = (100-((grossRatio/net)*100)).toFixed(2);
+            if(rateRatio>0){
+                materialConsumptionTotal = (100-((grossRatio/rateRatio)*100)).toFixed(2);
             }
             // Update footer by showing the total with the reference of the column index 
             $( api.column( 5 ).footer() ).html('Total');
