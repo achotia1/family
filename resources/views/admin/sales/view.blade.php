@@ -144,6 +144,9 @@
                              <td><strong> {{ number_format($total_amount,2) }} </strong></td>
                         </tr>
                        <!-- wastage material details -->
+                       @php
+                       if(!empty($wastageBatch_data)){
+                       @endphp
                        <tr>
                             <td colspan="6"></td>
                         </tr>
@@ -197,6 +200,9 @@
                              
                              <td><strong> {{ number_format($ltotal_amount,2) }} </strong></td>
                         </tr>
+                        @php
+                        }
+                        @endphp
                        <!-- end wastage material detsila -->
                     </tbody>
                 </table>
