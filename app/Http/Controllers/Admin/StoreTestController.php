@@ -48,8 +48,8 @@ class StoreTestController extends Controller
 		for($i=0; $i<5; $i++){
 			$finalArray[$i]['name'] = 'Ashvini'.$i;
         	$finalArray[$i]['email'] = 'ashvini'.$i.'@gmail.com';
-        	//$finalArray[$i]['created_at'] = Carbon::now()->toDateTimeString();
-        	//$finalArray[$i]['updated_at'] = Carbon::now()->toDateTimeString();
+        	$finalArray[$i]['created_at'] = Carbon::now()->toDateTimeString();
+        	$finalArray[$i]['updated_at'] = Carbon::now()->toDateTimeString();
         	
 		}
 		//dd($finalArray);
