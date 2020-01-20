@@ -33,7 +33,7 @@ class Kernel extends ConsoleKernel
         /*$schedule->command('openingbalance:day')
                   ->daily(12);*/
         $schedule->command('openingbalance:day')
-                  ->dailyAt('11:00');
+                  ->dailyAt('00:00');
         
     }
 
