@@ -189,6 +189,8 @@ class StoreProductionController extends Controller
                                 $finalArray[$i]['material_id'] = $materialId;
                                 $finalArray[$i]['lot_id'] = $lotId;
                                 $finalArray[$i]['quantity'] = $quantity;
+                                $finalArray[$i]['created_at'] = Carbon::now()->toDateTimeString();
+                                $finalArray[$i]['updated_at'] = Carbon::now()->toDateTimeString();
                                 $i++;
                                 $correntRecords[$lotId] = $quantity;
                             }                            
