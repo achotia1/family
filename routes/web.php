@@ -247,7 +247,13 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::resource('wastage-material', 'StoreWasteStockController', ['as' => $PREFIX]);
 				});
 
-				
+				## TEST
+				/*Route::group(['middleware' => ['permission:store-manage-materials']], function () use($PREFIX)
+				{*/
+					Route::get('/test/getRecords',  'StoreTestController@getRecords');
+					Route::resource('test', 'StoreTestController', ['as' => $PREFIX]);
+				/*});*/
+				## END TEST
 				/*Route::get('/customers/update/{encodedCustomerId}',  'CustomersController@showCustomerProfile')->name('admin.customers.showCustomerProfile');
 				Route::post('/customers/update/{encodedCustomerId}',  'CustomersController@updateCustomerProfile')->name('admin.customers.updateCustomerProfile');
 
