@@ -176,6 +176,14 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('getAvgYieldRecords', 'ReportController@getAvgYieldRecords');
 					Route::get('/', 'ReportController@avgYieldIndex')->name('admin.report.avgYield');
 				});
+
+				// WASTE MATERIAL SUMMARY
+				Route::group(['prefix' => 'waste-material-summary','middleware' => ['permission:store-wastage-summary-report']], function () use($PREFIX)
+				{
+					Route::get('getWasteSummaryRecords', 'ReportController@getWasteSummaryRecords');
+					Route::get('/', 'ReportController@wasteMaterialSummaryIndex')->name('admin.report.avgYield');
+				});
+
 				//Contribution Report
 				Route::group(['prefix' => 'contribution-report','middleware' => ['permission:store-contribution-report']], function () use($PREFIX)
 				{

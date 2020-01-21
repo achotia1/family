@@ -56,6 +56,7 @@ class ReportController extends Controller
         $this->middleware(['permission:store-aged-product-report'], ['only' => ['agedProductIndex','getAgedProductRecords']]);
         $this->middleware(['permission:store-stock-deviation-report'], ['only' => ['deviationStockIndex','getdeviationStockRecords']]);
         $this->middleware(['permission:store-avg-yield-report'], ['only' => ['avgYieldIndex','getAvgYieldRecords']]);
+        $this->middleware(['permission:store-wastage-summary-report'], ['only' => ['wasteMaterialSummaryIndex','getWasteSummaryRecords']]);
         
     }
 
@@ -2033,6 +2034,204 @@ class ReportController extends Controller
                 $data[$key]['input_material']  = !empty($row->input_material) ? number_format($row->input_material, 2, '.', ''): '0.00';
                 $data[$key]['sellable_qty']  = !empty($row->sellable_qty) ? number_format($row->sellable_qty, 2, '.', ''): '0.00';
                 $data[$key]['yield']  = !empty($row->yield) ? number_format($row->yield, 2, '.', ''): '0.00';
+         }
+     }
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+       
+    }
+
+    public function wasteMaterialSummaryIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Wastage Summary Report';
+        $this->ViewData['moduleAction'] = 'Wastage Summary Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();     
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);
+           
+        $this->ViewData['products']   = $products;
+        // view file with data
+        return view($this->ModuleView.'wasteMaterialSummary',$this->ViewData);
+    }
+    public function getWasteSummaryRecords(Request $request)
+    {
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_batch_cards.id',
+            1 => 'store_batch_cards.batch_card_no',
+            2 => 'products.code',
+            3 => 'store_out_materials.course_powder',     
+            4 => 'store_out_materials.rejection',
+            5 => 'store_out_materials.dust_product',
+            6 => 'store_out_materials.loose_material',
+            7 => 'store_out_materials.loss_material',
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY
+        $companyId = self::_getCompanyId();
+        $objBatchCard = new StoreBatchCardModel;
+        $modelQuery =  $objBatchCard        
+            ->selectRaw('store_batch_cards.id,
+                        store_batch_cards.batch_card_no,
+                        store_batch_cards.product_code,
+                        products.name,
+                        products.code,                        
+                        store_out_materials.id as out_id,
+                        store_out_materials.course_powder,
+                        store_out_materials.rejection,
+                        store_out_materials.dust_product,
+                        store_out_materials.loose_material,
+                        store_out_materials.loss_material')
+            ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+            ->leftjoin('store_productions', 'store_productions.batch_id' , '=', 'store_batch_cards.id')
+            ->leftjoin('store_out_materials', 'store_out_materials.plan_id' , '=', 'store_productions.id')
+            ->where('store_batch_cards.review_status', 'closed')            
+            ->where('store_batch_cards.company_id', $companyId)
+            ->where('store_productions.deleted_at', null)
+            ->where('store_out_materials.deleted_at', null);
+            
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+                    $custom_search = true;
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    if (strtotime($start_date)==strtotime($end_date)){
+                        
+                        $modelQuery  = $modelQuery
+                                            ->whereDate('store_batch_cards.created_at','=',$start_date);
+
+                    }else{                        
+                        $modelQuery = $modelQuery
+                                        ->whereDate('store_batch_cards.created_at','>=',$start_date)
+                                        ->whereDate('store_batch_cards.created_at','<=',$end_date);
+                    } 
+                }else if(!empty($request->custom['from-date']) && empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                    $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_batch_cards.created_at','>=',$start_date);
+
+                }else if(empty($request->custom['from-date']) && !empty($request->custom['to-date'])) 
+                {
+
+                    $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                    $end_date   = date_format($dateObject, 'Y-m-d'); 
+
+                    $modelQuery = $modelQuery
+                    ->whereDate('store_batch_cards.created_at','<=',$end_date);
+                }
+            if (!empty($request->custom['product-id'])) 
+            {
+                $custom_search = true;
+                $product_id = $request->custom['product-id'];
+                
+                $modelQuery = $modelQuery
+                            ->where('products.id',$product_id);
+
+            }
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('batch_card_no', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('products.code', 'LIKE', '%'.$search.'%'); 
+                    $query->orwhere('course_powder', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('rejection', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('dust_product', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('loose_material', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('loss_material', 'LIKE', '%'.$search.'%');                    
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_batch_cards.id', 'DESC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+        //dd($object);
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {            
+            foreach ($object as $key => $row)
+            {
+                $data[$key]['id'] = $row->id;
+                $data[$key]['batch_card_no']  = "<a class='cls-details' href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->out_id))]).">".$row->batch_card_no.'</a>';
+                $data[$key]['product']  = $row->code.' ('.$row->name.')';
+                $data[$key]['course_powder']  = !empty($row->course_powder) ? number_format($row->course_powder, 2, '.', ''): '0.00';
+                $data[$key]['rejection']  = !empty($row->rejection) ? number_format($row->rejection, 2, '.', ''): '0.00';
+                $data[$key]['dust_product']  = !empty($row->dust_product) ? number_format($row->dust_product, 2, '.', ''): '0.00';
+                $data[$key]['loose_material']  = !empty($row->loose_material) ? number_format($row->loose_material, 2, '.', ''): '0.00';
+                $data[$key]['loss_material']  = !empty($row->loss_material) ? number_format($row->loss_material, 2, '.', ''): '0.00';
          }
      }
 

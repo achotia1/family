@@ -617,7 +617,7 @@
                     </li>
                     
                     <li class="list-group-item d-flex">
-                        <a href="#">Yield Average Report </a>
+                        <a href="#">Yield Average Report</a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
                                 id="permission-store-avg-yield-report" name="store-avg-yield-report"
@@ -626,6 +626,15 @@
                         </label>
                     </li>
                     
+                    <li class="list-group-item d-flex">
+                        <a href="#">Wastage Summary Report</a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-wastage-summary-report" name="store-wastage-summary-report"
+                                value="store-wastage-summary-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
                     
                     <li class="list-group-item d-flex">
                         <a href="#">Aged Product Report </a>
