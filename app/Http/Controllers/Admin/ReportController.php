@@ -2109,9 +2109,9 @@ class ReportController extends Controller
                         store_out_materials.dust_product,
                         store_out_materials.loose_material,
                         store_out_materials.loss_material')
-            ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
-            ->leftjoin('store_productions', 'store_productions.batch_id' , '=', 'store_batch_cards.id')
-            ->leftjoin('store_out_materials', 'store_out_materials.plan_id' , '=', 'store_productions.id')
+            ->join('products', 'products.id' , '=', 'store_batch_cards.product_code')
+            ->join('store_productions', 'store_productions.batch_id' , '=', 'store_batch_cards.id')
+            ->join('store_out_materials', 'store_out_materials.plan_id' , '=', 'store_productions.id')
             ->where('store_batch_cards.review_status', 'closed')            
             ->where('store_batch_cards.company_id', $companyId)
             ->where('store_productions.deleted_at', null)
