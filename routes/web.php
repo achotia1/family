@@ -170,6 +170,12 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/', 'ReportController@rawMaterialIndex')->name('admin.report.rawMaterials');
 				});
 
+				// YIELD AVG REPORT
+				Route::group(['prefix' => 'avg-yield','middleware' => ['permission:store-avg-yield-report']], function () use($PREFIX)
+				{
+					Route::get('getAvgYieldRecords', 'ReportController@getAvgYieldRecords');
+					Route::get('/', 'ReportController@avgYieldIndex')->name('admin.report.avgYield');
+				});
 				//Contribution Report
 				Route::group(['prefix' => 'contribution-report','middleware' => ['permission:store-contribution-report']], function () use($PREFIX)
 				{

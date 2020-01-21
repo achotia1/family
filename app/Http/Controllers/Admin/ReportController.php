@@ -14,7 +14,9 @@ use App\Models\StoreSaleStockModel;
 use App\Models\StoreLotCorrectionModel;
 use App\Models\StoreStockCorrectionModel;
 use App\Models\StoreTempRawMaterialModel;
-//use App\Models\StoreMaterialOpeningModel;
+use App\Models\StoreTempAvgYieldModel;
+
+
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
 use DB;
@@ -48,10 +50,12 @@ class ReportController extends Controller
 
         $this->middleware(['permission:store-batch-wise-report'], ['only' => ['batchIndex','getBatchRecords']]);
         $this->middleware(['permission:store-aged-material-report'], ['only' => ['agedMaterialIndex','getAgedMaterialRecords']]);
+        $this->middleware(['permission:store-raw-material-report'], ['only' => ['rawMaterialIndex','getRawMaterialRecords']]);
         $this->middleware(['permission:store-material-deviation-report'], ['only' => ['deviationMaterialIndex','getdeviationMaterialRecords','deviationLotHistoryIndex','getdeviationLotHistoryRecords']]);
         $this->middleware(['permission:store-contribution-report'], ['only' => ['contributionIndex','getContributionRecords']]);
         $this->middleware(['permission:store-aged-product-report'], ['only' => ['agedProductIndex','getAgedProductRecords']]);
         $this->middleware(['permission:store-stock-deviation-report'], ['only' => ['deviationStockIndex','getdeviationStockRecords']]);
+        $this->middleware(['permission:store-avg-yield-report'], ['only' => ['avgYieldIndex','getAvgYieldRecords']]);
         
     }
 
@@ -1816,6 +1820,231 @@ class ReportController extends Controller
 
     return response()->json($this->JsonData);
 }
+    public function avgYieldIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Average Yield Report';
+        $this->ViewData['moduleAction'] = 'Average Yield Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();     
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);
+           
+        $this->ViewData['products']   = $products;
+        // view file with data
+        return view($this->ModuleView.'avgYield',$this->ViewData);
+    }
+    public function getAvgYieldRecords(Request $request)
+    {
+
+        /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
+        $start_date = $end_date   = date('Y-m-d');
+        if (!empty($request->custom)){
+            if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) {
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                $end_date   = date_format($dateObject, 'Y-m-d');
+
+            }
+        }
+        $tempCollection = new StoreTempAvgYieldModel;
+        $tempCollection->query()->truncate();
+
+        $companyId = self::_getCompanyId();
+        $objBatchCard = new StoreBatchCardModel;
+        //$start_date = '2020-01-01';
+        //$end_date = '2020-01-20';
+        $modelQuery1 =  $objBatchCard        
+            ->selectRaw('store_batch_cards.id,
+                        store_batch_cards.batch_card_no,
+                        store_batch_cards.product_code,
+                        products.name,
+                        products.code,
+                        store_productions.id as pid,
+                        store_out_materials.id as out_id,
+                        store_out_materials.sellable_qty,
+                        store_out_materials.yield')
+            ->leftjoin('products', 'products.id' , '=', 'store_batch_cards.product_code')
+            ->leftjoin('store_productions', 'store_productions.batch_id' , '=', 'store_batch_cards.id')
+            ->leftjoin('store_out_materials', 'store_out_materials.plan_id' , '=', 'store_productions.id')
+            ->where('store_batch_cards.review_status', 'closed')
+            ->whereDate('store_batch_cards.created_at','>=',$start_date)
+            ->whereDate('store_batch_cards.created_at','<=',$end_date)
+            ->where('store_batch_cards.company_id', $companyId)
+            ->where('store_productions.deleted_at', null)
+            ->where('store_out_materials.deleted_at', null)
+            ->orderBy('store_batch_cards.id', 'DESC');
+
+        $insertArray = array();
+        $result = $modelQuery1->get();
+        if($result){            
+            foreach($result as $key=>$val){
+                $insertArray[$val->id]['batch_id'] = $val->id;
+                $insertArray[$val->id]['batch_card_no'] = $val->batch_card_no;
+                $insertArray[$val->id]['product_id'] = $val->product_code;
+                $insertArray[$val->id]['product'] = $val->code.' ('. $val->name. ')';
+                //$insertArray[$val->id]['pid'] = $val->pid;
+                $insertArray[$val->id]['out_id'] = $val->out_id;
+                $insertArray[$val->id]['sellable_qty'] = $val->sellable_qty;
+                $insertArray[$val->id]['yield'] = $val->yield;
+
+                ##
+                $objOutput = new StoreOutMaterialModel;
+                $outputDetails = $objOutput->with([                
+                'assignedPlan' => function($q)
+                {  
+                    $q->with(['hasProductionMaterials' => function($q){
+                        $q->with('mateialName');
+                         
+                    }]);
+                    $q->with(['hasReturnMaterial' => function($q){
+                        $q->with('hasReturnedMaterials');
+                    }]);   
+                }
+                ])->find($val->out_id);
+                $finalTotal = 0;                
+                if(!empty($outputDetails->assignedPlan->hasProductionMaterials)){
+                    foreach ($outputDetails->assignedPlan->hasProductionMaterials as $key => $material) {
+                        if($material->mateialName->material_type == 'Raw'){
+                            $returned = 0;
+                            
+                            if(isset($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials))
+                            {
+                                foreach($outputDetails->assignedPlan->hasReturnMaterial->hasReturnedMaterials as $returnedMaterial){
+                                    if( $material->lot_id == $returnedMaterial->lot_id)
+                                        $returned = $returnedMaterial->quantity;
+                                }
+                            }
+                            $finalWeight = $material->quantity - $returned;
+                            $finalTotal = $finalTotal + $finalWeight;
+                        }
+                    }
+                }                
+                $insertArray[$val->id]['input_material'] = $finalTotal;
+            }
+            $tempCollection->insert($insertArray);
+        }
+        /* END TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_temp_avg_yields.id',
+            1 => 'store_temp_avg_yields.batch_card_no',
+            2 => 'store_temp_avg_yields.product',
+            3 => 'store_temp_avg_yields.input_material',     
+            4 => 'store_temp_avg_yields.sellable_qty',
+            5 => 'store_temp_avg_yields.yield',
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY       
+               
+       
+        $objTemp = new StoreTempAvgYieldModel;
+        $modelQuery =  $objTemp;
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['product-id'])) 
+            {
+                $custom_search = true;
+                $product_id = $request->custom['product-id'];
+                
+                $modelQuery = $modelQuery
+                            ->where('store_temp_avg_yields.product_id',$product_id);
+
+            }
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('batch_card_no', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('product', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('input_material', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('sellable_qty', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('yield', 'LIKE', '%'.$search.'%');                    
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_temp_avg_yields.id', 'ASC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        //dd($modelQuery->toSql());
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+        //dd($object);
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {            
+            foreach ($object as $key => $row)
+            {
+                $data[$key]['id'] = $row->id;
+                $data[$key]['batch_card_no']  = "<a class='cls-details' href=".route('admin.report.showBatch',[ base64_encode(base64_encode($row->out_id))]).">".$row->batch_card_no.'</a>';
+                $data[$key]['product']  = $row->product;
+                $data[$key]['input_material']  = !empty($row->input_material) ? number_format($row->input_material, 2, '.', ''): '0.00';
+                $data[$key]['sellable_qty']  = !empty($row->sellable_qty) ? number_format($row->sellable_qty, 2, '.', ''): '0.00';
+                $data[$key]['yield']  = !empty($row->yield) ? number_format($row->yield, 2, '.', ''): '0.00';
+         }
+     }
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+       
+    }
        
 
 }
