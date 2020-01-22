@@ -15,4 +15,8 @@ class StoreProductOpeningModel extends Model
         'opening_bal',
         'opening_date'  
     ];
+
+    public function updateStockOpeningBals($cDate, $prevArr, $currArr=array(), $flag=false) {
+    	
+    }
 }
