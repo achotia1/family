@@ -15,7 +15,8 @@ use App\Models\StoreLotCorrectionModel;
 use App\Models\StoreStockCorrectionModel;
 use App\Models\StoreTempRawMaterialModel;
 use App\Models\StoreTempAvgYieldModel;
-
+use App\Models\StoreTempProductsStockModel;
+//use App\Models\StoreProductOpeningModel;
 
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
@@ -57,6 +58,7 @@ class ReportController extends Controller
         $this->middleware(['permission:store-stock-deviation-report'], ['only' => ['deviationStockIndex','getdeviationStockRecords']]);
         $this->middleware(['permission:store-avg-yield-report'], ['only' => ['avgYieldIndex','getAvgYieldRecords']]);
         $this->middleware(['permission:store-wastage-summary-report'], ['only' => ['wasteMaterialSummaryIndex','getWasteSummaryRecords']]);
+        $this->middleware(['permission:store-product-stock-report'], ['only' => ['productStockIndex','getProductStockRecords']]);
         
     }
 
@@ -437,7 +439,6 @@ class ReportController extends Controller
            
             $this->ViewData['products']   = $products;
 
-            //dd($object);
             // view file with data
             return view($this->ModuleView.'contribution',$this->ViewData);
     }
@@ -518,9 +519,7 @@ class ReportController extends Controller
                                             ->whereDate('store_sale_invoice.invoice_date','=',$start_date);
 
                     }else{
-                        // $modelQuery = $modelQuery
-                        //                 ->whereBetween('store_sale_invoice.invoice_date', 
-                        //                 array($start_date,$end_date));
+                        
                         $modelQuery  = $modelQuery
                                             ->whereDate('store_sale_invoice.invoice_date','>=',$start_date)
                                             ->whereDate('store_sale_invoice.invoice_date','<=',$end_date);
@@ -650,8 +649,7 @@ class ReportController extends Controller
         $objProduct = new ProductsModel;
         $products = $objProduct->getProducts($companyId);           
         $this->ViewData['products']   = $products;
-
-        //dd('aged report');
+        
         // view file with data
         return view($this->ModuleView.'agedProduct',$this->ViewData);
     }
@@ -689,8 +687,7 @@ class ReportController extends Controller
 
             ## START MODEL QUERY        
             //$companyId = self::_getCompanyId();
-            $companyId = self::_getCompanyId();        
-            // $model = new StoreInMaterialModel;
+            $companyId = self::_getCompanyId(); 
             $modelQuery = $this->StoreSaleStockModel
             ->selectRaw('store_sales_stock.id, 
                         store_sales_stock.batch_id, 
@@ -710,8 +707,7 @@ class ReportController extends Controller
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
-
-            //dd($request->custom);
+            
             ## FILTER OPTIONS
             $custom_search = false;
             if (!empty($request->custom))
@@ -771,7 +767,7 @@ class ReportController extends Controller
             {
                 $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
             }
-            //dd($modelQuery->toSql());
+            
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get(); 
@@ -907,9 +903,7 @@ class ReportController extends Controller
                                             ->whereDate('store_in_materials.balance_corrected_at','=',$start_date);
 
                     }else{
-                        // $modelQuery = $modelQuery
-                        //                 ->whereBetween('store_in_materials.balance_corrected_at', 
-                        //                 array($start_date,$end_date));
+                        
                         $modelQuery  = $modelQuery
                                             ->whereDate('store_in_materials.balance_corrected_at','>=',$start_date)
                                             ->whereDate('store_in_materials.balance_corrected_at','<=',$end_date);
@@ -978,11 +972,11 @@ class ReportController extends Controller
             {
                 $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
             }
-            //dd($modelQuery->toSql());
+            
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get(); 
-            //dd($object);
+            
             /*--------------------------------------
             |  DATA BINDING
             ------------------------------*/
@@ -1002,7 +996,6 @@ class ReportController extends Controller
                     $data[$key]['lot_no']     = "<a href=".route('admin.report.deviationLotHistory',[ base64_encode(base64_encode($row->id))]).">". $row->lot_no.'</a>';
                     $data[$key]['materialName']  =  $row->materialName;
                     $data[$key]['balance_corrected_at']  =  $balance_corrected_at;
-                    // $data[$key]['stock_in_date']  =  date('d M Y',strtotime($row->created_at));
 
                 }
             }    
@@ -1027,9 +1020,7 @@ class ReportController extends Controller
         $this->ViewData['modulePath']   = $this->ModulePath;  
 
         $material = $this->StoreRawMaterialModel
-                            ->join('store_in_materials', 'store_in_materials.material_id' , '=', 'store_raw_materials.id')
-                            //->where('store_raw_materials.company_id', $companyId)
-                            //->whereNotNull('store_in_materials.balance_corrected_at')
+                            ->join('store_in_materials', 'store_in_materials.material_id' , '=', 'store_raw_materials.id')                            
                             ->where('store_in_materials.id', base64_decode(base64_decode($encID)))
                             ->first([
                                 'store_raw_materials.id',
@@ -1040,8 +1031,7 @@ class ReportController extends Controller
         $this->ViewData['lotId']  = $encID;             
         $this->ViewData['moduleTitle']  = 'Deviation History';
         $this->ViewData['moduleAction'] = 'Deviation History of Material:'.$material->name;
-        // $this->ViewData['material']  = $material;             
-
+        
         // view file with data
         return view($this->ModuleView.'deviationLotHistory',$this->ViewData);
     }
@@ -1131,11 +1121,11 @@ class ReportController extends Controller
             {
                 $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
             }
-            //dd($modelQuery->toSql());
+            
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get(); 
-            //dd($object);
+            
             /*--------------------------------------
             |  DATA BINDING
             ------------------------------*/
@@ -1234,7 +1224,7 @@ class ReportController extends Controller
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
-            //dd($request->all());
+            
             ## FILTER OPTIONS
             $custom_search = false;
             if (!empty($request->custom))
@@ -1256,9 +1246,7 @@ class ReportController extends Controller
                                             ->whereDate('store_sales_stock.balance_corrected_at','=',$start_date);
 
                     }else{
-                        // $modelQuery = $modelQuery
-                        //                 ->whereBetween('store_sales_stock.balance_corrected_at', 
-                        //                 array($start_date,$end_date));
+                        
                          $modelQuery  = $modelQuery
                                             ->whereDate('store_sales_stock.balance_corrected_at','>=',$start_date)
                                             ->whereDate('store_sales_stock.balance_corrected_at','<=',$end_date);
@@ -1332,7 +1320,7 @@ class ReportController extends Controller
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get(); 
-            //dd($object);
+            
             /*--------------------------------------
             |  DATA BINDING
             ------------------------------*/
@@ -1438,7 +1426,7 @@ class ReportController extends Controller
             ->where('store_sales_stock.company_id', $companyId)
             ->where('store_sales_stock.id', $stockId)
             ->whereNull('store_sales_stock.deleted_at');
-            //dd($modelQuery->toSql());
+            
             ## GET TOTAL COUNT
             $countQuery = clone($modelQuery);            
             $totalData  = $countQuery->count();
@@ -1477,11 +1465,11 @@ class ReportController extends Controller
             {
                 $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
             }
-            //dd($modelQuery->toSql());
+            
             $object = $modelQuery->skip($start)
             ->take($length)
             ->get(); 
-            //dd($object);
+            
             /*--------------------------------------
             |  DATA BINDING
             ------------------------------*/
@@ -1524,19 +1512,16 @@ class ReportController extends Controller
 
         $objMaterial = new StoreRawMaterialModel;
         $materials = $objMaterial->getMaterialNumbers($companyId);
-
-        //dd($materials);
+        
         $this->ViewData['materials']   = $materials; 
         // view file with data
         return view($this->ModuleView.'rawMaterials',$this->ViewData);
     }
     public function getRawMaterialRecords(Request $request)
     {
-        
-        
-        //dd($balResult);
+       
         /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */        
-        $start_date = $end_date   = date('Y-m-d');        
+        $start_date = $end_date = Carbon::now()->format('Y-m-d');        
         if (!empty($request->custom)){
             if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) {
                 $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
@@ -1547,7 +1532,7 @@ class ReportController extends Controller
 
             }
         }
-        //dd($start_date);
+        
         $companyId = self::_getCompanyId();
         $tempCollection = new StoreTempRawMaterialModel;
         $tempCollection->query()->truncate();
@@ -1563,15 +1548,8 @@ class ReportController extends Controller
                     WHERE deleted_at is null
                     and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
                     and DATE_FORMAT(`store_in_materials`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
-                    GROUP BY material_id) im');
-      
-        /*$issuedSub = DB::raw('(SELECT material_id, 
-                SUM(store_production_has_materials.quantity) as total_issued,
-                SUM(store_production_has_materials.returned_quantity) as total_returned
-                FROM store_production_has_materials
-                where DATE_FORMAT(`store_production_has_materials`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
-                and date(`store_production_has_materials`.`created_at`) <= "'.$end_date.'" 
-                GROUP BY material_id) hm');*/
+                    GROUP BY material_id) im');      
+        
         $issuedSub = DB::raw('(SELECT material_id, 
                 SUM(store_production_has_materials.quantity) as total_issued
                 FROM store_production_has_materials
@@ -1586,17 +1564,6 @@ class ReportController extends Controller
                 and date(`store_returned_materials_has_materials`.`created_at`) <= "'.$end_date.'" 
                 GROUP BY material_id) hrm');
 
-        /*$opBalSub = DB::raw('(SELECT material_id, 
-                    SUM(CASE 
-                        WHEN store_in_materials.status = 0 
-                        THEN store_in_materials.lot_qty 
-                        ELSE store_in_materials.lot_balance
-                    END) AS opening_balance
-                    FROM `store_in_materials` 
-            WHERE DATE_FORMAT(created_at, "%Y-%m-%d") < "'.$start_date.'"
-            GROUP BY material_id) im');*/
-
-        
 
         $modelQuery = $objMaterial
        ->selectRaw('
@@ -1621,22 +1588,9 @@ class ReportController extends Controller
         })
         ->where('store_raw_materials.company_id', $companyId);
        
-        /*$modelQuery2 = $objMaterial
-       ->selectRaw('
-                    store_raw_materials.id,
-                    IFNULL(im.opening_balance, 0) AS opening_balance
-                ')        
-        ->leftjoin($opBalSub,function($join){
-            $join->on('im.material_id','=','store_raw_materials.id');
-        })        
-        ->where('store_raw_materials.company_id', $companyId);*/        
-        
-        //dd($modelQuery2->toSql());
-
         $insertArray = array();
         $result = $modelQuery->get();
-        //dd($result);
-        //$result2 = $modelQuery2->get();
+        
         if($result){            
             foreach($result as $key=>$val){
                 $insertArray[$val->id]['material_id'] = $val->id;
@@ -1647,16 +1601,9 @@ class ReportController extends Controller
                 $insertArray[$val->id]['received_qty'] = $val->received_total;
                 $insertArray[$val->id]['issued_qty'] = $val->total_issued;
                 $insertArray[$val->id]['returned_qty'] = $val->total_returned;
-            }
-            //$tempCollection->
-        }
-        //dd($result2);
-        /*if($result2){            
-            foreach($result2 as $key2=>$val2){
-                $insertArray[$val2->id]['opening_balance'] = $val2->opening_balance;
             }            
-        }*/
-        //$openingDate =  Carbon::today()->format('Y-m-d');
+        }
+        
         $openingDate = $start_date;
         $mObj = new StoreRawMaterialModel;
         $openingData = $mObj
@@ -1668,8 +1615,7 @@ class ReportController extends Controller
             ])
         ->where('company_id', $companyId)
         ->get()->toArray();
-        //dd($openingData);
-        //$balResult = array();
+        
         if(!empty($openingData)){
             foreach($openingData as $oKey=>$oVal){                
                 if(isset($oVal['has_opening_materials'][0]['opening_bal']))
@@ -1719,9 +1665,7 @@ class ReportController extends Controller
         |  MODEL QUERY AND FILTER
         ------------------------------*/
 
-        ## START MODEL QUERY       
-               
-       
+        ## START MODEL QUERY
         $objTemp = new StoreTempRawMaterialModel;
         $modelQuery =  $objTemp;
         ## GET TOTAL COUNT
@@ -1778,7 +1722,7 @@ class ReportController extends Controller
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
-        //dd($modelQuery->toSql());
+        
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get(); 
@@ -1839,7 +1783,7 @@ class ReportController extends Controller
     {
 
         /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
-        $start_date = $end_date   = date('Y-m-d');
+        $start_date = $end_date = Carbon::now()->format('Y-m-d');
         if (!empty($request->custom)){
             if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) {
                 $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
@@ -1855,8 +1799,7 @@ class ReportController extends Controller
 
         $companyId = self::_getCompanyId();
         $objBatchCard = new StoreBatchCardModel;
-        //$start_date = '2020-01-01';
-        //$end_date = '2020-01-20';
+        
         $modelQuery1 =  $objBatchCard        
             ->selectRaw('store_batch_cards.id,
                         store_batch_cards.batch_card_no,
@@ -1886,7 +1829,6 @@ class ReportController extends Controller
                 $insertArray[$val->id]['batch_card_no'] = $val->batch_card_no;
                 $insertArray[$val->id]['product_id'] = $val->product_code;
                 $insertArray[$val->id]['product'] = $val->code.' ('. $val->name. ')';
-                //$insertArray[$val->id]['pid'] = $val->pid;
                 $insertArray[$val->id]['out_id'] = $val->out_id;
                 $insertArray[$val->id]['sellable_qty'] = $val->sellable_qty;
                 $insertArray[$val->id]['yield'] = $val->yield;
@@ -1958,8 +1900,6 @@ class ReportController extends Controller
         ------------------------------*/
 
         ## START MODEL QUERY       
-               
-       
         $objTemp = new StoreTempAvgYieldModel;
         $modelQuery =  $objTemp;
         ## GET TOTAL COUNT
@@ -2012,12 +1952,11 @@ class ReportController extends Controller
         else
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
-        }
-        //dd($modelQuery->toSql());
+        }        
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get(); 
-        //dd($object);
+        
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -2209,11 +2148,11 @@ class ReportController extends Controller
         {
             $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
         }
-        //dd($modelQuery->toSql());
+        
         $object = $modelQuery->skip($start)
         ->take($length)
         ->get(); 
-        //dd($object);
+        
         /*--------------------------------------
         |  DATA BINDING
         ------------------------------*/
@@ -2244,6 +2183,260 @@ class ReportController extends Controller
     return response()->json($this->JsonData);
        
     }
+
+     public function productStockIndex()
+    {
+        ## DEFAULT SITE SETTINGS
+        $this->ViewData['moduleTitle']  = 'Product Stock Report';
+        $this->ViewData['moduleAction'] = 'Product Stock Report';
+        $this->ViewData['modulePath']   = $this->ModulePath;        
+        $companyId = self::_getCompanyId();
+        
+        $objProduct = new ProductsModel;
+        $products = $objProduct->getProducts($companyId);        
+        
+        $this->ViewData['products']   = $products;
+        return view($this->ModuleView.'productStock',$this->ViewData);
+    }
+
+    public function getProductStockRecords(Request $request)
+    {
+        /* TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
+        //$start_date = $end_date = Carbon::now()->format('Y-m-d');
+        $start_date = $end_date = Carbon::today()->format('Y-m-d');
+        if (!empty($request->custom)){
+            if (!empty($request->custom['from-date']) && !empty($request->custom['to-date'])) {
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['from-date']);
+                $start_date   = date_format($dateObject, 'Y-m-d'); 
+
+                $dateObject = date_create_from_format("d-m-Y",$request->custom['to-date']);
+                $end_date   = date_format($dateObject, 'Y-m-d');
+
+            }
+        }
+        
+        $companyId = self::_getCompanyId();
+        $tempCollection = new StoreTempProductsStockModel;
+        $tempCollection->query()->truncate();
+        
+        $objProduct= new ProductsModel;
+        $receivedProd= DB::raw('(SELECT deleted_at, product_id,
+                    SUM(CASE 
+                        WHEN store_sales_stock.status = 1 
+                        THEN store_sales_stock.quantity 
+                        ELSE 0 
+                    END) AS received_total
+                    FROM store_sales_stock
+                    WHERE deleted_at is null
+                    and DATE_FORMAT(`store_sales_stock`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                    and DATE_FORMAT(`store_sales_stock`.`created_at`, "%Y-%m-%d") <= "'.$end_date.'" 
+                    GROUP BY product_id) ip');
+      
+        $issuedProd = DB::raw('(SELECT product_id, 
+                SUM(store_sale_invoice_has_products.quantity) as total_issued
+                FROM store_sale_invoice_has_products
+                where DATE_FORMAT(`store_sale_invoice_has_products`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                and date(`store_sale_invoice_has_products`.`created_at`) <= "'.$end_date.'"
+                and is_wastage = 0
+                GROUP BY product_id) hp');
+
+        $returnedProd = DB::raw('(SELECT product_id,                
+                SUM(store_returned_sales_has_products.quantity) as total_returned
+                FROM store_returned_sales_has_products
+                where DATE_FORMAT(`store_returned_sales_has_products`.`created_at`, "%Y-%m-%d") >= "'.$start_date.'" 
+                and date(`store_returned_sales_has_products`.`created_at`) <= "'.$end_date.'" 
+                GROUP BY product_id) hrp');
+
+        
+        $modelQuery = $objProduct
+        ->selectRaw('
+                    products.id,
+                    products.name,
+                    products.code,                    
+                    products.status,
+                    IFNULL(ip.received_total, 0) AS received_total,
+                    IFNULL(hp.total_issued, 0) AS total_issued,
+                    IFNULL(hrp.total_returned, 0) AS total_returned                  
+                ')        
+        ->leftjoin($receivedProd,function($join){
+            $join->on('ip.product_id','=','products.id');
+        })
+        ->leftjoin($issuedProd,function($join){
+            $join->on('hp.product_id','=','products.id');
+        })
+        ->leftjoin($returnedProd,function($join){
+            $join->on('hrp.product_id','=','products.id');
+        })
+        ->where('products.status', 1)
+        ->where('products.company_id', $companyId);
+
+        $insertArray = array();
+        $result = $modelQuery->get();
+        
+        if($result){            
+            foreach($result as $key=>$val){
+                $insertArray[$val->id]['product_id'] = $val->id;
+                $insertArray[$val->id]['name'] = $val->name;
+                $insertArray[$val->id]['code'] = $val->code;
+                $insertArray[$val->id]['received_qty'] = $val->received_total;
+                $insertArray[$val->id]['issued_qty'] = $val->total_issued;
+                $insertArray[$val->id]['returned_qty'] = $val->total_returned;
+            }            
+        }
+       
+        $openingDate = $start_date;
+        $pObj = new ProductsModel;
+        $openingData = $pObj
+        ->with([   
+            'hasOpeningProducts' => function($q) use ($openingDate)
+            {  
+                $q->where('opening_date', $openingDate);                
+            }
+            ])
+        ->where('status', 1)
+        ->where('company_id', $companyId)
+        ->get()->toArray();
+                
+        if(!empty($openingData)){
+            foreach($openingData as $oKey=>$oVal){                
+                if(isset($oVal['has_opening_products'][0]['opening_bal']))
+                    $insertArray[$oVal['id']]['opening_balance'] = $oVal['has_opening_products'][0]['opening_bal'];
+                else
+                     $insertArray[$oVal['id']]['opening_balance'] = 0;              
+            }
+        }
+        
+        if($insertArray){            
+            foreach($insertArray as $key1=>$val1){               
+                $insertArray[$key1]['balance_qty'] = ((float)$val1['opening_balance'] + (float)$val1['received_qty'] + (float)$val1['returned_qty']) - (float)$val1['issued_qty'] ;
+            }            
+            $tempCollection->insert($insertArray);           
+        }        
+        /* END TRUNCATE AND ADD NEW DATA IN TEMP TABLE */
+        /*--------------------------------------
+        |  VARIABLES
+        ------------------------------*/
+
+        ## SKIP AND LIMIT
+        $start = $request->start;
+        $length = $request->length;
+
+        ## SEARCH VALUE
+        $search = $request->search['value']; 
+
+        ## ORDER
+        $column = $request->order[0]['column'];
+        $dir = $request->order[0]['dir'];
+
+        ## FILTER COLUMNS
+        $filter = array(
+            0 => 'store_temp_product_stocks.id',
+            1 => 'store_temp_product_stocks.name',
+            2 => 'store_temp_product_stocks.code',
+            3 => 'store_temp_product_stocks.opening_balance',     
+            4 => 'store_temp_product_stocks.received_qty',
+            5 => 'store_temp_product_stocks.issued_qty',
+            6 => 'store_temp_product_stocks.returned_qty',
+            7 => 'store_temp_raw_materials.balance_qty',
+        );
+
+        /*--------------------------------------
+        |  MODEL QUERY AND FILTER
+        ------------------------------*/
+
+        ## START MODEL QUERY
+       
+        $objTemp = new StoreTempProductsStockModel;
+        $modelQuery =  $objTemp;
+        ## GET TOTAL COUNT
+        $countQuery = clone($modelQuery);            
+        $totalData  = $countQuery->count();
+
+        ## FILTER OPTIONS
+        $custom_search = false;
+        if (!empty($request->custom))
+        {
+            if (!empty($request->custom['product-id'])) 
+            {
+                $custom_search = true;
+                $product_id = $request->custom['product-id'];
+                
+                $modelQuery = $modelQuery
+                            ->where('store_temp_product_stocks.product_id',$product_id);
+
+            }
+        }
+
+        if (!empty($request->search))
+        {
+            if (!empty($request->search['value'])) 
+            {
+                $search = $request->search['value'];
+
+                $modelQuery = $modelQuery->where(function ($query) use($search)
+                {
+                    $query->orwhere('name', 'LIKE', '%'.$search.'%');
+                    $query->orwhere('code', 'LIKE', '%'.$search.'%');                    
+                    $query->orwhere('balance_qty', '=', $search);
+                    $query->orwhere('opening_balance', '=', $search);
+                    $query->orwhere('received_qty', '=', $search);
+                    $query->orwhere('issued_qty', '=', $search);
+                    $query->orwhere('returned_qty', '=', $search); 
+                });              
+
+            }
+        }
+
+        ## GET TOTAL FILTER
+        $filteredQuery = clone($modelQuery);            
+        $totalFiltered  = $filteredQuery->count();
+
+        ## OFFSET AND LIMIT
+        if(empty($column))
+        {   
+            $modelQuery = $modelQuery->orderBy('store_temp_product_stocks.name', 'ASC');
+                        
+        }
+        else
+        {
+            $modelQuery =  $modelQuery->orderBy($filter[$column], $dir);
+        }
+        
+        $object = $modelQuery->skip($start)
+        ->take($length)
+        ->get(); 
+       
+        /*--------------------------------------
+        |  DATA BINDING
+        ------------------------------*/
+
+        $data = [];
+
+        if (!empty($object) && sizeof($object) > 0)
+        {
+            $count =1;
+            foreach ($object as $key => $row)
+            {
+
+                $data[$key]['id'] = $row->id;
+                $data[$key]['code']  = $row->code;
+                $data[$key]['name']  = '<span title="'.ucfirst($row->name).'">'.str_limit(ucfirst($row->name), '60', '...').'</span> ';
+                $data[$key]['opening_stock']  = !empty($row->opening_balance) ? number_format($row->opening_balance, 2, '.', ''): '0.00';
+                $data[$key]['received_qty']  = !empty($row->received_qty) ? number_format($row->received_qty, 2, '.', ''): '0.00';
+                $data[$key]['issued_qty']  = !empty($row->issued_qty) ? number_format($row->issued_qty, 2, '.', ''): '0.00';
+                $data[$key]['return_qty']  = !empty($row->returned_qty) ? number_format($row->returned_qty, 2, '.', ''): '0.00';
+                $data[$key]['balance_qty']  =  !empty($row->balance_qty) ? number_format($row->balance_qty, 2, '.', ''): '0.00';
+         }
+     }
+
+    ## WRAPPING UP
+    $this->JsonData['draw']             = intval($request->draw);
+    $this->JsonData['recordsTotal']     = intval($totalData);
+    $this->JsonData['recordsFiltered']  = intval($totalFiltered);
+    $this->JsonData['data']             = $data;
+
+    return response()->json($this->JsonData);
+}
        
 
 }

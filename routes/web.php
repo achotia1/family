@@ -191,12 +191,20 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/', 'ReportController@contributionIndex')->name('admin.report.contribution');
 				});
 
+				//Date Wise product Report
+				Route::group(['prefix' => 'product-stock','middleware' => ['permission:store-product-stock-report']], function () use($PREFIX)
+				{
+					Route::get('getProductStockRecords', 'ReportController@getProductStockRecords');
+					Route::get('/', 'ReportController@productStockIndex')->name('admin.report.productStock');
+				});
+
 				//Aged Product Report
 				Route::group(['prefix' => 'aged-products','middleware' => ['permission:store-aged-product-report']], function () use($PREFIX)
 				{
 					Route::get('getAgedProductRecords', 'ReportController@getAgedProductRecords');
 					Route::get('/', 'ReportController@agedProductIndex')->name('admin.report.agedProducts');
 				});
+
 
 				//Deviation Report
 				Route::group(['prefix' => 'deviation-material','middleware' => ['permission:store-material-deviation-report']], function () use($PREFIX)

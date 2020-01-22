@@ -635,9 +635,17 @@
                             <span class="knob text-white"><em>off</em></span>
                         </label>
                     </li>
-                    
                     <li class="list-group-item d-flex">
-                        <a href="#">Aged Product Report </a>
+                        <a href="#">Product Stock Report</a>
+                        <label class="sub-menu switch ml-auto">
+                            <input type="checkbox" class="checkbox-permissions"
+                                id="permission-store-product-stock-report" name="store-product-stock-report"
+                                value="store-product-stock-report">
+                            <span class="knob text-white"><em>off</em></span>
+                        </label>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <a href="#">Aged Product Report</a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
                                 id="permission-store-aged-product-report" name="store-aged-product-report"
@@ -646,7 +654,7 @@
                         </label>
                     </li>
                     <li class="list-group-item d-flex">
-                        <a href="#">Stock Deviation Report </a>
+                        <a href="#">Stock Deviation Report</a>
                         <label class="sub-menu switch ml-auto">
                             <input type="checkbox" class="checkbox-permissions"
                                 id="permission-store-stock-deviation-report" name="store-stock-deviation-report"

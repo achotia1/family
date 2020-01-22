@@ -20,6 +20,11 @@ class ProductsModel extends Model
     	return $this->hasMany(UserHasProductsModel::class, 'product_id', 'id');
     }
     
+    public function hasOpeningProducts()
+    {
+        return $this->hasMany(StoreProductOpeningModel::class, 'product_id', 'id');
+    }
+    
     public function getProducts($companyId=false) {
         
         return ProductsModel::select('id','name','code')
