@@ -125,6 +125,7 @@ class StoreBatchCardModel extends Model
     }
 
     public function updateClosedBatch($batchId, $yieldFlag = false, $outputFlag = false) {  
+        
         //dd(config('constants.RCESTERCOMPANY'));
         $rcester_companyId = config('constants.RCESTERCOMPANY');
         $records = self::with([
@@ -195,6 +196,22 @@ class StoreBatchCardModel extends Model
             if($outputFlag){
                 $collection->quantity = $sellableQty;
                 $collection->balance_quantity = $preBalQty + $qtyDiff;
+                ## UPDATE OPENING PRODUCT STOCK IN store_product_openings
+                $todaysDate =  Carbon::today()->format('Y-m-d');
+                $cDate = $collection->created_at;
+                if($cDate < $todaysDate){                    
+                    $collOpening = StoreProductOpeningModel::where('product_id', $collection->product_id)->where('opening_date', '>',$cDate)->get();
+                    if(!empty($collOpening)){ 
+                        foreach ($collOpening as $citem) {                     
+                            $openingCColl = StoreProductOpeningModel::find($citem['id']);
+                            $openingCColl->opening_bal += $qtyDiff;
+                            $openingCColl->save();
+                        }                   
+                    }
+                }
+                ## END UPDATE OPENING PRODUCT STOCK IN store_product_openings
+                //
+
             }
             $collection->save();
 

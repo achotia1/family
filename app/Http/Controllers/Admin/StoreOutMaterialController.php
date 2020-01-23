@@ -241,6 +241,7 @@ class StoreOutMaterialController extends Controller
                 ## CALCULATE LOSS MATERIAL AND YEILD
                 $companyId = self::_getCompanyId();
                 $output = $this->BaseModel->updateMadeByMaterial($id, $companyId);
+                
                 ## UPDATE COST PER UNIT, SALE STOCK AND WASTAGE STOCK
                 $outputData = $this->BaseModel->with([
                 'assignedPlan'

@@ -807,10 +807,7 @@ class StoreReturnedMaterialController extends Controller
 
                         $returnedMaterialObject = $this->StoreReturnedHasMaterialModel->where('returned_id', $collection->id)->get();
                     if(!empty($returnedMaterialObject) && count($returnedMaterialObject)>0)
-                    {
-                        // $updateQtyQry = DB::table('store_production_has_materials')
-                        //                     ->where('production_id', $collection->plan_id)
-                        //                     ->update(['returned_quantity' => 0]);
+                    {                        
                         foreach($returnedMaterialObject as $mkey => $mvalue) 
                         {
                            $prevOpeningRecs[$mvalue['material_id']][$mvalue['lot_id']] = $mvalue['quantity'];
@@ -875,7 +872,7 @@ class StoreReturnedMaterialController extends Controller
                        /*$objMattOpen->updateOpeningBals(array(), $prevOpeningRecs);*/
                        $objMattOpen->updateOpeningBalsNew($cDate, array(), $prevOpeningRecs);
                     }
-                        ## END UPDATE MATERIAL OPENING BALANCE
+                    ## END UPDATE MATERIAL OPENING BALANCE
                 }
 
                 DB::commit();

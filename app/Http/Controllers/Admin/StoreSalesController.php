@@ -13,11 +13,13 @@ use App\Models\ProductsModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\StoreSaleStockModel;
 use App\Models\StoreWasteStockModel;
+use App\Models\StoreProductOpeningModel;
+use App\Models\StoreReturnedSaleModel;
 
 use App\Http\Requests\Admin\StoreSaleRequest;
 use App\Traits\GeneralTrait;
 use DB;
-
+use Carbon\Carbon;
 class StoreSalesController extends Controller
 {
 
@@ -439,9 +441,11 @@ class StoreSalesController extends Controller
             DB::beginTransaction();
             $companyId = self::_getCompanyId();      
 
-            $collection = $this->BaseModel->find($id);   
+            $collection = $this->BaseModel->find($id);
+            $cDate = $collection->created_at;  
             $collection = self::_storeOrUpdate($collection,$request);
 
+            $crntOpeningRecs = $prevOpeningRecs = array();
             if($collection)
             {
                 $all_transactions = [];
@@ -460,6 +464,7 @@ class StoreSalesController extends Controller
 
                     //Update return quantity and lot balance for the current items
                     ## ADD IN store_has_production_materials
+                    
                     foreach ($request->sales as $pkey => $sale) 
                     {
                         if(!empty($sale['product_id']) && !empty($sale['batch_id']) && !empty($sale['quantity']) && !empty($sale['rate']))
@@ -477,10 +482,12 @@ class StoreSalesController extends Controller
                             $saleInvoiceProductObj->sale_stock_id =  $sale_stock_id;
                             $saleInvoiceProductObj->quantity   = !empty($sale['quantity']) ? $sale['quantity'] : 0;
                             $saleInvoiceProductObj->rate   = !empty($sale['rate']) ? $sale['rate'] : 0;
-                            $saleInvoiceProductObj->total_basic   =  $sale['quantity']*$sale['rate'];;
+                            $saleInvoiceProductObj->total_basic   =  $sale['quantity']*$sale['rate'];
+                            $saleInvoiceProductObj->created_at = $cDate;
                             if ($saleInvoiceProductObj->save()) 
                             {                            
                                $all_transactions[] = 1;
+                               $crntOpeningRecs[$saleInvoiceProductObj->product_id][$saleInvoiceProductObj->batch_id] = floatval($saleInvoiceProductObj->quantity);
 
                                //Remainging Minus Balance Quantity
                                 ## Update Sales Stock balance qty
@@ -512,10 +519,13 @@ class StoreSalesController extends Controller
 
 
                     //Iterate all the previous products and update the stock balance and lastused date
+                    
                     if(!empty($previousSaleProducts))
                     {
                         foreach($previousSaleProducts as $previous) 
                         {
+                            $prevOpeningRecs[$previous->product_id][$previous->batch_id] = $previous->quantity;
+
                             $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
                                         WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
                             $collectionReturn = collect(DB::select(DB::raw($sqlQuery)));
@@ -649,6 +659,14 @@ class StoreSalesController extends Controller
                     }
                 }
                 ## END WASTAGE SALE
+
+                ## UPDATE PRODUCT OPENING BALANCE
+                $todaysDate =  Carbon::today()->format('Y-m-d');
+                if($cDate < $todaysDate){
+                   $objProductOpen = new StoreProductOpeningModel;                   
+                   $objProductOpen->updateStockOpeningBals($cDate, $prevOpeningRecs, $crntOpeningRecs);
+                }
+                ## END UPDATE PRODUCT OPENING BALANCE
             }
 
             if (!in_array(0,$all_transactions)) 
@@ -924,15 +942,27 @@ class StoreSalesController extends Controller
         $this->JsonData['msg'] = 'Failed to delete sale, Something went wrong on server.';
 
         $id = base64_decode(base64_decode($encID));
-
+        $returnObj = new StoreReturnedSaleModel;
+        $available_count = $returnObj->where('sale_invoice_id',$id)->count();
+        if($available_count>0) 
+        {
+            $this->JsonData['status'] = __('admin.RESP_ERROR');
+            $this->JsonData['msg'] = 'Cant delete this Invoice which is assigned in Returned Invoice Module'; 
+            return response()->json($this->JsonData);
+            exit();
+        }
         try 
             {
                 DB::beginTransaction();
                 $companyId = self::_getCompanyId();
 
                 $object = $this->BaseModel->where('id', $id)->get();
+                
+                $prevOpeningRecs = array();
                 foreach ($object as $key => $collection) 
                 {
+                    $cDate = $collection->created_at;
+                    //dd($cDate);
                     if(!empty($collection->id))
                     {
 
@@ -943,9 +973,9 @@ class StoreSalesController extends Controller
                         if(!empty($previousSaleObject) && count($previousSaleObject)>0)
                         {
                             foreach($previousSaleObject as $previous) 
-                            {
-                               
+                            {                               
                                if($previous->is_wastage == 0){
+                                   $prevOpeningRecs[$previous->product_id][$previous->batch_id] = $previous->quantity;
                                    $sqlQuery = "SELECT store_sales_stock.id as sssid,store_sales_stock.quantity,store_sales_stock.balance_quantity FROM store_sales_stock
                                                 WHERE store_sales_stock.product_id = '".$previous->product_id."' AND store_sales_stock.batch_id = '".$previous->batch_id."'";
                                     $collectionSale = collect(DB::select(DB::raw($sqlQuery)));
@@ -998,13 +1028,14 @@ class StoreSalesController extends Controller
                                 //
                             }
                         }
-
-                        
-                        
-
                     }
-                    
                     $this->BaseModel->where('id', $collection->id)->delete();
+                    ## UPDATE STOCK OPENING BALANCE
+                    $todaysDate =  Carbon::today()->format('Y-m-d');
+                    if($cDate < $todaysDate){
+                       $objProdOpen = new StoreProductOpeningModel;                       
+                       $objProdOpen->updateStockOpeningBals($cDate, $prevOpeningRecs);
+                    }
 
                 }
 

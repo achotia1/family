@@ -11,7 +11,7 @@ use App\Models\StoreStockCorrectionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 use App\Models\StoreSaleInvoiceHasProductsModel;
-
+use App\Models\StoreProductOpeningModel;
 
 use App\Http\Requests\Admin\StoreCorrectStockRequest;
 use App\Http\Requests\Admin\StoreOpeningStockRequest;
@@ -98,9 +98,15 @@ class StoreSaleStockController extends Controller
                 ## SAVE STOCK DATA DATA
                 if($collStock->save()){
                     $all_transactions[] = 1;
+                    ## ADD OPENING BAL IN STOCK OPENING TABLE
+                    $openingDate =  Carbon::today()->format('Y-m-d');
+                    $openingRecs[$collection->product_code][$collection->id] = $request->quantity;
+                    $objProdOpen = new StoreProductOpeningModel;;
+                    $objProdOpen->updateStockOpeningBals($openingDate, $openingRecs, array(), true);
                 } else {
                     $all_transactions[] = 0;
                 }
+                
                 if (!in_array(0,$all_transactions)) 
                 {
                     $this->JsonData['status'] = __('admin.RESP_SUCCESS');
