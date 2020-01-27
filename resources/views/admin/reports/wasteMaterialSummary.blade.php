@@ -54,9 +54,21 @@
                         <th style="display: none"></th>                        
                         <th class="w-10">Batch Code</th>
                         <th class="w-20">Product</th>                        
-                        <th class="w-5">Corse Powder</th>
-                        <th class="w-10">Rejection</th>
-                        <th class="w-10">Dust Product</th>
+                        <th class="w-5">
+                        @if(!empty($rcesterCompany) && $rcesterCompany==true)
+                        	Unfiltered Stock
+                        @else
+                        	Course Powder
+                        @endif
+                        </th>
+                        <th class="w-10">
+                        @if(!empty($rcesterCompany) && $rcesterCompany==true)
+                        	Water Of Reaction
+                        @else
+                        	Rejection
+                        @endif
+                        </th>
+                        <th class="w-10" style="@if(!empty($rcesterCompany) && $rcesterCompany==true) display: none; @endif">Dust Product</th>
                         <th class="w-10">Loose Material</th>
                         <th class="w-10">Loss Material</th>
                     </tr>
@@ -69,6 +81,9 @@
 </section>
 @endsection
 @section('scripts')
+<script type="text/javascript">
+	var rcesterCompany = '{{$rcesterCompany}}';
+</script>
 <script type="text/javascript" src="{{ url('assets/common/js/jquery.cookie.min.js') }}"></script>
 <script type="text/javascript" src="{{ url('assets/admin/js/reports/wasteMaterialSummary.js') }}"></script>
 

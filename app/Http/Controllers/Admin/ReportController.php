@@ -1988,6 +1988,13 @@ class ReportController extends Controller
 
     public function wasteMaterialSummaryIndex()
     {
+        $companyId = self::_getCompanyId();
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        $rcesterCompany = false;
+        if($companyId==$rcester_companyId){
+            $rcesterCompany = true;          
+        }
+        //dd($rcesterCompany);
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Wastage Summary Report';
         $this->ViewData['moduleAction'] = 'Wastage Summary Report';
@@ -1997,6 +2004,7 @@ class ReportController extends Controller
         $products = $objProduct->getProducts($companyId);
            
         $this->ViewData['products']   = $products;
+        $this->ViewData['rcesterCompany']   = $rcesterCompany;
         // view file with data
         return view($this->ModuleView.'wasteMaterialSummary',$this->ViewData);
     }

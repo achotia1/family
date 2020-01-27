@@ -34,7 +34,31 @@ $(document).ready(function()
 	/* END SET COOKIES TO PRESERVE PREVIOUS STATE */
 	
     var action = ADMINURL+'/waste-material-summary/getWasteSummaryRecords'; 
-
+	
+	if(rcesterCompany){
+		var objcolmns = [
+            { "data": "id",  "visible": false, },            
+            { "data": "batch_card_no"},
+            { "data": "product"},
+            { "data": "course_powder"},
+            { "data": "rejection"},
+            { "data": "loose_material"},
+            { "data": "loss_material"},
+        ];
+       	 
+     } else {
+     	var objcolmns = [
+            { "data": "id",  "visible": false, },            
+            { "data": "batch_card_no"},
+            { "data": "product"},
+            { "data": "course_powder"},
+            { "data": "rejection"},            
+            { "data": "dust_product"},
+            { "data": "loose_material"},
+            { "data": "loss_material"},
+        ];
+	 }          
+        
     const table = $('#listingTable').DataTable( 
     {
         "stateSave": true,
@@ -56,16 +80,7 @@ $(document).ready(function()
                 }
             }
         },
-        "columns": [
-            { "data": "id",  "visible": false, },            
-            { "data": "batch_card_no"},
-            { "data": "product"},
-            { "data": "course_powder"},
-            { "data": "rejection"},            
-            { "data": "dust_product"},
-            { "data": "loose_material"},
-            { "data": "loss_material"},
-        ],
+        "columns": objcolmns,
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [0] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
