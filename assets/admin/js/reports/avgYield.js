@@ -67,6 +67,50 @@ $(document).ready(function()
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [0] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "footerCallback": function(row, data, start, end, display) {
+          var api = this.api(), data;
+         // converting to interger to find total
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+			//console.log("innnn");
+            var materialInput = api
+                .column( 3 )
+                .data()
+                .reduce( function (a, b) {
+                    return (intVal(a) + intVal(b)).toFixed(2);
+                }, 0 );
+
+            var materialOutput = api
+                .column( 4 )
+                .data()
+                .reduce( function (a, b) {
+                    return (intVal(a) + intVal(b)).toFixed(2);
+                }, 0 );
+
+            /*var totalYield = api
+                .column( 5 )
+                .data()
+                .reduce( function (a, b) {
+                    return (intVal(a) + intVal(b)).toFixed(2);
+                }, 0 );*/
+
+            
+			var avgYield = 0;
+			if(materialInput>0){
+				avgYield = ((materialOutput/materialInput)*100).toFixed(2);
+					
+			}
+			
+            // Update footer by showing the total with the reference of the column index 
+            $( api.column( 2 ).footer() ).html('Total');
+            $( api.column( 3 ).footer() ).html(materialInput);
+            $( api.column( 4 ).footer() ).html(materialOutput);
+            $( api.column( 5 ).footer() ).html(avgYield);
+        }
        /* "language": {
           "processing": "Loading ...",
           "paginate": 

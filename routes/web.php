@@ -181,7 +181,7 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 				Route::group(['prefix' => 'waste-material-summary','middleware' => ['permission:store-wastage-summary-report']], function () use($PREFIX)
 				{
 					Route::get('getWasteSummaryRecords', 'ReportController@getWasteSummaryRecords');
-					Route::get('/', 'ReportController@wasteMaterialSummaryIndex')->name('admin.report.avgYield');
+					Route::get('/', 'ReportController@wasteMaterialSummaryIndex')->name('admin.report.wasteMaterialSummary');
 				});
 
 				//Contribution Report

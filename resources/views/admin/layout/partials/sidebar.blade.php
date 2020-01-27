@@ -354,7 +354,7 @@
 
         <!-- Manage Reports --> 
         @can('store-manage-reports')       
-        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*','admin/raw-materials','admin/raw-materials/*']) }}">
+        <li class="treeview {{ active(['admin/batch-summary','admin/batch-summary/*', 'admin/aged-materials', 'admin/contribution-report','admin/aged-products','admin/deviation-material','admin/deviation-material/*','admin/stock-deviation','admin/stock-deviation/*','admin/raw-materials','admin/raw-materials/*','admin/avg-yield','admin/avg-yield/*','admin/waste-material-summary','admin/waste-material-summary/*', 'admin/product-stock','admin/product-stock/*']) }}">
           <a href="#">
             <i class="fa fa-file"></i>
             <span>Manage Reports</span>
@@ -399,7 +399,25 @@
             <li class="{{ active(['admin/stock-deviation','admin/stock-deviation/*']) }}">
               <a href="{{ route('admin.report.stockDeviation') }}"><i class="fa fa-hand-o-right"></i> Stock Deviation Report</a>
             </li> 
-            @endcan         
+            @endcan
+
+            @can('store-avg-yield-report')  
+            <li class="{{ active(['admin/avg-yield','admin/avg-yield/*']) }}">
+              <a href="{{ route('admin.report.avgYield') }}"><i class="fa fa-hand-o-right"></i> Average Yield Report</a>
+            </li> 
+            @endcan
+
+            @can('store-wastage-summary-report')  
+            <li class="{{ active(['admin/waste-material-summary','admin/waste-material-summary/*']) }}">
+              <a href="{{ route('admin.report.wasteMaterialSummary') }}"><i class="fa fa-hand-o-right"></i>Wastage Summary Report</a>
+            </li> 
+            @endcan
+
+            @can('store-product-stock-report')  
+            <li class="{{ active(['admin/product-stock','admin/product-stock/*']) }}">
+              <a href="{{ route('admin.report.productStock') }}"><i class="fa fa-hand-o-right"></i> Product Stock Report</a>
+            </li> 
+            @endcan        
           </ul>
         </li>
         @endcan 
