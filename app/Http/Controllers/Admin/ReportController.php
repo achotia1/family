@@ -1817,6 +1817,7 @@ class ReportController extends Controller
             ->whereDate('store_batch_cards.created_at','>=',$start_date)
             ->whereDate('store_batch_cards.created_at','<=',$end_date)
             ->where('store_batch_cards.company_id', $companyId)
+            ->where('store_batch_cards.status', 1)
             ->where('store_productions.deleted_at', null)
             ->where('store_out_materials.deleted_at', null)
             ->orderBy('store_batch_cards.id', 'DESC');
