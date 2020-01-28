@@ -2062,6 +2062,7 @@ class ReportController extends Controller
             ->join('store_out_materials', 'store_out_materials.plan_id' , '=', 'store_productions.id')
             ->where('store_batch_cards.review_status', 'closed')            
             ->where('store_batch_cards.company_id', $companyId)
+            ->where('store_batch_cards.status', 1)
             ->where('store_productions.deleted_at', null)
             ->where('store_out_materials.deleted_at', null);
             
