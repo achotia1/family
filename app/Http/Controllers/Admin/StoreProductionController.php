@@ -820,12 +820,13 @@ class StoreProductionController extends Controller
     }
     public function show($encId)
     {
+        $companyId = self::_getCompanyId();
         $id = base64_decode(base64_decode($encId));
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['modulePath']   = $this->ModulePath;
-        $this->ViewData['object'] = $this->BaseModel
+        $objData = $this->BaseModel
         ->with([   
             'hasProductionMaterials' => function($q)
             {  
@@ -836,9 +837,41 @@ class StoreProductionController extends Controller
                 $q->with('assignedProduct');
         }
         ])
-        ->find($id);         
+        ->with(['hasReuseWastage'=>function($q){
+                $q->with(['hasReuseMaterials'=>function($q){
+                    $q->with('assignedBatch');
+                }]);
+        }])
+        ->find($id);
+        $this->ViewData['object'] = $objData;         
         //->find($id)->toArray(); //
         //dd($this->ViewData['object']);
+        //$k=0;
+        $courseLable = 'Course';
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+            $courseLable = 'Unfiltered';
+        }
+
+        $wastageDataArr = array();
+        if(!empty($objData->hasReuseWastage->hasReuseMaterials)){
+            foreach($objData->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                /*$wastageDataArr[$k][$rVal->batch_id]['batch_no'] = $rVal->assignedBatch->batch_card_no;*/
+                
+                if($rVal->course > 0)
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->rejection > 0)
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->dust > 0)
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->loose > 0)
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+
+                //$k++;
+            }
+        }
+        $this->ViewData['wastageData'] = $wastageDataArr;
+        //dd($wastageDataArr);
         return view($this->ModuleView.'view', $this->ViewData);
     }
     public function getRecords(Request $request)

@@ -75,6 +75,20 @@
                 </thead>
                 <tbody>
                 </tbody>
+                <tfoot align="right">
+                <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        @if(!$rcesterCompany)
+                        <th></th> 
+                        @endif
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

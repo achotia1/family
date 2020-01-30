@@ -84,6 +84,94 @@ $(document).ready(function()
         "aoColumnDefs": [{ "bSortable": false, "aTargets": [0] }],
         "lengthMenu": [[20, 25, 50, 100], [20, 25, 50, 100]],
         "aaSorting": [[0, 'DESC']],
+        "footerCallback": function(row, data, start, end, display) {
+        	var api = this.api(), data;
+         	// converting to interger to find total
+            var intVal = function ( i ) {
+                return typeof i === 'string' ?
+                    i.replace(/[\$,]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+            };
+            if(rcesterCompany){
+            	var course = api
+                .column( 3 )
+                .data()
+                .reduce( function (a, b) {
+                    return (intVal(a) + intVal(b)).toFixed(2);
+                }, 0 );
+                
+                var rejection = api
+	                .column( 4 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+	                
+	            var loose = api
+	                .column( 5 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+
+	            var loss = api
+	                .column( 6 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+	                
+	       		$( api.column( 2 ).footer() ).html('Total');
+	            $( api.column( 3 ).footer() ).html(course);
+	            $( api.column( 4 ).footer() ).html(rejection);	            
+	            $( api.column( 5 ).footer() ).html(loose);
+	            $( api.column( 6 ).footer() ).html(loss);     
+			} else {
+				var course = api
+                .column( 3 )
+                .data()
+                .reduce( function (a, b) {
+                    return (intVal(a) + intVal(b)).toFixed(2);
+                }, 0 );
+
+	            var rejection = api
+	                .column( 4 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+
+	            var dust = api
+	                .column( 5 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+
+	            var loose = api
+	                .column( 6 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );
+
+	            var loss = api
+	                .column( 7 )
+	                .data()
+	                .reduce( function (a, b) {
+	                    return (intVal(a) + intVal(b)).toFixed(2);
+	                }, 0 );            
+				
+	            // Update footer by showing the total with the reference of the column index 
+	            $( api.column( 2 ).footer() ).html('Total');
+	            $( api.column( 3 ).footer() ).html(course);
+	            $( api.column( 4 ).footer() ).html(rejection);
+	            $( api.column( 5 ).footer() ).html(dust);
+	            $( api.column( 6 ).footer() ).html(loose);
+	            $( api.column( 7 ).footer() ).html(loss);				
+			} 
+		}
        /* "language": {
           "processing": "Loading ...",
           "paginate": 

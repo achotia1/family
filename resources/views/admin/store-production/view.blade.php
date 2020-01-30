@@ -99,6 +99,10 @@
 	                    	<td><b>Total Packaging Material :</b></td>
 	                    	<td colspan="3"><span id="planned-pmaterial"></span></td>
 	                    </tr>
+	                    <tr class="cls-wmaterial">	                    	
+	                    	<td><b>Total Wastage Material :</b></td>
+	                    	<td colspan="3"><span id="planned-wmaterial"></span></td>
+	                    </tr>
 	                    <tr>
                             <td colspan="4"></td>
                         </tr>
@@ -178,7 +182,52 @@
 	                    </tr>
 	                    @php
 	                    }
-	                    @endphp  
+	                    @endphp
+	                    @php
+	                    if(!empty($wastageData)){
+						
+	                    @endphp
+	                    <tr>
+                            <td colspan="4"></td>
+                        </tr>
+                        <tr class="trExpense">
+                            <td colspan="4" class="title"><b>Planned Wastage Material</b></td>
+                        </tr>
+                        <tr>
+	                    	<td><b>Sr.No</b></td>
+	                    	<td><b>Wastage Material Name</b></td>
+	                    	<td><b>Batch No.</b></td>
+	                    	<td><b>Quantity</b></td>	                    	
+	                    </tr>
+	                    @php
+	                    $wk=1;
+	                    $wTotal = 0;
+	                    foreach($wastageData as $wVal){
+	                    	foreach($wVal as $wName=>$wDetails){
+	                    		list($wQty, $wBatchNo) = explode("||",$wDetails);
+	                    		$wTotal += $wQty;
+	                    		$wQty = number_format($wQty, 2, '.', '');
+						@endphp	
+						
+	                    <tr>
+	                    	<td>{{$wk}}</td>
+	                    	<td>{{$wName}}</td>
+	                    	<td>{{$wBatchNo}}</td>
+	                    	<td>{{$wQty}}</td>	
+	                    </tr>
+	                    @php
+	                    	$wk++;
+	                    	}
+	                    }
+	                    $wTotal = number_format($wTotal, 2, '.', '');
+	                    @endphp
+	                    <tr>	                    	
+	                    	<td colspan="3"></td>
+	                    	<td><b><span id="planned-wsWeight">{{$wTotal}}</span></b></td>	                    	
+	                    </tr>
+                        @php                        	
+						}
+                        @endphp 
                     </tbody>
                 </table>
             </div>           
@@ -190,11 +239,17 @@
     <script type="text/javascript">
     	$(document).ready(function() {
     		var planned_weight = $('#planned-weight').text();
-    		$('#planned-material').text(planned_weight+" kg");
+    		$('#planned-material').text(planned_weight);
     		@if(!empty($otherMaterial))
     			$('#planned-pmaterial').text($('#planned-pweight').text());
     		@else
     			$('table tr.cls-pmaterial').remove();	
+    		@endif
+    		
+    		@if(!empty($wastageData))
+    			$('#planned-wmaterial').text($('#planned-wsWeight').text());
+    		@else
+    			$('table tr.cls-wmaterial').remove();	
     		@endif
     	});
     </script>

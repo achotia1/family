@@ -235,6 +235,53 @@
 	                    @php
 	                    }
 	                    @endphp
+	                    @php
+	                    if(!empty($wastageData)){						
+	                    @endphp
+	                    <tr>
+                            <td colspan="7"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="title"><b>Planned Wastage Material</b></td>
+                        </tr>
+                        <tr>
+	                    	<td><b>Sr.No</b></td>
+	                    	<td><b>Wastage Material Name</b></td>
+	                    	<td><b>Batch No.</b></td>
+	                    	<td><b>Quantity</b></td>
+	                    	<td colspan="3"></td>                    	
+	                    </tr>
+	                    @php
+	                    $wk=1;
+	                    $wTotal = 0;
+	                    foreach($wastageData as $wVal){
+	                    	foreach($wVal as $wName=>$wDetails){
+	                    		list($wQty, $wBatchNo) = explode("||",$wDetails);
+	                    		$wTotal += $wQty;
+	                    		$wQty = number_format($wQty, 2, '.', '');
+						@endphp	
+						
+	                    <tr>
+	                    	<td>{{$wk}}</td>
+	                    	<td>{{$wName}}</td>
+	                    	<td>{{$wBatchNo}}</td>
+	                    	<td class="text-right">{{$wQty}}</td>
+	                    	<td colspan="3"></td>	
+	                    </tr>
+	                    @php
+	                    	$wk++;
+	                    	}
+	                    }
+	                    $wTotal = number_format($wTotal, 2, '.', '');
+	                    @endphp
+	                    <tr>	                    	
+	                    	<td colspan="3"></td>
+	                    	<td class="text-right"><b>{{$wTotal}}</b></td>
+	                    	<td colspan="3"></td>                    	
+	                    </tr>
+                        @php                        	
+						}
+                        @endphp
 	                    <tr>
                             <td colspan="7"></td>
                         </tr>

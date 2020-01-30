@@ -313,12 +313,39 @@ class StoreOutMaterialController extends Controller
                 }]);
                 $q->with(['hasReturnMaterial' => function($q){
                     $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with(['hasReuseMaterials'=>function($q){
+                        $q->with('assignedBatch');
+                    }]);
                 }]);               
             }
         ])->where('company_id', $companyId)
         ->find($id);
         $this->ViewData['object'] = $outputDetails;
-        
+
+        $courseLable = 'Course';
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+            $courseLable = 'Unfiltered';
+        }
+        $wastageDataArr = array();
+        if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
+            foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){               
+                if($rVal->course > 0)
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->rejection > 0)
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->dust > 0)
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->loose > 0)
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+
+                //$k++;
+            }
+        }
+        //dd($wastageDataArr);
+        $this->ViewData['wastageData'] = $wastageDataArr;
         $rcester_companyId = config('constants.RCESTERCOMPANY');
         if($companyId==$rcester_companyId){
              ## CREATE METHOD FOR RC EASTER
@@ -350,11 +377,37 @@ class StoreOutMaterialController extends Controller
                 }]);
                 $q->with(['hasReturnMaterial' => function($q){
                     $q->with('hasReturnedMaterials');
-                }]);               
+                }]);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with(['hasReuseMaterials'=>function($q){
+                        $q->with('assignedBatch');
+                    }]);
+                }]);              
             }
         ])->where('company_id', $companyId)
         ->find($id);
         $this->ViewData['object'] = $outputDetails;
+        $courseLable = 'Course';
+        $rcester_companyId = config('constants.RCESTERCOMPANY');
+        if($companyId==$rcester_companyId){
+            $courseLable = 'Unfiltered';
+        }
+        $wastageDataArr = array();
+        if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
+            foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){               
+                if($rVal->course > 0)
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->rejection > 0)
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->dust > 0)
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
+                if($rVal->loose > 0)
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+            }
+        }
+        //dd($wastageDataArr);
+        $this->ViewData['wastageData'] = $wastageDataArr;
+
         $rcester_companyId = config('constants.RCESTERCOMPANY');
         if($companyId==$rcester_companyId){
              ## CREATE METHOD FOR RC EASTER
