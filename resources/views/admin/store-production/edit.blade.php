@@ -159,7 +159,7 @@
                             onchange="loadWastageBatchMaterial(this);"
                             data-error="Batch field is required." 
                         >
-                            <option value="{{ $reuseMaterial->assignedBatch->id }}"  selected >{{ $reuseMaterial->assignedBatch->batch_card_no }}</option>
+                            <option value="{{ $reuseMaterial->assignedBatch->id }}"  selected >{{ $reuseMaterial->assignedBatch->batch_card_no }} ({{ $reuseMaterial->assignedBatch->assignedProduct->code }} - {{ $reuseMaterial->assignedBatch->assignedProduct->name }})</option>
                            
                         </select>
                         <span class="help-block with-errors">

@@ -329,7 +329,7 @@ class StoreProductionController extends Controller
         $id = base64_decode(base64_decode($encID));
         $companyId = self::_getCompanyId();        
         //dd($id );
-        $data = $this->BaseModel
+        /*$data = $this->BaseModel
         ->with([   
             'hasProductionMaterials' => function($q)
             {  
@@ -348,8 +348,32 @@ class StoreProductionController extends Controller
 
         ])
         ->where('company_id', $companyId)
+        ->find($id);*/
+        $data = $this->BaseModel
+        ->with([   
+            'hasProductionMaterials' => function($q)
+            {  
+                $q->with('mateialName');
+                $q->with('hasLot');
+            },
+            'assignedBatch' => function($q){
+                $q->with('assignedProduct');
+            },
+            'hasReuseWastage' => function($q)
+            {  
+               $q->with(['hasReuseMaterials'=>function($q1){
+                    $q1->with(['assignedWastageStock']);
+                    $q1->with(['assignedBatch' => function($q2){
+                        $q2->with('assignedProduct');    
+                    }]); 
+               }]);
+            }
+
+        ])
+        ->where('company_id', $companyId)
         ->find($id);
-        
+
+        //dd($data);
         /*if(empty($data) || $data->assignedBatch->review_status == 'closed') {            
             return redirect()->route('admin.production.index');
         }*/
@@ -839,7 +863,9 @@ class StoreProductionController extends Controller
         ])
         ->with(['hasReuseWastage'=>function($q){
                 $q->with(['hasReuseMaterials'=>function($q){
-                    $q->with('assignedBatch');
+                    $q->with(['assignedBatch' => function($q){
+                        $q->with('assignedProduct');    
+                    }]);
                 }]);
         }])
         ->find($id);
@@ -859,13 +885,13 @@ class StoreProductionController extends Controller
                 /*$wastageDataArr[$k][$rVal->batch_id]['batch_no'] = $rVal->assignedBatch->batch_card_no;*/
                 
                 if($rVal->course > 0)
-                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||<b>'.$rVal->assignedBatch->batch_card_no. "</b> (".$rVal->assignedBatch->assignedProduct->code." - ".$rVal->assignedBatch->assignedProduct->name.")";
                 if($rVal->rejection > 0)
-                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||<b>'.$rVal->assignedBatch->batch_card_no. "</b> (".$rVal->assignedBatch->assignedProduct->code." - ".$rVal->assignedBatch->assignedProduct->name.")";
                 if($rVal->dust > 0)
-                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||<b>'.$rVal->assignedBatch->batch_card_no. "</b> (".$rVal->assignedBatch->assignedProduct->code." - ".$rVal->assignedBatch->assignedProduct->name.")";
                 if($rVal->loose > 0)
-                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||<b>'.$rVal->assignedBatch->batch_card_no. "</b> (".$rVal->assignedBatch->assignedProduct->code." - ".$rVal->assignedBatch->assignedProduct->name.")";
 
                 //$k++;
             }
@@ -1273,7 +1299,7 @@ class StoreProductionController extends Controller
                 }
 
                 $wastageBatchesMaterials = $this->StoreWasteStockModel
-                            ->where('store_waste_stock.product_id',$product_id)
+                            //ash->where('store_waste_stock.product_id',$product_id)
                             ->where('store_waste_stock.batch_id',$wastage_batch_id)
                             ->where('store_waste_stock.company_id',$company_id)
                             ->get([
@@ -1332,9 +1358,9 @@ class StoreProductionController extends Controller
             $companyCourseOrUnfiltered = 'Unfiltered';
         }
 
-        $wastageBatchesMaterials = $this->StoreBatchCardModel
+        /*$wastageBatchesMaterials = $this->StoreBatchCardModel
                             ->join('store_waste_stock','store_waste_stock.batch_id','=','store_batch_cards.id')
-                            ->where('store_waste_stock.product_id',$product_id)
+                            //ash->where('store_waste_stock.product_id',$product_id)
                             ->where('store_waste_stock.company_id',$company_id)
                             ->get([
                                     'store_batch_cards.id',
@@ -1344,11 +1370,29 @@ class StoreProductionController extends Controller
                                     'store_waste_stock.balance_rejection as Rejection',
                                     'store_waste_stock.balance_dust as Dust',
                                     'store_waste_stock.balance_loose as Loose',
+                                ]);*/
+
+        $wastageBatchesMaterials = $this->StoreBatchCardModel
+                            ->join('store_waste_stock','store_waste_stock.batch_id','=','store_batch_cards.id')
+                            ->join('products','store_batch_cards.product_code','=','products.id')
+                            //ash->where('store_waste_stock.product_id',$product_id)
+                            ->where('store_waste_stock.company_id',$company_id)
+                            ->get([
+                                    'store_batch_cards.id',
+                                    'store_batch_cards.batch_card_no',
+                                    'store_waste_stock.id as waste_stock_id',
+                                    'store_waste_stock.balance_course as '.$companyCourseOrUnfiltered,
+                                    'store_waste_stock.balance_rejection as Rejection',
+                                    'store_waste_stock.balance_dust as Dust',
+                                    'store_waste_stock.balance_loose as Loose',
+                                    'products.code',
+                                    'products.name'
                                 ]);
+
         $batchesHtml = "<option value=''>Select Batch</option>";   
         foreach($wastageBatchesMaterials as $batches){
             
-            $batchesHtml.= "<option value='".$batches->id."'>".$batches->batch_card_no."</option>";
+            $batchesHtml.= "<option value='".$batches->id."'>".$batches->batch_card_no." (".$batches->code." - ".$batches->name.")</option>";
         }
         return $batchesHtml;
     }

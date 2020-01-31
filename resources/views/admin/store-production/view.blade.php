@@ -212,7 +212,7 @@
 	                    <tr>
 	                    	<td>{{$wk}}</td>
 	                    	<td>{{$wName}}</td>
-	                    	<td>{{$wBatchNo}}</td>
+	                    	<td>{!!$wBatchNo!!}</td>
 	                    	<td>{{$wQty}}</td>	
 	                    </tr>
 	                    @php

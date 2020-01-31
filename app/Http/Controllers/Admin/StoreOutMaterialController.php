@@ -315,8 +315,10 @@ class StoreOutMaterialController extends Controller
                     $q->with('hasReturnedMaterials');
                 }]);
                 $q->with(['hasReuseWastage'=>function($q){
-                    $q->with(['hasReuseMaterials'=>function($q){
-                        $q->with('assignedBatch');
+                    $q->with(['hasReuseMaterials'=>function($q){                       
+                        $q->with(['assignedBatch' => function($q){
+                            $q->with('assignedProduct');    
+                        }]);
                     }]);
                 }]);               
             }
@@ -332,15 +334,23 @@ class StoreOutMaterialController extends Controller
         $wastageDataArr = array();
         if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
             foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){               
-                if($rVal->course > 0)
+                /*if($rVal->course > 0)
                     $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->rejection > 0)
                     $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->dust > 0)
                     $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->loose > 0)
-                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;*/
 
+                if($rVal->course > 0)
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->rejection > 0)
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->dust > 0)
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->loose > 0)
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
                 //$k++;
             }
         }
@@ -380,7 +390,10 @@ class StoreOutMaterialController extends Controller
                 }]);
                 $q->with(['hasReuseWastage'=>function($q){
                     $q->with(['hasReuseMaterials'=>function($q){
-                        $q->with('assignedBatch');
+                        //$q->with('assignedBatch');
+                        $q->with(['assignedBatch' => function($q){
+                            $q->with('assignedProduct');    
+                        }]);
                     }]);
                 }]);              
             }
@@ -395,14 +408,23 @@ class StoreOutMaterialController extends Controller
         $wastageDataArr = array();
         if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
             foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){               
-                if($rVal->course > 0)
+                /*if($rVal->course > 0)
                     $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->rejection > 0)
                     $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->dust > 0)
                     $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no;
                 if($rVal->loose > 0)
-                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no;*/
+
+                if($rVal->course > 0)
+                    $wastageDataArr[$rVal->batch_id][$courseLable] = $rVal->course.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->rejection > 0)
+                    $wastageDataArr[$rVal->batch_id]['Rejection'] = $rVal->rejection.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->dust > 0)
+                    $wastageDataArr[$rVal->batch_id]['Dust'] = $rVal->dust.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
+                if($rVal->loose > 0)
+                    $wastageDataArr[$rVal->batch_id]['Loose'] = $rVal->loose.'||'.$rVal->assignedBatch->batch_card_no.'||'.$rVal->assignedBatch->assignedProduct->code." (".$rVal->assignedBatch->assignedProduct->name.")";
             }
         }
         //dd($wastageDataArr);
