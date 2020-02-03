@@ -138,10 +138,21 @@ class StoreBatchCardModel extends Model
                     $q->with('hasReturnedMaterials');
                 }]);
                 $q->with(['hasOutMaterial']);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with('hasReuseMaterials');
+                }]);
             }
         ])
         ->find($batchId);
         if($records->review_status == 'closed'){
+            ## GET THE REUSED WASTAGE MATERIAL TOTAL
+            $totalWastage = 0;
+            if(!empty($records->hasProduction->hasReuseWastage->hasReuseMaterials)){
+                foreach($records->hasProduction->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                    $totalWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
+                }
+            }
+
             ## MAKE RETURNED ARRAY
             $returnedMateArr = array();
             if(isset($records->hasProduction->hasReturnMaterial->hasReturnedMaterials)){
@@ -180,9 +191,9 @@ class StoreBatchCardModel extends Model
                     ## CALCULATE MANUFACTURING COST PER UNIT
                     $cost_per_unit = ($amountTotal)/$totalSellable;
                     ## CALCULATE YIELD
-                    
-                    if($finalTotal > 0)
-                        $yield = ($totalSellable/$finalTotal) * 100;
+                    $totalForyield = $finalTotal + $totalWastage;
+                    if($totalForyield > 0)
+                        $yield = ($totalSellable/$totalForyield) * 100;
                 }            
 
             }

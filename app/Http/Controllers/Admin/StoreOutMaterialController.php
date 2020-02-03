@@ -68,6 +68,36 @@ class StoreOutMaterialController extends Controller
         $objPlan = new StoreProductionModel;
         $plans = $objPlan->getProductionPlans($companyId,true);
         // dd($plans);
+        /* ASHVINI */
+        /*$id= 6;
+        $outputDetails = $this->BaseModel->with([
+            'assignedPlan' => function($q)
+            {  
+                $q->with(['hasProductionMaterials' => function($q){
+                    $q->with('mateialName');    
+                }]);
+                $q->with(['assignedBatch'=> function($q){
+                    $q->with('assignedProduct');
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with('hasReuseMaterials');
+                }]);               
+            }
+        ])->where('company_id', $companyId)
+        ->find($id);
+        ## GET THE REUSED WASTAGE MATERIAL TOTAL
+        $totalWastage = 0;
+        if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
+            foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                $totalWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
+            }
+        }
+        dump($totalWastage);
+        dd($outputDetails);*/
+        /* END ASHVINI */
 
         ## VIEW FILE WITH DATA
         $this->ViewData['plans']   = $plans;

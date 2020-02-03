@@ -319,7 +319,36 @@ class StoreProductionController extends Controller
 
     public function edit($encID)
     {
-        /* ASHVINI */        
+        /* ASHVINI */ 
+        /*$batchObj = new StoreBatchCardModel;
+        $batchId = 3;
+        $records = $batchObj->with([
+            'hasProduction'=>function($q){
+                $q->with(['hasProductionMaterials' => function($q){                    
+                    $q->with('mateialName');
+                    $q->with('hasLot');    
+                }]);
+                $q->with(['hasReturnMaterial' => function($q){
+                    $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasOutMaterial']);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with(['hasReuseMaterials'=>function($q){                        
+                        $q->with(['assignedBatch' => function($q){
+                            $q->with('assignedProduct');    
+                        }]);
+                    }]);
+                }]);
+            }
+        ])
+        ->find($batchId);
+        $totalWastage = 0;
+        if(!empty($records->hasProduction->hasReuseWastage->hasReuseMaterials)){
+            foreach($records->hasProduction->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                $totalWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
+            }
+        }*/
+        //dd($totalWastage);
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -546,7 +575,7 @@ class StoreProductionController extends Controller
                         ## END UPDATE MATERIAL OPENING BALANCE
 
                         ## UPDATE LOSS MATERIAL AND YIELD
-                        $materialOutObj = new StoreOutMaterialModel;
+                        /*$materialOutObj = new StoreOutMaterialModel;
                         $outputRec = $materialOutObj->getOutputRec($productionId);
                         if($outputRec){                            
                             $outPutId =  $outputRec->id;
@@ -563,7 +592,7 @@ class StoreProductionController extends Controller
                             } else {
                                 $all_transactions[] = 0;
                             }
-                        }
+                        }*/
 
                         if (!empty($request->wastage) && count($request->wastage) > 0) 
                         {
@@ -669,6 +698,26 @@ class StoreProductionController extends Controller
                             }
 
                         }
+
+                    ## UPDATE LOSS MATERIAL AND YIELD
+                    $materialOutObj = new StoreOutMaterialModel;
+                    $outputRec = $materialOutObj->getOutputRec($productionId);
+                    if($outputRec){                            
+                        $outPutId =  $outputRec->id;
+                        $rcester_companyId = config('constants.RCESTERCOMPANY');
+                        if($companyId==$rcester_companyId){
+                            $updateOutput = $materialOutObj->rcUpdateMadeByMaterial($outPutId, $companyId);   
+                        } else {
+                           $updateOutput = $materialOutObj->updateMadeByMaterial($outPutId, $companyId); 
+                        }
+                        
+                        if($updateOutput) 
+                        {                            
+                            $all_transactions[] = 1;
+                        } else {
+                            $all_transactions[] = 0;
+                        }
+                    }
                     ## UPDATE COST PER UNIT AFTER EDIT CLOSED BATCH                     
                     $objBatchCard = new StoreBatchCardModel;
                     $objBatchCard->updateClosedBatch($batchId, true);

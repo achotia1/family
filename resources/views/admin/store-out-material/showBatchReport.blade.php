@@ -234,6 +234,7 @@
 	                    }
 	                    @endphp
 	                    @php
+	                    $wTotal = 0;
 	                    if(!empty($wastageData)){						
 	                    @endphp
 	                    <tr>
@@ -250,8 +251,7 @@
 	                    	<td colspan="3"><b>Product</b></td>                    	
 	                    </tr>
 	                    @php
-	                    $wk=1;
-	                    $wTotal = 0;
+	                    $wk=1;	                    
 	                    foreach($wastageData as $wVal){
 	                    	foreach($wVal as $wName=>$wDetails){
 	                    		list($wQty, $wBatchNo, $wProduct) = explode("||",$wDetails);
@@ -302,9 +302,11 @@
 	                    $lossMaterial = $finalTotal - $wasteageWeight;
             			
             			$lossPer = $yield = $coursePer = $rejectionPer = $dustPer = $loosePer = 0;
+            			$totalWtForYeild = $finalTotal + $wTotal;            			
+            			if($totalWtForYeild > 0)						
+	            			$yield = ($object->sellable_qty/$totalWtForYeild) * 100;
             			if($finalTotal > 0){
-							$lossPer = ($lossMaterial/$finalTotal) * 100;
-	            			$yield = ($object->sellable_qty/$finalTotal) * 100;
+							$lossPer = ($lossMaterial/$finalTotal) * 100; 
 							$coursePer = ($object->course_powder/$finalTotal) * 100;
 							$rejectionPer = ($object->rejection/$finalTotal) * 100;
 							$dustPer = ($object->dust_product/$finalTotal) * 100;

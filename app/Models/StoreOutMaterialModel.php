@@ -54,12 +54,22 @@ class StoreOutMaterialModel extends Model
                 }]);
                 $q->with(['hasReturnMaterial' => function($q){
                     $q->with('hasReturnedMaterials');
+                }]);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with('hasReuseMaterials');
                 }]);                
             }
         ])->where('company_id', $companyId)
         ->find($id);
-        $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
+        $wasteageWeight = $finalWeight = $yeild = $loss_material = $totalReusedWastage = 0;
         if($outputDetails){
+            ## GET THE REUSED WASTAGE MATERIAL TOTAL            
+            if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
+                foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                    $totalReusedWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
+                }
+            }
+
             $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->course_powder + $outputDetails->rejection + $outputDetails->dust_product+$outputDetails->loose_material;
             if(isset($outputDetails->assignedPlan->hasProductionMaterials)){
                 foreach($outputDetails->assignedPlan->hasProductionMaterials as $detail){
@@ -76,11 +86,14 @@ class StoreOutMaterialModel extends Model
                 }
             }
             // dd($finalWeight,$wasteageWeight);
-            if($finalWeight>0){
-                //$wasteageWeight." >> ". $finalWeight;
+            $totalForyield = $finalWeight + $totalReusedWastage;
+            if($totalForyield > 0)
+                $yield = ($outputDetails->sellable_qty/$totalForyield) * 100;
+
+            if($finalWeight>0){                
                 $loss_material = $finalWeight - $wasteageWeight;
-                $yield = ($outputDetails->sellable_qty/$finalWeight) * 100;
-                //$loss_material. " >> ".$yeild;
+                //$yield = ($outputDetails->sellable_qty/$finalWeight) * 100;
+                
                 $outputDetails->loss_material = $loss_material;
                 $outputDetails->yield = $yield;
                 $outputDetails->save();
@@ -101,12 +114,21 @@ class StoreOutMaterialModel extends Model
                 }]);
                 $q->with(['hasReturnMaterial' => function($q){
                     $q->with('hasReturnedMaterials');
-                }]);                
+                }]);
+                $q->with(['hasReuseWastage'=>function($q){
+                    $q->with('hasReuseMaterials');
+                }]);               
             }
         ])->where('company_id', $companyId)
         ->find($id);
-        $wasteageWeight = $finalWeight = $yeild = $loss_material = 0;
+        $wasteageWeight = $finalWeight = $yeild = $loss_material = $totalReusedWastage = 0;
         if($outputDetails){
+            ## GET THE REUSED WASTAGE MATERIAL TOTAL            
+            if(!empty($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials)){
+                foreach($outputDetails->assignedPlan->hasReuseWastage->hasReuseMaterials as $rKey=>$rVal){
+                    $totalReusedWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
+                }
+            }
             $wasteageWeight = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->course_powder + $outputDetails->rejection;
             ## FOR RC ONLY WATER OF REJECTION IS UNSELLABLE
             $totalSellable = $outputDetails->sellable_qty + $outputDetails->loose_material + $outputDetails->course_powder ;
@@ -125,12 +147,13 @@ class StoreOutMaterialModel extends Model
                 }
             }
             // dd($finalWeight,$wasteageWeight);
-            if($finalWeight>0){
-                //$wasteageWeight." >> ". $finalWeight;
+            $totalForyield = $finalWeight + $totalReusedWastage;
+            if($totalForyield > 0)
+                $yield = ($totalSellable/$totalForyield) * 100;
+
+            if($finalWeight>0){                
                 $loss_material = $finalWeight - $wasteageWeight;
-                
-                $yield = ($totalSellable/$finalWeight) * 100;
-                //$loss_material. " >> ".$yeild;
+                //$yield = ($totalSellable/$finalWeight) * 100;                
                 $outputDetails->loss_material = $loss_material;
                 $outputDetails->yield = $yield;
                 $outputDetails->save();

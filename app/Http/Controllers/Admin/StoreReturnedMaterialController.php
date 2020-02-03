@@ -211,7 +211,14 @@ class StoreReturnedMaterialController extends Controller
                     if($outputRec){                            
                         $outPutId =  $outputRec->id;
                         $batchId = $outputRec->assignedPlan->batch_id;
-                        $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                        
+                        $rcester_companyId = config('constants.RCESTERCOMPANY');
+                        if($companyId==$rcester_companyId){
+                            $materialOutObj->rcUpdateMadeByMaterial($outPutId, $companyId);
+                        } else {
+                            $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                        }
+                        //$materialOutObj->updateMadeByMaterial($outPutId, $companyId);
                         ## UPDATE MANUFACTURING COSTPER UNIT
                         $objBatchCard = new StoreBatchCardModel;
                         $objBatchCard->updateClosedBatch($batchId);
@@ -540,8 +547,7 @@ class StoreReturnedMaterialController extends Controller
     public function show($encId)
     {
         
-        $id = base64_decode(base64_decode($encId));
-       // dd($id);
+        $id = base64_decode(base64_decode($encId));       
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
@@ -556,10 +562,7 @@ class StoreReturnedMaterialController extends Controller
                                             $q1->with('hasProductionMaterial');
                                         }]
                                     );
-                            },
-                            /*'hasBatch' => function($q){
-                                    $q->with('assignedProduct');
-                            }*/
+                            },                           
                             'assignedProductionPlan' => function($q){
                                  $q->with(['assignedBatch'=> function($q){
                                     $q->with('assignedProduct');
@@ -568,13 +571,9 @@ class StoreReturnedMaterialController extends Controller
                             }
                         ])
                             
-                    ->find($id);  
-                    // ->where('store_returned_materials.company_id', $companyId)
-                   // ->first();
-// dd($data->toArray());
-        $this->ViewData['object'] = $data;         
-        //->find($id)->toArray(); //
-        //dd($this->ViewData['object']);
+                    ->find($id);
+
+        $this->ViewData['object'] = $data;
         return view($this->ModuleView.'view', $this->ViewData);
     }
 
@@ -587,7 +586,7 @@ class StoreReturnedMaterialController extends Controller
         $collection->plan_id    = $request->plan_id;
         $collection->return_date = date('Y-m-d',strtotime($request->return_date));   
         //Save data
-       $collection->save();
+        $collection->save();
         
         return $collection;
     }
@@ -860,11 +859,19 @@ class StoreReturnedMaterialController extends Controller
 
                     $materialOutObj = new StoreOutMaterialModel;
                     $outputRec = $materialOutObj->getOutputRec($collection->plan_id);
-                    if($outputRec){                            
+                    /*if($outputRec){                            
                         $outPutId =  $outputRec->id;
                         $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                    }*/
+                    if($outputRec){
+                        $outPutId =  $outputRec->id;
+                        $rcester_companyId = config('constants.RCESTERCOMPANY');
+                        if($companyId==$rcester_companyId){                            
+                            $materialOutObj->rcUpdateMadeByMaterial($outPutId, $companyId);
+                        } else {
+                            $materialOutObj->updateMadeByMaterial($outPutId, $companyId);
+                        }
                     }
-
                     ## UPDATE MATERIAL OPENING BALANCE
                     $todaysDate =  Carbon::today()->format('Y-m-d');
                     if($cDate < $todaysDate){
