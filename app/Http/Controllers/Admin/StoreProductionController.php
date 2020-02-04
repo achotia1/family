@@ -348,7 +348,7 @@ class StoreProductionController extends Controller
                 $totalWastage += $rVal->course + $rVal->rejection + $rVal->dust + $rVal->loose;
             }
         }*/
-        //dd($totalWastage);
+        
         /* END ASHVINI */
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Edit '.$this->ModuleTitle;
@@ -356,7 +356,8 @@ class StoreProductionController extends Controller
         $this->ViewData['moduleTitleInfo'] = $this->ModuleTitle." Information";
         $this->ViewData['modulePath']   = $this->ModulePath;
         $id = base64_decode(base64_decode($encID));
-        $companyId = self::_getCompanyId();        
+        $companyId = self::_getCompanyId();
+
         //dd($id );
         /*$data = $this->BaseModel
         ->with([   
@@ -697,7 +698,48 @@ class StoreProductionController extends Controller
 
                             }
 
-                        }
+                    } else {
+                        ## IF ALL WASTAGE ARE REMOVED DELETE REUSE ENTRY AND REUSE HAS ENTRY
+                        ## UPDATE THE WASTAGE STOCK                            
+                        $collectionReuse = $this->StoreReuseWastageModel->where('plan_id',$id)->first();
+                        if(!empty($collectionReuse))
+                        { 
+                            $reuse_wastage_id = $collectionReuse->id;
+                            $oldwastageMaterials = $this->StoreReuseWastageHasMaterialsModel
+                                                        ->where('reuse_wastage_id',$reuse_wastage_id)
+                                                        ->get();
+                            foreach ($oldwastageMaterials as $oldwastageMaterial) {
+                                $storeWasteStockRec = $this->StoreWasteStockModel
+                                                    ->find($oldwastageMaterial->waste_stock_id);
+                                                        
+                                $storeWasteStockRec->balance_course = $storeWasteStockRec->balance_course + $oldwastageMaterial->course;
+
+                                $storeWasteStockRec->balance_rejection = $storeWasteStockRec->balance_rejection + $oldwastageMaterial->rejection;
+                                                        
+                                $storeWasteStockRec->balance_dust = $storeWasteStockRec->balance_dust + $oldwastageMaterial->dust;
+                                                       
+                                $storeWasteStockRec->balance_loose = $storeWasteStockRec->balance_loose + $oldwastageMaterial->loose;
+                                if($storeWasteStockRec->save()){
+                                    $all_transactions[] = 1;
+                                }else{
+                                    $all_transactions[] = 0;
+                                }
+                            }
+                            ## DELETE MAIN RECORD
+                            if($this->StoreReuseWastageHasMaterialsModel->where('reuse_wastage_id', $reuse_wastage_id)->delete()){
+                                $all_transactions[] = 1;
+                                ## DELETE HAS RECORD ENTRIES
+                                if($collectionReuse->delete()){
+                                    $all_transactions[] = 1;    
+                                } else {
+                                    $all_transactions[] = 0;
+                                }
+                            } else {
+                                $all_transactions[] = 0;
+                            }
+                        }                            
+
+                    }
 
                     ## UPDATE LOSS MATERIAL AND YIELD
                     $materialOutObj = new StoreOutMaterialModel;

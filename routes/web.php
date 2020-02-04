@@ -184,6 +184,13 @@ Route::group(['prefix' => '','middleware' => 'AdminGeneral','namespace'=>'Admin'
 					Route::get('/', 'ReportController@wasteMaterialSummaryIndex')->name('admin.report.wasteMaterialSummary');
 				});
 
+				// WASTE MATERIAL STOCK REPORT
+				Route::group(['prefix' => 'wastage-stock-report','middleware' => ['permission:store-wastage-summary-report']], function () use($PREFIX)
+				{
+					Route::get('getWasteStockRecords', 'ReportController@getWasteStockRecords');
+					Route::get('/', 'ReportController@wastageStockIndex')->name('admin.report.wastageStockReport');
+				});
+
 				//Contribution Report
 				Route::group(['prefix' => 'contribution-report','middleware' => ['permission:store-contribution-report']], function () use($PREFIX)
 				{

@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
        Commands\MoqNotification::class,
        Commands\AddOpeningStocks::class,
        Commands\AddProductStocks::class,
+       Commands\AddOpeningWstocks::class,
     ];
 
     /**
@@ -37,6 +38,8 @@ class Kernel extends ConsoleKernel
                   ->dailyAt('00:00');
         $schedule->command('stockbalance:day')
                   ->dailyAt('00:15'); //00:15
+        $schedule->command('wastagebalance:day')
+                  ->dailyAt('00:30'); //00:15
         
     }
 

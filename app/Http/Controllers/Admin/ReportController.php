@@ -2447,6 +2447,22 @@ class ReportController extends Controller
 
     return response()->json($this->JsonData);
 }
+
+public function wastageStockIndex()
+{
+    ## DEFAULT SITE SETTINGS
+    $this->ViewData['moduleTitle']  = 'Wastage Stock Report';
+    $this->ViewData['moduleAction'] = 'Wastage Stock Report';
+    $this->ViewData['modulePath']   = $this->ModulePath;        
+    $companyId = self::_getCompanyId();
+
+    //$objMaterial = new StoreRawMaterialModel;
+   // $materials = $objMaterial->getMaterialNumbers($companyId);
+    
+    //$this->ViewData['materials']   = $materials; 
+    // view file with data
+    return view($this->ModuleView.'wastageStock',$this->ViewData);
+}
        
 
 }

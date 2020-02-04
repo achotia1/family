@@ -11,6 +11,8 @@ use App\Models\StoreWastageCorrectionModel;
 use App\Models\StoreBatchCardModel;
 use App\Models\ProductsModel;
 
+use App\Models\StoreWastageOpeningModel;
+
 use App\Http\Requests\Admin\StoreCorrectWastageRequest;
 use App\Traits\GeneralTrait;
 use Carbon\Carbon;
@@ -51,6 +53,40 @@ class StoreWasteStockController extends Controller
             $rcesterCompany = true;
           //  return redirect()->route('admin.dashboard');
         }
+
+        /* ASHVINI */
+        $todaysDate =  Carbon::today()->format('Y-m-d');
+        $start_date = '2020-01-31';
+        $end_date = '2020-01-31';
+        $wastageResult =  $this->BaseModel
+        ->selectRaw('
+                    company_id,
+                    IFNULL(SUM(course), 0) AS course,
+                    IFNULL(SUM(rejection), 0) AS rejection,                    
+                    IFNULL(SUM(dust), 0) AS dust,
+                    IFNULL(SUM(loose), 0) AS loose
+                    ')
+        ->where('deleted_at',null)
+        ->where('company_id',$companyId)
+        ->whereDate('created_at','>=',$start_date)
+        ->whereDate('created_at','<=',$end_date)        
+        ->get();
+        $dataArr = array();
+        $i = 0;
+        if(!empty($wastageResult)){
+            foreach($wastageResult as $key=>$valData){                
+                $dataArr['course']['received'] = $valData->course;
+                $dataArr['rejection']['received'] = $valData->rejection;
+                $dataArr['dust']['received'] = $valData->dust;
+                $dataArr['loose']['received'] = $valData->loose;
+            }
+        }
+
+        
+       
+        dd($dataArr);
+       /* END ASHVINI */
+
         ## DEFAULT SITE SETTINGS
         $this->ViewData['moduleTitle']  = 'Manage '.str_plural($this->ModuleTitle);
         $this->ViewData['moduleAction'] = 'Manage '.str_plural($this->ModuleTitle);
