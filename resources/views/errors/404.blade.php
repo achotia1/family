@@ -1,4 +1,4 @@
-@extends('admin.layout.master')
+@extends('web.layout.main')
 
 @section('title', 'Page Not Found')
 

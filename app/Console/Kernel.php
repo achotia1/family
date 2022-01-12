@@ -13,10 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-       Commands\MoqNotification::class,
-       Commands\AddOpeningStocks::class,
-       Commands\AddProductStocks::class,
-       Commands\AddOpeningWstocks::class,
+       
     ];
 
     /**
@@ -27,19 +24,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-        $schedule->command('moq:day')
-                  ->twiceDaily(9, 16);
-        
-        /*$schedule->command('openingbalance:day')
-                  ->daily(12);*/
-        $schedule->command('openingbalance:day')
-                  ->dailyAt('00:00');
-        $schedule->command('stockbalance:day')
-                  ->dailyAt('00:15'); //00:15
-        $schedule->command('wastagebalance:day')
-                  ->dailyAt('00:30'); //00:15
         
     }
 
